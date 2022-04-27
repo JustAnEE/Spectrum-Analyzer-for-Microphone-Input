@@ -2,12 +2,15 @@
 
 
 
-Plot::Plot(GLfloat minX, GLfloat maxX, GLfloat minY, GLfloat maxY, SCALE scale){
-	left = minX;	right  = maxX;
-	top  = minY;	bottom = maxY;
+Plot::Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h, int rows, int cols, SCALE scale){
+	centerX = centX;	centerY = centY;
+	width = w;		height = h;
+	ROWS = rows;	COLS = cols;
 	curScale = scale;
-	// -- set up defaults
-	init(10.0f, 10.0f, curScale);
+
+	// -- initialize the vertex array.
+	initVertexArray();
+	fillVertexArray(curScale);
 }
 
 Plot::~Plot(){
@@ -21,7 +24,21 @@ void Plot::setReferenceFrame(GLfloat minX, GLfloat minY, GLfloat maxX, GLfloat m
 }
 
 void Plot::setRowsAndCols(int numRows, int numCols){
-	init(numRows, numCols, curScale);
+	ROWS = numRows;
+	COLS = numCols;
+	// -- this is most likly not good.
+	delete[] plot;
+	
+	initVertexArray();
+	fillVertexArray(curScale);
+}
+
+GLfloat Plot::getHeight(){
+	return height;
+}
+
+GLfloat Plot::getWidth(){
+	return width;
 }
 
 GLfloat* Plot::getReferenceFrameArray(){
@@ -30,7 +47,7 @@ GLfloat* Plot::getReferenceFrameArray(){
 }
 
 GLfloat* Plot::getPlotPositionArray(){
-	GLfloat position[4] = { left, right, top, bottom };
+	GLfloat position[4] = { };
 	return position;
 }
 
@@ -38,47 +55,66 @@ GLfloat* Plot::getPlotVertexArray(){
 	return plot;
 }
 
+int Plot::getPlotSize(){
+	return plotSize;
+}
+
 void Plot::scalePlot(GLfloat givenW, GLfloat givenH){
 }
 
 void Plot::movePlot(GLfloat givenX, GLfloat givenY){
+	centerX = givenX;
+	centerY = givenY;
+	fillVertexArray(curScale);
 }
 
-void Plot::validClick(float x, float y){
+bool Plot::validClick(GLfloat givenX, GLfloat givenY){
+	GLfloat left = centerX - (width / 2);
+	GLfloat right = centerX + (width / 2);
+	GLfloat top = centerY + (height / 2);
+	GLfloat bottom = centerY - (height / 2);
+	return (givenX >= left && givenX <= right && givenY >= bottom && givenY <= top);
 }
 
 
 
+void Plot::initVertexArray() {
+	plot = (GLfloat*)calloc(12 * (ROWS + COLS + 2), sizeof(GLfloat));
+	plotSize = sizeof(GLfloat) * 12 * (ROWS + COLS + 2);
+}
 
-
-void Plot::init(int ROWS, int COLS, SCALE scale){
+void Plot::fillVertexArray(SCALE scale){
 	// -- optimal for GL_LINE_STRIP
-	plot = (GLfloat*) calloc( 12 * (ROWS + COLS), sizeof(GLfloat));
-	
 	GLfloat absOffsetX, absOffsetY;
-	GLfloat x = right - left, y = top - bottom;
+	GLfloat left = centerX - (width / 2);
+	GLfloat right = centerX + (width / 2);
+	GLfloat top = centerY + (height / 2);
+	GLfloat bottom = centerY - (height / 2);
+
+	GLfloat x = right, y = top;
 
 	// -- Scale
 	if (scale == LINEAR) {
 		// -- type weirdness?? probs
-		absOffsetX = x / static_cast<float>(COLS);
-		absOffsetY = y / static_cast<float>(ROWS);
+		absOffsetX = width / static_cast<float>(COLS);
+		absOffsetY = height / static_cast<float>(ROWS);
 	}
 	else{
-		absOffsetX = x / COLS;
-		absOffsetY = y / ROWS;
+		absOffsetX = width / static_cast<float>(COLS);
+		absOffsetY = height / static_cast<float>(ROWS);
 	}
-
-	// -- fill the plot vertex array.
-	for (int i = 0; i < 12 * ROWS; i += 12) {
+	
+	/* fill the plot vertex array.*/
+	// -- border is the same a each divider
+	// -- I should probably switch internal lines to be based on the reference frame and display rules.
+	for (int i = 0; i < 12 * (ROWS + 1); i += 12) {
 		plot[i] = left;			plot[i + 1] = y;		plot[i + 2] = 0.0f; // xyz vert1
 		plot[i + 6] = right;	plot[i + 7] = y;		plot[i + 8] = 0.0f; // xyz vert2
 		plot[i + 3] = 1.0f;		plot[i + 4] = 1.0f;		plot[i + 5] = 1.0f; // rgb vert1
 		plot[i + 9] = 0.2f;		plot[i + 10] = 0.2f;	plot[i + 11] = 0.2f; // rgb vert2
 		y -= absOffsetY;
 	}
-
-	for (int i = 12 * ROWS; i < 12 * (ROWS + COLS); i += 12) {
+	for (int i = 12 * (ROWS + 1); i <= 12 * (ROWS + COLS + 1); i += 12) {
 		plot[i] = x;			plot[i + 1] = top;		plot[i + 2] = 0.0f; // xyz vert1
 		plot[i + 6] = x;	    plot[i + 7] = bottom;	plot[i + 8] = 0.0f; // xyz vert2
 		plot[i + 3] = 1.0f;		plot[i + 4] = 1.0f;		plot[i + 5] = 1.0f; // rgb vert1

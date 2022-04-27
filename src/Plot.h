@@ -9,37 +9,42 @@ class Plot {
 public:
 	enum SCALE { LINEAR = 0, LOGARITHMIC = 1 };
 
-
 	// -- Plot constructor
-	Plot(GLfloat minX, GLfloat maxX, GLfloat minY, GLfloat maxY, SCALE scale);
+	Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h, int rows, int cols, SCALE scale);
 	~Plot();
 
 	void setReferenceFrame(GLfloat minX, GLfloat minY, GLfloat maxX, GLfloat maxY);
 	void setRowsAndCols(int numRows, int numCols);
+	GLfloat getHeight();
+	GLfloat getWidth();
 	GLfloat* getReferenceFrameArray();
 	GLfloat* getPlotPositionArray();
 	GLfloat* getPlotVertexArray();
+	int getPlotSize();
 
 	// -- graph methods
 	void scalePlot(GLfloat givenW, GLfloat givenH);
 	void movePlot(GLfloat givenX, GLfloat givenY);
 	
 	// -- misc
-	void validClick(float x, float y);
+	bool validClick(GLfloat xpos, GLfloat ypos);
 
 
 
 private:
 	// -- actual locations inside OpenGL window
 	// -- given values should be normalized
-	GLfloat left, right, top, bottom;
+	GLfloat centerX, centerY, width, height;
 	GLfloat* plot;
+	int plotSize;
+	int ROWS, COLS;
 	SCALE curScale;
 
 	// -- reference frame
 	GLfloat refMinX, refMinY, refMaxX, refMaxY;
 
-	void init (int ROWS, int COLS, SCALE scale);
+	void fillVertexArray (SCALE scale);
+	void initVertexArray();
 };
 
 
