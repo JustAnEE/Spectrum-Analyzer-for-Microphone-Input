@@ -11,15 +11,16 @@ public:
 
 	// -- Plot constructor
 	Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h, int rows, int cols, SCALE scale);
-	~Plot();
+	//~Plot();
 
 	void setReferenceFrame(GLfloat minX, GLfloat minY, GLfloat maxX, GLfloat maxY);
 	void setRowsAndCols(int numRows, int numCols);
+	void setRawData(GLfloat* vertexArrayPtr, int size);
 	GLfloat getHeight();
 	GLfloat getWidth();
-	GLfloat* getReferenceFrameArray();
-	GLfloat* getPlotPositionArray();
-	GLfloat* getPlotVertexArray();
+	GLfloat* getVertexDataArray();
+	GLfloat* getVertexPlotArray();
+	int getDataSize();
 	int getPlotSize();
 
 	// -- graph methods
@@ -35,16 +36,21 @@ private:
 	// -- actual locations inside OpenGL window
 	// -- given values should be normalized
 	GLfloat centerX, centerY, width, height;
-	GLfloat* plot;
-	int plotSize;
+	GLfloat* vertexPlotArray;
+	GLfloat* vertexDataArray;
+	GLfloat* rawData;
+	int plotSize, dataSize, rawSize;
 	int ROWS, COLS;
 	SCALE curScale;
 
 	// -- reference frame
 	GLfloat refMinX, refMinY, refMaxX, refMaxY;
 
-	void fillVertexArray (SCALE scale);
-	void initVertexArray();
+	void fillGridVertexArray (SCALE scale);
+	void fillDataVertexArray();
+	void initGridVertexArray();
+	//void initRawDataArray();
+	void initDataVertexArray();
 };
 
 
