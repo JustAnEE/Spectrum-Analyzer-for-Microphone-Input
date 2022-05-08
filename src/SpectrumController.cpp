@@ -20,7 +20,7 @@ void SpectrumController::jobStartEvent(){
 		case SpectrumController::PROCCESSING:
 			model->VinceProccessDataMethod1();
 			// -- multiple processing states for different types of data
-			currentState = HALT;
+			currentState = READING;
 			break;
 		default:
 			break;

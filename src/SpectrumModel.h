@@ -3,10 +3,16 @@
 
 #include<iostream>
 #include<vector>
+#include<fstream>
+
+#include<Windows.h>
+#include<mmsystem.h>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
+
 #include"Plot.h"
 #include"SpectrumModelSubscriber.h"
+
 using namespace std;
 
 
@@ -42,8 +48,6 @@ private:
 	GLfloat* readData;
 	int readDataSize;
 	vector<SpectrumModelSubscriber*> subscribers;
-
-	GLfloat* byteArrayToIEEE754(char* dataPtr);
 
 	void notifySubscribers();
 

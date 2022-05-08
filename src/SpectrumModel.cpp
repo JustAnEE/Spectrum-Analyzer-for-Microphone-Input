@@ -1,5 +1,4 @@
 #include "SpectrumModel.h"
-#include "MicInput.cpp"
 
 /* constructor and destructor */
 SpectrumModel::SpectrumModel(){
@@ -64,28 +63,81 @@ void SpectrumModel::scalePlot(Plot* plot, GLfloat x, GLfloat y){
 
 
 void SpectrumModel::readMicData() {
-	const int SAMPLES = 1024;
+
+	const int SAMPLES = 1024 * 4;
 	readDataSize = SAMPLES;
-	readData = byteArrayToIEEE754(readMicInput(SAMPLES));
+	readData = (GLfloat*)calloc(readDataSize, sizeof(GLfloat));
+	const int rawSize = readDataSize;
+	char* rawBytesPtr = (char*)calloc(rawSize, sizeof(char));
+
+
+	// -- device handle pointer.
+	HWAVEIN hWaveIn;
+
+	// -- Defining the audio format.
+	WAVEFORMATEX formatMono44khz;
+	formatMono44khz.wFormatTag = WAVE_FORMAT_PCM;
+	formatMono44khz.nChannels = 1;
+	formatMono44khz.nSamplesPerSec = 44100L;
+	formatMono44khz.nAvgBytesPerSec = 44100L;
+	formatMono44khz.nBlockAlign = 1;
+	formatMono44khz.wBitsPerSample = 8;
+	formatMono44khz.cbSize = 0;
+
+
+	// -- creation of the buffer header
+	WAVEHDR bufH;                           /* MUST SET ITEMS BELOW PREPARE! */
+	bufH.lpData = (LPSTR)rawBytesPtr;       // -- pointer to the data buffer.     
+	bufH.dwBufferLength = rawSize;          // -- buffer size in Bytes.           
+	bufH.dwFlags = WHDR_BEGINLOOP;          // -- Flag, indicating buffer status. 
+	bufH.dwLoops = 0L;
+
+	auto openResult = waveInOpen(&hWaveIn, WAVE_MAPPER, &formatMono44khz, 0, 0, CALLBACK_NULL);
+	auto prepareResult = waveInPrepareHeader(hWaveIn, &bufH, sizeof(bufH));
+	auto addBufResult = waveInAddBuffer(hWaveIn, &bufH, sizeof(bufH));
+	auto startResult = waveInStart(hWaveIn);
+
+	// -- Busy wait while device driver reads data.
+	while (!(bufH.dwFlags & WHDR_DONE)) {}
+	cout << "bytes recorded:  " << bufH.dwBytesRecorded << endl;
+
+	auto stopResult = waveInStop(hWaveIn);
+	auto unPrepareBuf = waveInUnprepareHeader(hWaveIn, &bufH, sizeof(bufH));
+	auto closeResult = waveInClose(hWaveIn);
+
+
+	int count = 0;
+
+	// -- loop through each ith sample -- mono only
+	for (int i = 0; i < rawSize; i += formatMono44khz.nBlockAlign) {
+		int value = 0;
+		char intBytes[4] = {};
+
+		for (int j = 0; j < 4; j++) {
+			intBytes[j] = (j < formatMono44khz.nBlockAlign) ? rawBytesPtr[i + j] : 0x00 ;
+		}
+
+		// -- Imma just let the compiler do the conversion ;)
+		memcpy(&value, &intBytes, 4);
+		readData[count] = ((GLfloat)value);
+		count++;
+	}
+
+	free(rawBytesPtr);
+
+	// -- RAW DATA OUT SANITY CHECK
+	//ofstream audioFile;
+	//audioFile.open("AFTER.WAV", ios::binary | ios::out);
+	//audioFile.write(rawBytesPtr, rawSize);
+
 }
 
-GLfloat* SpectrumModel::byteArrayToIEEE754(char* dataPtr){
 
-
-}
 
 void SpectrumModel::VinceProccessDataMethod1(){
 	// -- manip data
-	GLfloat* test;
-	test = (GLfloat*)calloc(readDataSize, sizeof(GLfloat));
-
-	for (int i = 0; i < readDataSize; i++) {
-		test[i] = readData[i] + 0.5f;
-	}
-
-	plots[0]->setRawData(test, readDataSize);
-	//free(readData);
-	//free(test);
+	plots[0]->setRawData(readData, readDataSize);
+	free(readData);
 	notifySubscribers();
 }
 
