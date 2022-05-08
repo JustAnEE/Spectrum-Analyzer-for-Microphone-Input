@@ -44,6 +44,7 @@ void Plot::setRowsAndCols(int numRows, int numCols){
 
 void Plot::setRawData(GLfloat* vertexArrayPtr, int size){
 	free(rawData);
+	// -- vertexArray must contain X and Y values. 
 	rawSize = size;
 	rawData = (GLfloat*)calloc(rawSize, sizeof(GLfloat));
 
@@ -51,7 +52,7 @@ void Plot::setRawData(GLfloat* vertexArrayPtr, int size){
 	for (int i = 0; i < size; i++) {
 		rawData[i] = vertexArrayPtr[i];
 	}
-	
+
 	initDataVertexArray();
 	fillDataVertexArray();
 }
@@ -115,7 +116,7 @@ void Plot::initGridVertexArray() {
 
 void Plot::initDataVertexArray() {
 	free(vertexDataArray);
-	dataSize = rawSize * 6;
+	dataSize = rawSize * 3;
 	vertexDataArray = (GLfloat*)calloc(dataSize, sizeof(GLfloat));
 }
 
@@ -165,12 +166,10 @@ void Plot::fillGridVertexArray(SCALE scale){
 void Plot::fillDataVertexArray() {
 	// -- switch to proccess from raw data
 	GLfloat left = centerX - (width / 2);
-	const float step = (refMaxX - refMinX) * 6 / dataSize;
-
 	for (int i = 0; i < dataSize; i += 6) {
-		float idx = (i / 6) * step;
-		vertexDataArray[i + 0] = (idx / (refMaxX - refMinX) * width) + left;
-		vertexDataArray[i + 1] = (rawData[i / 6] / (refMaxY - refMinY) * height) + centerY;
+		int rawIdx = i / 3;
+		vertexDataArray[i + 0] = (rawData[ rawIdx ] * width) + left;
+		vertexDataArray[i + 1] = (rawData[rawIdx+1] / (refMaxY - refMinY) * height) + centerY;
 		vertexDataArray[i + 2] = 0.0f;// Z
 		vertexDataArray[i + 3] = 0.0f;// R
 		vertexDataArray[i + 4] = 1.0f;// G

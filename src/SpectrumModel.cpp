@@ -135,8 +135,15 @@ void SpectrumModel::readMicData() {
 
 
 void SpectrumModel::VinceProccessDataMethod1(){
-	// -- manip data
-	plots[0]->setRawData(readData, readDataSize);
+	// -- convert to X, Y data
+	GLfloat* test = (GLfloat*)calloc(readDataSize * 2, sizeof(GLfloat));
+	for (int i = 0; i < readDataSize; i++ ) {
+		test[2*i] = ((GLfloat)i) / ((GLfloat)readDataSize);	// -- x coord
+		test[2*i+1] = readData[i];					// -- y cord
+	}
+
+	plots[0]->setRawData(test, readDataSize * 2);
+	free(test);
 	free(readData);
 	notifySubscribers();
 }

@@ -19,6 +19,7 @@ using namespace std;
 class SpectrumModel {
 public:
 	vector<Plot*> plots;
+	//vector<void (*)()> functionPtrs;
 	
 	SpectrumModel();
 	~SpectrumModel();
