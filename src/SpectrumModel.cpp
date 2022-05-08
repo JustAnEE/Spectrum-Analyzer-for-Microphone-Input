@@ -46,8 +46,8 @@ void SpectrumModel::removePlot(Plot* givenPlot){
 	notifySubscribers();
 }
 
-void SpectrumModel::changePlotAxis(Plot* plot){
-	// plot->
+void SpectrumModel::changePlotRef(Plot* plot, GLfloat x, GLfloat y){
+	plot->changeReferenceFrame(plot->refMinX + 0.03f, plot->refMinY + 2.0f, plot->refMaxX - 0.03f, plot->refMaxY + 2.0f);
 	notifySubscribers();
 }
 

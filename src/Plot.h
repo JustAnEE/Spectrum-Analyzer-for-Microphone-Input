@@ -8,12 +8,12 @@ using namespace std;
 class Plot {
 public:
 	enum SCALE { LINEAR = 0, LOGARITHMIC = 1 };
+	GLfloat refMinX, refMinY, refMaxX, refMaxY;
 
 	// -- Plot constructor
 	Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h, int rows, int cols, SCALE scale);
 	//~Plot();
 
-	void setReferenceFrame(GLfloat minX, GLfloat minY, GLfloat maxX, GLfloat maxY);
 	void setRowsAndCols(int numRows, int numCols);
 	void setRawData(GLfloat* vertexArrayPtr, int size);
 	GLfloat getHeight();
@@ -26,7 +26,8 @@ public:
 	// -- graph methods
 	void scalePlot(GLfloat givenW, GLfloat givenH);
 	void movePlot(GLfloat givenX, GLfloat givenY);
-	
+	void changeReferenceFrame(GLfloat minX, GLfloat minY, GLfloat maxX, GLfloat maxY);
+
 	// -- misc
 	bool validClick(GLfloat xpos, GLfloat ypos);
 
@@ -44,7 +45,7 @@ private:
 	SCALE curScale;
 
 	// -- reference frame
-	GLfloat refMinX, refMinY, refMaxX, refMaxY;
+	//GLfloat refMinX, refMinY, refMaxX, refMaxY;
 
 	void fillGridVertexArray (SCALE scale);
 	void fillDataVertexArray();

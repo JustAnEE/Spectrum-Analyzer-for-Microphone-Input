@@ -9,8 +9,8 @@ Plot::Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h, int rows, int col
 
 	curScale = scale;
 
-	refMinX = -10.0f;	refMaxX = 10.0f;
-	refMinY = -10.0f;	refMaxY = 1000.0f;
+	refMinX =  0.5f;	refMaxX =   0.9f;
+	refMinY =  0.0f;	refMaxY = 255.0f;
 
 	// -- initialize the vertex array.
 	vertexDataArray = nullptr;
@@ -24,13 +24,6 @@ Plot::Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h, int rows, int col
 //	delete[] data;
 //}
 
-
-
-void Plot::setReferenceFrame(GLfloat minX, GLfloat minY, GLfloat maxX, GLfloat maxY){
-	refMinX = minX;	refMaxX = maxX;
-	refMinY = minY;	refMaxY = maxY;
-	fillDataVertexArray();
-}
 
 void Plot::setRowsAndCols(int numRows, int numCols){
 	ROWS = numRows;
@@ -80,6 +73,13 @@ int Plot::getDataSize(){
 
 int Plot::getPlotSize(){
 	return plotSize;
+}
+
+
+void Plot::changeReferenceFrame(GLfloat minX, GLfloat minY, GLfloat maxX, GLfloat maxY) {
+	refMinX = minX;	refMaxX = maxX;
+	refMinY = minY;	refMaxY = maxY;
+	fillDataVertexArray();
 }
 
 void Plot::scalePlot(GLfloat givenW, GLfloat givenH){
@@ -166,10 +166,23 @@ void Plot::fillGridVertexArray(SCALE scale){
 void Plot::fillDataVertexArray() {
 	// -- switch to proccess from raw data
 	GLfloat left = centerX - (width / 2);
+	GLfloat right = centerX + (width / 2);
+	GLfloat bottom = centerY - (height / 2);
+	GLfloat top = centerY + (height / 2);
+
 	for (int i = 0; i < dataSize; i += 6) {
 		int rawIdx = i / 3;
-		vertexDataArray[i + 0] = (rawData[ rawIdx ] * width) + left;
-		vertexDataArray[i + 1] = (rawData[rawIdx+1] / (refMaxY - refMinY) * height) + centerY;
+		GLfloat x = ((rawData[rawIdx] - refMinX) / (refMaxX - refMinX) * width) + left;
+		GLfloat y = ((rawData[rawIdx + 1] - refMinY) / (refMaxY - refMinY) * height) + bottom;
+
+		// -- SMUSHING NOT GOOD need to remove the points from rendering buffer.
+		if (y < bottom) { y = bottom; }
+		else if (y > top) { y = top; }
+		if (x < left) { x = left; }
+		else if (x > right) { x = right; }
+
+		vertexDataArray[i + 0] = x;
+		vertexDataArray[i + 1] = y;
 		vertexDataArray[i + 2] = 0.0f;// Z
 		vertexDataArray[i + 3] = 0.0f;// R
 		vertexDataArray[i + 4] = 1.0f;// G

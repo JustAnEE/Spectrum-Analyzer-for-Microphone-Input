@@ -29,12 +29,6 @@ void SpectrumController::jobStartEvent(){
 
 void SpectrumController::handleKeyPressed(GLFWwindow* window, int key, int scancode, int action, int mods){
 	switch (currentState){
-		case SpectrumController::READING:
-			currentState = HALT;
-			break;
-		case SpectrumController::PROCCESSING:
-			currentState = HALT;
-			break;
 		default:
 			break;
 	}
@@ -55,10 +49,16 @@ void SpectrumController::handleMouseClick(GLFWwindow* window, int button, int ac
 			break;
 		case SpectrumController::HALT:
 			if (clickedPlot != nullptr) {
-				model->movePlot(clickedPlot, (xpos * 2 / 800) - 1, ((ypos * 2 / 800) - 1) * -1);
-				model->scalePlot(clickedPlot, 0.05f, 0.0f);
-				currentState = HALT;
+				//model->movePlot(clickedPlot, (xpos * 2 / 800) - 1, ((ypos * 2 / 800) - 1) * -1);
+				//model->scalePlot(clickedPlot, 0.03f, -0.01f);
+				//model->changePlotRef(clickedPlot, xpos, ypos);
+				currentState = READING;
 			}
+			break;
+		case SpectrumController::READING:
+			currentState = HALT;
+		case SpectrumController::PROCCESSING:
+			currentState = HALT;
 			break;
 		default:
 			break;

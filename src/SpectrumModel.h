@@ -29,7 +29,7 @@ public:
 
 	void addPlot(GLfloat xpos, GLfloat ypos, GLfloat width, GLfloat height, int rows, int cols);
 	void removePlot(Plot* plot);
-	void changePlotAxis(Plot* plot);
+	void changePlotRef(Plot* plot, GLfloat x, GLfloat y);
 	void movePlot(Plot* plot, GLfloat x, GLfloat y);
 	void scalePlot(Plot* plot, GLfloat x, GLfloat y);
 
