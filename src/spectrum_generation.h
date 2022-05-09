@@ -1,5 +1,5 @@
-#ifndef spectral_fcns_H
-#define spectral_fcns_H
+#ifndef spectrum_generation_H
+#define spectrum_generation_H
 
 #include <fftw3.h>
 #include <math.h> 
