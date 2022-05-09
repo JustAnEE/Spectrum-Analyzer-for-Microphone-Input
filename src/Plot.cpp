@@ -36,14 +36,14 @@ void Plot::setRowsAndCols(int numRows, int numCols){
 }
 
 void Plot::setRawData(GLfloat* vertexArrayPtr, int size){
-	free(rawData);
+	free(rawDataArray);
 	// -- vertexArray must contain X and Y values. 
 	rawSize = size;
-	rawData = (GLfloat*)calloc(rawSize, sizeof(GLfloat));
+	rawDataArray = (GLfloat*)calloc(rawSize, sizeof(GLfloat));
 
 	// -- copy the data locally
 	for (int i = 0; i < size; i++) {
-		rawData[i] = vertexArrayPtr[i];
+		rawDataArray[i] = vertexArrayPtr[i];
 	}
 
 	initDataVertexArray();
@@ -172,8 +172,8 @@ void Plot::fillDataVertexArray() {
 
 	for (int i = 0; i < dataSize; i += 6) {
 		int rawIdx = i / 3;
-		GLfloat x = ((rawData[rawIdx] - refMinX) / (refMaxX - refMinX) * width) + left;
-		GLfloat y = ((rawData[rawIdx + 1] - refMinY) / (refMaxY - refMinY) * height) + bottom;
+		GLfloat x = ((rawDataArray[rawIdx] - refMinX) / (refMaxX - refMinX) * width) + left;
+		GLfloat y = ((rawDataArray[rawIdx + 1] - refMinY) / (refMaxY - refMinY) * height) + bottom;
 
 		// -- SMUSHING NOT GOOD need to remove the points from rendering buffer.
 		if (y < bottom) { y = bottom; }
