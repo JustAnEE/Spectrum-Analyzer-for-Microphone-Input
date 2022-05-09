@@ -9,7 +9,7 @@ Plot::Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h, int rows, int col
 
 	curScale = scale;
 
-	refMinX =  0.5f;	refMaxX =   0.9f;
+	refMinX =  0.0f;	refMaxX =   1.0f;
 	refMinY =  0.0f;	refMaxY = 255.0f;
 
 	// -- initialize the vertex array.

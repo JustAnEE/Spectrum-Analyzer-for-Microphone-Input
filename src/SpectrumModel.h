@@ -17,29 +17,29 @@ using namespace std;
 
 
 class SpectrumModel {
+
 public:
 	vector<Plot*> plots;
-	//vector<void (*)()> functionPtrs;
+	vector<void(SpectrumModel::*)(Plot*)> plotProccessMethods;
 	
 	SpectrumModel();
 	~SpectrumModel();
 
+	GLfloat phase = 0.0f;
 	// -- plot object methods
 	Plot* detectHit(GLfloat xpos, GLfloat ypos);
 
-	void addPlot(GLfloat xpos, GLfloat ypos, GLfloat width, GLfloat height, int rows, int cols);
+	void addPlot(GLfloat xpos, GLfloat ypos, GLfloat width, GLfloat height, int rows, int cols, int funFlag);
 	void removePlot(Plot* plot);
+
+	// -- plot modifiers
+	void processData();
 	void changePlotRef(Plot* plot, GLfloat x, GLfloat y);
 	void movePlot(Plot* plot, GLfloat x, GLfloat y);
 	void scalePlot(Plot* plot, GLfloat x, GLfloat y);
 
 	// -- read micData method.
 	void readMicData();
-
-	// -- DSP methods
-	void VinceProccessDataMethod1();
-	// void VinceProccessDataMethod2();
-
 
 	// -- pub-sub methods
 	void addSubscriber(SpectrumModelSubscriber* newSub);
@@ -49,6 +49,10 @@ private:
 	GLfloat* readData;
 	int readDataSize;
 	vector<SpectrumModelSubscriber*> subscribers;
+
+	// -- DSP methods
+	void VinceProccessDataMethod1(Plot* plot);
+	void generateSine(Plot* plot);
 
 	void notifySubscribers();
 

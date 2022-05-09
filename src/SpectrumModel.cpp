@@ -28,9 +28,24 @@ Plot* SpectrumModel::detectHit(GLfloat xpos, GLfloat ypos){
 }
 
 
-void SpectrumModel::addPlot(GLfloat xpos, GLfloat ypos, GLfloat width, GLfloat height, int rows, int cols){
+void SpectrumModel::addPlot(GLfloat xpos, GLfloat ypos, GLfloat width, GLfloat height, int rows, int cols, int funFlag){
 	Plot* newPlot = new Plot(xpos, ypos, width, height, rows, cols, Plot::LINEAR);
 	plots.push_back(newPlot);
+
+	void (SpectrumModel::*funPtr)(Plot*);
+
+	switch (funFlag){
+		case 0:
+			funPtr = &SpectrumModel::VinceProccessDataMethod1;
+			plotProccessMethods.push_back(funPtr);
+			break;
+		case 1:
+			funPtr = &SpectrumModel::generateSine;
+			plotProccessMethods.push_back(funPtr);
+			break;
+	default:
+		break;
+	}
 	notifySubscribers();
 }
 
@@ -41,8 +56,19 @@ void SpectrumModel::removePlot(Plot* givenPlot){
 		if (givenPlot == plots[i]) {
 			delete plots[i];
 			plots.erase(plots.begin() + i);
+			//plotProccessMethods.erase(plots.begin() + i);
 		}
 	}
+	notifySubscribers();
+}
+
+void SpectrumModel::processData(){
+	// -- reproccess all data regardless.
+	for (int idx = 0; idx < plots.size(); idx++) {
+		Plot* test = plots[idx];
+		(this->*plotProccessMethods.at(idx))(test);
+	}
+	free(readData);
 	notifySubscribers();
 }
 
@@ -99,7 +125,6 @@ void SpectrumModel::readMicData() {
 
 	// -- Busy wait while device driver reads data.
 	while (!(bufH.dwFlags & WHDR_DONE)) {}
-	cout << "bytes recorded:  " << bufH.dwBytesRecorded << endl;
 
 	auto stopResult = waveInStop(hWaveIn);
 	auto unPrepareBuf = waveInUnprepareHeader(hWaveIn, &bufH, sizeof(bufH));
@@ -134,7 +159,7 @@ void SpectrumModel::readMicData() {
 
 
 
-void SpectrumModel::VinceProccessDataMethod1(){
+void SpectrumModel::VinceProccessDataMethod1(Plot* plot){
 	// -- convert to X, Y data
 	GLfloat* test = (GLfloat*)calloc(readDataSize * 2, sizeof(GLfloat));
 	for (int i = 0; i < readDataSize; i++ ) {
@@ -142,10 +167,22 @@ void SpectrumModel::VinceProccessDataMethod1(){
 		test[2*i+1] = readData[i];					// -- y cord
 	}
 
-	plots[0]->setRawData(test, readDataSize * 2);
+	plot->setRawData(test, readDataSize * 2);
 	free(test);
-	free(readData);
-	notifySubscribers();
+}
+
+void SpectrumModel::generateSine(Plot* plot){
+	const int SAMPLES = 45;
+	phase += 0.1f;
+
+	GLfloat* test = (GLfloat*)calloc(SAMPLES * 2, sizeof(GLfloat));
+	for (int i = 0; i < SAMPLES; i++) {
+		test[2 * i] = ((GLfloat)i) / ((GLfloat)SAMPLES);		// -- x coord
+		test[2 * i + 1] = (100.0f * sin(i/10.0f + phase)) + 125.0f;		// -- y cord
+	}
+	
+	plot->setRawData(test, SAMPLES * 2);
+	free(test);
 }
 
 

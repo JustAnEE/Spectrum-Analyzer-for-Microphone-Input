@@ -18,7 +18,7 @@ void SpectrumController::jobStartEvent(){
 			currentState = PROCCESSING;
 			break;
 		case SpectrumController::PROCCESSING:
-			model->VinceProccessDataMethod1();
+			model->processData();
 			// -- multiple processing states for different types of data
 			currentState = READING;
 			break;
@@ -43,24 +43,18 @@ void SpectrumController::handleMouseClick(GLFWwindow* window, int button, int ac
 	switch (currentState) {
 		case SpectrumController::READY:
 			if (clickedPlot == nullptr) {
-				model->addPlot((xpos * 2 / 800) - 1, ((ypos * 2 / 800) - 1) * -1, 1.0f, 1.0f, 1, 1);
+				model->addPlot(-0.5f, 0.0f, 1.0f, 1.0f, 1, 1, 0);
+				model->addPlot( 0.5f, 0.0f, 1.0f, 1.0f, 1, 1, 1);
 				currentState = READING;
 			}
 			break;
-		case SpectrumController::HALT:
+		default:
 			if (clickedPlot != nullptr) {
 				//model->movePlot(clickedPlot, (xpos * 2 / 800) - 1, ((ypos * 2 / 800) - 1) * -1);
-				//model->scalePlot(clickedPlot, 0.03f, -0.01f);
+				model->scalePlot(clickedPlot, 0.0f, 0.02f);
 				//model->changePlotRef(clickedPlot, xpos, ypos);
 				currentState = READING;
 			}
-			break;
-		case SpectrumController::READING:
-			currentState = HALT;
-		case SpectrumController::PROCCESSING:
-			currentState = HALT;
-			break;
-		default:
 			break;
 	}
 }
