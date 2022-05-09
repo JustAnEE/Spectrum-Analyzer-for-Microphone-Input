@@ -1,4 +1,4 @@
-#include "spectral_fcns.h"
+#include "spectrum_generation.h"
 
 
 
