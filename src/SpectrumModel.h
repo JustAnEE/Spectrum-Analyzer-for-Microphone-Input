@@ -19,8 +19,8 @@ using namespace std;
 class SpectrumModel {
 
 public:
-	vector<Plot*> plots;
-	vector<void(SpectrumModel::*)(Plot*)> plotProccessMethods;
+	vector<Plot*> plotVector;
+	vector<void(SpectrumModel::*)(Plot*)> plotMethodVector;
 	
 	SpectrumModel();
 	~SpectrumModel();
@@ -34,7 +34,7 @@ public:
 
 	// -- plot modifiers
 	void processData();
-	void changePlotRef(Plot* plot, GLfloat x, GLfloat y);
+	void changePlotRefenceFrame(Plot* plot, GLfloat x, GLfloat y);
 	void movePlot(Plot* plot, GLfloat x, GLfloat y);
 	void scalePlot(Plot* plot, GLfloat x, GLfloat y);
 
@@ -46,8 +46,8 @@ public:
 
 
 private:
-	GLfloat* readData;
-	int readDataSize;
+	GLfloat* inputData;
+	int inputDataSize;
 	vector<SpectrumModelSubscriber*> subscribers;
 
 	// -- DSP methods

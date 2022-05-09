@@ -25,8 +25,6 @@ private:
 	enum STATE { READY = 0, READING = 1, PROCCESSING = 2,
 	             HALT = 3 };
 	STATE currentState;
-
-
 };
 
 

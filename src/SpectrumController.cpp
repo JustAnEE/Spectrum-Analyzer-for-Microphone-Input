@@ -44,7 +44,7 @@ void SpectrumController::handleMouseClick(GLFWwindow* window, int button, int ac
 		case SpectrumController::READY:
 			if (clickedPlot == nullptr) {
 				model->addPlot(-0.5f, 0.0f, 1.0f, 1.0f, 1, 1, 0);
-				model->addPlot( 0.5f, 0.0f, 1.0f, 1.0f, 1, 1, 1);
+				model->addPlot( 0.5f, 0.0f, 1.0f, 1.0f, 4, 4, 1);
 				currentState = READING;
 			}
 			break;

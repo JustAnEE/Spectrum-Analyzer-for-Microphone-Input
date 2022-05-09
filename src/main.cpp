@@ -8,19 +8,18 @@ int main() {
 	SpectrumModel* model = new SpectrumModel();
 	SpectrumView* view = new SpectrumView();
 
-	// -- set connections
+	// -- Set MVC connections.
 	view->setModel(model);
 	view->setController(controller);
 	controller->setModel(model);
 	model->addSubscriber(view);
 
-	// -- needed to stop the loop.
 	GLFWwindow* window = view->getWindow();
 
-	// -- event loop
+	// -- Main Event loop.
 	while (!glfwWindowShouldClose(window)){
 		
-		// -- poll every cycle.
+		// -- Event Polling.
 		controller->jobStartEvent();
 
 		glfwPollEvents();

@@ -39,7 +39,7 @@ private:
 	GLfloat centerX, centerY, width, height;
 	GLfloat* vertexPlotArray;
 	GLfloat* vertexDataArray;
-	GLfloat* rawData;
+	GLfloat* rawDataArray;
 	int plotSize, dataSize, rawSize;
 	int ROWS, COLS;
 	SCALE curScale;
