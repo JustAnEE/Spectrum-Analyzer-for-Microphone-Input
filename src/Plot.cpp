@@ -9,8 +9,8 @@ Plot::Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h, int rows, int col
 
 	curScale = scale;
 
-	refMinX = -10.0f;	refMaxX = 10.0f;
-	refMinY = -10.0f;	refMaxY = 1000.0f;
+	refMinX =  0.0f;	refMaxX =   1.0f;
+	refMinY =  0.0f;	refMaxY = 255.0f;
 
 	// -- initialize the vertex array.
 	vertexDataArray = nullptr;
@@ -25,13 +25,6 @@ Plot::Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h, int rows, int col
 //}
 
 
-
-void Plot::setReferenceFrame(GLfloat minX, GLfloat minY, GLfloat maxX, GLfloat maxY){
-	refMinX = minX;	refMaxX = maxX;
-	refMinY = minY;	refMaxY = maxY;
-	fillDataVertexArray();
-}
-
 void Plot::setRowsAndCols(int numRows, int numCols){
 	ROWS = numRows;
 	COLS = numCols;
@@ -44,6 +37,7 @@ void Plot::setRowsAndCols(int numRows, int numCols){
 
 void Plot::setRawData(GLfloat* vertexArrayPtr, int size){
 	free(rawData);
+	// -- vertexArray must contain X and Y values. 
 	rawSize = size;
 	rawData = (GLfloat*)calloc(rawSize, sizeof(GLfloat));
 
@@ -51,7 +45,7 @@ void Plot::setRawData(GLfloat* vertexArrayPtr, int size){
 	for (int i = 0; i < size; i++) {
 		rawData[i] = vertexArrayPtr[i];
 	}
-	
+
 	initDataVertexArray();
 	fillDataVertexArray();
 }
@@ -79,6 +73,13 @@ int Plot::getDataSize(){
 
 int Plot::getPlotSize(){
 	return plotSize;
+}
+
+
+void Plot::changeReferenceFrame(GLfloat minX, GLfloat minY, GLfloat maxX, GLfloat maxY) {
+	refMinX = minX;	refMaxX = maxX;
+	refMinY = minY;	refMaxY = maxY;
+	fillDataVertexArray();
 }
 
 void Plot::scalePlot(GLfloat givenW, GLfloat givenH){
@@ -115,7 +116,7 @@ void Plot::initGridVertexArray() {
 
 void Plot::initDataVertexArray() {
 	free(vertexDataArray);
-	dataSize = rawSize * 6;
+	dataSize = rawSize * 3;
 	vertexDataArray = (GLfloat*)calloc(dataSize, sizeof(GLfloat));
 }
 
@@ -165,12 +166,23 @@ void Plot::fillGridVertexArray(SCALE scale){
 void Plot::fillDataVertexArray() {
 	// -- switch to proccess from raw data
 	GLfloat left = centerX - (width / 2);
-	const float step = (refMaxX - refMinX) * 6 / dataSize;
+	GLfloat right = centerX + (width / 2);
+	GLfloat bottom = centerY - (height / 2);
+	GLfloat top = centerY + (height / 2);
 
 	for (int i = 0; i < dataSize; i += 6) {
-		float idx = (i / 6) * step;
-		vertexDataArray[i + 0] = (idx / (refMaxX - refMinX) * width) + left;
-		vertexDataArray[i + 1] = (rawData[i / 6] / (refMaxY - refMinY) * height) + centerY;
+		int rawIdx = i / 3;
+		GLfloat x = ((rawData[rawIdx] - refMinX) / (refMaxX - refMinX) * width) + left;
+		GLfloat y = ((rawData[rawIdx + 1] - refMinY) / (refMaxY - refMinY) * height) + bottom;
+
+		// -- SMUSHING NOT GOOD need to remove the points from rendering buffer.
+		if (y < bottom) { y = bottom; }
+		else if (y > top) { y = top; }
+		if (x < left) { x = left; }
+		else if (x > right) { x = right; }
+
+		vertexDataArray[i + 0] = x;
+		vertexDataArray[i + 1] = y;
 		vertexDataArray[i + 2] = 0.0f;// Z
 		vertexDataArray[i + 3] = 0.0f;// R
 		vertexDataArray[i + 4] = 1.0f;// G
