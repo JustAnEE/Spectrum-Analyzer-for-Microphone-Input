@@ -4,7 +4,7 @@
 
 SpectrumView::SpectrumView(){
 
-	// -- seperate shader files.
+	// -- TODO: seperate shader files.
 	const char* VSS = "#version 330 core\n"
 		"layout (location = 0) in vec3 pos;\n"
 		"layout (location = 1) in vec3 color;\n"
@@ -21,12 +21,12 @@ SpectrumView::SpectrumView(){
 
 	glfwInit();
 
-	// --  define OpenGL version MACROS
+	// --  Define OpenGL version MACROS.
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// --  initialize window
+	// --  Initialize window.
 	window = glfwCreateWindow(800, 800, "Spectrum Anal", NULL, NULL);
 	glfwMakeContextCurrent(window);
 	gladLoadGL();
@@ -62,23 +62,19 @@ SpectrumView::~SpectrumView(){
 
 
 void SpectrumView::draw(){
-	// -- draw background
+	// -- Draw background.
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	for (Plot* plot : model->plots) {
+	for (Plot* plot : model->plotVector) {
 		drawPlot(plot);
 	}
 
+	glfwSwapBuffers(window);
 }
 
 void SpectrumView::drawPlot(Plot* plot) {
-	// -- draw background
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	// -- draw grid
-
+	// -- Draw Plot grid.
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(VAO);
@@ -103,7 +99,7 @@ void SpectrumView::drawPlot(Plot* plot) {
 	glBindVertexArray(VAO);
 	glDrawArrays(GL_LINES, 0, (plot->getPlotSize() * 2) / (12 * sizeof(GLfloat)));
 
-	// -- draw data
+	// -- Draw Plot data.
 	if (plot->getVertexDataArray() != nullptr) {
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
@@ -123,14 +119,10 @@ void SpectrumView::drawPlot(Plot* plot) {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 
-		// -- draw grid
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_LINE_STRIP, 0, plot->getDataSize() / 6);
 	}
-
-	glfwSwapBuffers(window);
-
 }
 
 

@@ -25,20 +25,28 @@ Plot* SpectrumModel::detectHit(GLfloat xpos, GLfloat ypos){
 }
 
 
-void SpectrumModel::addPlot(GLfloat xpos, GLfloat ypos, GLfloat width, GLfloat height, int rows, int cols, int methodFlag){
+void SpectrumModel::addPlot(GLfloat xpos, GLfloat ypos, GLfloat width, GLfloat height, GLfloat refminX, GLfloat refminY, GLfloat refmaxX, GLfloat refmaxY, int rows, int cols, int methodFlag){
 	
-	Plot* newPlot = new Plot(xpos, ypos, width, height, rows, cols, Plot::LINEAR);
+	Plot* newPlot = new Plot(xpos, ypos, width, height, refminX, refminY, refmaxX, refmaxY, rows, cols, Plot::LINEAR);
 	plotVector.push_back(newPlot);
 
 	void (SpectrumModel::*functionPointer)(Plot*);
 
 	switch (methodFlag){
 		case 0:
-			functionPointer = &SpectrumModel::VinceProccessDataMethod1;
+			functionPointer = &SpectrumModel::magnitudeResponse;
 			plotMethodVector.push_back(functionPointer);
 			break;
 		case 1:
 			functionPointer = &SpectrumModel::generateSine;
+			plotMethodVector.push_back(functionPointer);
+			break;
+		case 2:
+			functionPointer = &SpectrumModel::magnitudeOvertime;
+			plotMethodVector.push_back(functionPointer);
+			break;
+		case 3:
+			functionPointer = &SpectrumModel::DBmagnitudeResponse;
 			plotMethodVector.push_back(functionPointer);
 			break;
 		default:
@@ -98,7 +106,7 @@ void SpectrumModel::scalePlot(Plot* plot, GLfloat x, GLfloat y){
 
 void SpectrumModel::readMicData() {
 
-	const int SAMPLES = 1024 * 4;
+	const int SAMPLES = 1024 * 8;
 
 	inputDataSize = SAMPLES;
 	inputData = (GLfloat*)calloc(inputDataSize, sizeof(GLfloat));
@@ -164,18 +172,69 @@ void SpectrumModel::readMicData() {
 
 
 /* Private - methods */
-void SpectrumModel::VinceProccessDataMethod1(Plot* plot){
-	
+void SpectrumModel::magnitudeResponse(Plot* plot) {
+
+	double* test = (double*)calloc(inputDataSize, sizeof(double));
+	GLfloat* rr = (GLfloat*)calloc(inputDataSize * 2, sizeof(GLfloat));
+	for (int i = 0; i < inputDataSize; i++) {
+		test[i] = inputData[i];
+	}
+
+	fftw_complex* shiftedInput = better_fft_shift(test);
+	fftw_complex* fftInputData = better_set_fft(shiftedInput);
+	double* magnitudeInputData = magnitude(fftInputData);
+
+	double* result = prep_data_for_plot(frequency_array(), magnitudeInputData);
+
+	for (int i = 0; i < inputDataSize * 2; i++) {
+
+		rr[i] = (GLfloat)result[i];
+	}
+
+	plot->setRawData(rr, inputDataSize * 2);
+	free(test);
+	free(rr);
+}
+
+
+void SpectrumModel::DBmagnitudeResponse(Plot* plot) {
+
+	double* test = (double*)calloc(inputDataSize, sizeof(double));
+	GLfloat* rr = (GLfloat*)calloc(inputDataSize * 2, sizeof(GLfloat));
+	for (int i = 0; i < inputDataSize; i++) {
+		test[i] = inputData[i];
+	}
+
+	fftw_complex* shiftedInput = better_fft_shift(test);
+	fftw_complex* fftInputData = better_set_fft(shiftedInput);
+	double* magnitudeInputData = magnitude(fftInputData);
+	double* DBmagnitudeInputData = dB_magnitude(magnitudeInputData);
+
+	double* result = prep_data_for_plot(frequency_array(), DBmagnitudeInputData);
+
+	for (int i = 0; i < inputDataSize * 2; i++) {
+		rr[i] = (GLfloat)result[i];
+	}
+
+	plot->setRawData(rr, inputDataSize * 2);
+	free(test);
+	free(rr);
+}
+
+
+void SpectrumModel::magnitudeOvertime(Plot* plot) {
 	// -- TEMP FUNCTION Convert to X, Y data.
 	GLfloat* test = (GLfloat*)calloc(inputDataSize * 2, sizeof(GLfloat));
-	for (int i = 0; i < inputDataSize; i++ ) {
-		test[2*i] = ((GLfloat)i) / ((GLfloat)inputDataSize);	// -- x coord
-		test[2*i+1] = inputData[i];					// -- y cord
+	for (int i = 0; i < inputDataSize; i++) {
+		test[2 * i] = ((GLfloat)i) / ((GLfloat)inputDataSize);	// -- x coord
+		test[2 * i + 1] = inputData[i];							// -- y cord
 	}
 
 	plot->setRawData(test, inputDataSize * 2);
 	free(test);
 }
+
+
 
 
 void SpectrumModel::generateSine(Plot* plot){

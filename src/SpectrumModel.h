@@ -11,6 +11,7 @@
 #include<GLFW/glfw3.h>
 
 #include"Plot.h"
+#include"spectrum_generation.h"
 #include"SpectrumModelSubscriber.h"
 
 using namespace std;
@@ -29,7 +30,7 @@ public:
 	// -- plot object methods
 	Plot* detectHit(GLfloat xpos, GLfloat ypos);
 
-	void addPlot(GLfloat xpos, GLfloat ypos, GLfloat width, GLfloat height, int rows, int cols, int funFlag);
+	void addPlot(GLfloat xpos, GLfloat ypos, GLfloat width, GLfloat height, GLfloat refminX, GLfloat refminY, GLfloat refmaxX, GLfloat refmaxY, int rows, int cols, int funFlag);
 	void removePlot(Plot* plot);
 
 	// -- plot modifiers
@@ -51,7 +52,9 @@ private:
 	vector<SpectrumModelSubscriber*> subscribers;
 
 	// -- DSP methods
-	void VinceProccessDataMethod1(Plot* plot);
+	void magnitudeOvertime(Plot* plot);
+	void magnitudeResponse(Plot* plot);
+	void DBmagnitudeResponse(Plot* plot);
 	void generateSine(Plot* plot);
 
 	void notifySubscribers();

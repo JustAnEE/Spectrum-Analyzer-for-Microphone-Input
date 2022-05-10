@@ -1,7 +1,7 @@
 #ifndef spectrum_generation_H
 #define spectrum_generation_H
 
-#include <fftw3.h>
+#include <fft/fftw3.h>
 #include <math.h> 
 #include <iostream>
 
@@ -52,4 +52,4 @@ double* power_spectral_density(double* magnitude_data);
 double* frequency_array();
 double* prep_data_for_plot(double* freqs, double* spectrum);
 
-#endif // !spectral_fcns.h
+#endif // !spectrum_generation_H

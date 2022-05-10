@@ -11,7 +11,9 @@ public:
 	GLfloat refMinX, refMinY, refMaxX, refMaxY;
 
 	// -- Plot constructor
-	Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h, int rows, int cols, SCALE scale);
+	Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h,
+		GLfloat refminX, GLfloat refminY, GLfloat refmaxX, GLfloat refmaxY,
+		int rows, int cols, SCALE scale);
 	//~Plot();
 
 	void setRowsAndCols(int numRows, int numCols);
