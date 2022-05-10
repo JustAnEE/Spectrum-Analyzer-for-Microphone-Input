@@ -2,15 +2,18 @@
 
 
 /* PUBLIC METHODS */
-Plot::Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h, int rows, int cols, SCALE scale){
+Plot::Plot( GLfloat centX, GLfloat centY, GLfloat w, GLfloat h,
+	        GLfloat refminX, GLfloat refminY, GLfloat refmaxX, GLfloat refmaxY,
+	        int rows, int cols, SCALE scale){
+
 	centerX = centX;	centerY = centY;
 	width = w;		height = h;
 	ROWS = rows;	COLS = cols;
 
 	curScale = scale;
 
-	refMinX =  0.0f;	refMaxX =   1.0f;
-	refMinY =  0.0f;	refMaxY = 255.0f;
+	refMinX = refminX;	refMaxX = refmaxX;
+	refMinY = refminY;	refMaxY = refmaxY;
 
 	// -- initialize the vertex array.
 	vertexDataArray = nullptr;
