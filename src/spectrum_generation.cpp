@@ -2,27 +2,27 @@
 
 
 
-void fft(fftw_complex* input, fftw_complex* output) {
+void fft(fftwf_complex* input, fftwf_complex* output) {
 
 	// Creates FFT plan for computing forward DFT
 	// In the future this plan may change to a DCT plan for faster implementation, this may eliminate the need for shifting. 
 
-	fftw_plan plan = fftw_plan_dft_1d(buffer_size, input, output, FFTW_FORWARD, FFTW_ESTIMATE); 
+	fftwf_plan plan = fftwf_plan_dft_1d(buffer_size, input, output, FFTW_FORWARD, FFTW_ESTIMATE);
 
-	fftw_execute(plan);
-	fftw_destroy_plan(plan);
-	fftw_cleanup();
+	fftwf_execute(plan);
+	fftwf_destroy_plan(plan);
+	fftwf_cleanup();
 
 }
 
 
 //Not used for now.
-fftw_complex* set_fft(double *buffer) {
+fftwf_complex* set_fft(GLfloat *buffer) {
 
-	fftw_complex* y = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * (buffer_size));
-	fftw_complex* x = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * (buffer_size));
+	fftwf_complex* y = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (buffer_size));
+	fftwf_complex* x = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (buffer_size));
 
-	// Cannot directly pass buffer data into FFT, needs to be fftw_complex* data type.
+	// Cannot directly pass buffer data into FFT, needs to be fftwf_complex* data type.
 	for (int k = 0; k < buffer_size; k++) {
 
 		x[k][REAL] = buffer[k];
@@ -39,9 +39,9 @@ fftw_complex* set_fft(double *buffer) {
 }
 
 
-fftw_complex* better_set_fft(fftw_complex* shifted_input) {
+fftwf_complex* better_set_fft(fftwf_complex* shifted_input) {
 
-	fftw_complex* y = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * (buffer_size));
+	fftwf_complex* y = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (buffer_size));
 
 
 	fft(shifted_input, y);
@@ -54,12 +54,12 @@ fftw_complex* better_set_fft(fftw_complex* shifted_input) {
 
 
 // This function is most likely irrelevant for this application, though good to have. 
-void ifft(fftw_complex* in, fftw_complex* out){
+void ifft(fftwf_complex* in, fftwf_complex* out){
 
-	fftw_plan plan = fftw_plan_dft_1d(buffer_size, in, out, FFTW_BACKWARD, FFTW_ESTIMATE); 
-	fftw_execute(plan);
-	fftw_destroy_plan(plan);
-	fftw_cleanup(); 
+	fftwf_plan plan = fftwf_plan_dft_1d(buffer_size, in, out, FFTW_BACKWARD, FFTW_ESTIMATE);
+	fftwf_execute(plan);
+	fftwf_destroy_plan(plan);
+	fftwf_cleanup();
 
 	for (int k = 0; k <= buffer_size; k++) {
 
@@ -71,12 +71,12 @@ void ifft(fftw_complex* in, fftw_complex* out){
 }
 
 // Not used for now. 
-fftw_complex* fft_shift(fftw_complex* fft_data) {
+fftwf_complex* fft_shift(fftwf_complex* fft_data) {
 	
 	// Cursed function :) Probably not the best implementation of a fftshift functionality 
 
 	int half_size = buffer_size/2; 
-	fftw_complex* shifted_fft = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * (buffer_size));
+	fftwf_complex* shifted_fft = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (buffer_size));
 
 	for (int k = 0; k < buffer_size; k++) {
 
@@ -102,11 +102,11 @@ fftw_complex* fft_shift(fftw_complex* fft_data) {
 
 }
 
-fftw_complex* better_fft_shift(double* buffer) {
+fftwf_complex* better_fft_shift(GLfloat* buffer) {
 
 	// Attempt at a better fftshift which preprocesses the input of the fft, instead of postprocessing fft output 
 
-	fftw_complex* x = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * (buffer_size ));
+	fftwf_complex* x = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (buffer_size ));
 
 	for (int k = 0; k < buffer_size; k++) {
 
@@ -121,19 +121,19 @@ fftw_complex* better_fft_shift(double* buffer) {
 }
 
 
-double* frequency_array(){
+GLfloat* frequency_array(){
 
 	// Computes frequency for each FFT bin with the distance between each bin being sample_rate/buffer_size. 
 	// May need to increase buffer length to zero pad to an arbitrary power of 2 to interpolate the frequency response data. 
 
-	double fs = (double) sample_rate;
-	double N = (double) buffer_size;
+	GLfloat fs = (GLfloat) sample_rate;
+	GLfloat N = (GLfloat) buffer_size;
 
-	double* frequency = (double*)calloc(buffer_size, sizeof(double));
+	GLfloat* frequency = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
 
 	for (int k = 0; k < buffer_size; k++) {
 
-		frequency[k] = - fs/2 + ((double)k)*fs/N;
+		frequency[k] = - fs/2 + ((GLfloat)k)*fs/N;
 
 	}
 
@@ -142,16 +142,16 @@ double* frequency_array(){
 }
 
 
-double* magnitude(fftw_complex* fft_data) {
+GLfloat* magnitude(fftwf_complex* fft_data) {
 
 
-	double* magnitude_data = (double*)calloc(buffer_size, sizeof(double));
+	GLfloat* magnitude_data = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
 	
 	for (int k = 0; k < buffer_size; k++) {
 
 		// This is most likely not the most hardware efficient way to do this :) 
 
-		double square = fft_data[k][REAL] * fft_data[k][REAL] + fft_data[k][IMAG] * fft_data[k][IMAG];
+		GLfloat square = fft_data[k][REAL] * fft_data[k][REAL] + fft_data[k][IMAG] * fft_data[k][IMAG];
 
 		magnitude_data[k] = sqrt(square);
 
@@ -162,12 +162,12 @@ double* magnitude(fftw_complex* fft_data) {
 }
 
 
-double* dB_magnitude(double* magnitude_data) {
+GLfloat* dB_magnitude(GLfloat* magnitude_data) {
 
-	double* dB_magnitude_data = (double*)calloc(buffer_size, sizeof(double));
+	GLfloat* dB_magnitude_data = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
 
 	// Need to deal with magnitude data close to zero. Noise floor of -120 dB corresponds to a magnitude of 1e-6. 
-	double noise_floor = -120; 
+	GLfloat noise_floor = -200; 
 
 
 	for (int k = 0; k < buffer_size; k++) {
@@ -180,7 +180,7 @@ double* dB_magnitude(double* magnitude_data) {
 
 		else {
 
-			dB_magnitude_data[k] = (double)20 * log10(magnitude_data[k]);
+			dB_magnitude_data[k] = (GLfloat)20 * log10(magnitude_data[k]);
 
 		}
 
@@ -192,12 +192,12 @@ double* dB_magnitude(double* magnitude_data) {
 
 
 // Same thing as dB_magnitude normalized to 1mW of power. 
-double* dBm_magnitude(double* magnitude_data) {
+GLfloat* dBm_magnitude(GLfloat* magnitude_data) {
 
-	double* dBm_magnitude_data = (double*)calloc(buffer_size, sizeof(double));
+	GLfloat* dBm_magnitude_data = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
 
 	// Need to deal with magnitude data close to zero. 
-	double noise_floor = -120;
+	GLfloat noise_floor = -200;
 
 
 	for (int k = 0; k < buffer_size; k++) {
@@ -211,7 +211,7 @@ double* dBm_magnitude(double* magnitude_data) {
 		else {
 
 
-			dBm_magnitude_data[k] = (double)10 * log10(1000*magnitude_data[k]);
+			dBm_magnitude_data[k] = (GLfloat)10 * log10(1000*magnitude_data[k]);
 		}
 
 	}
@@ -221,9 +221,9 @@ double* dBm_magnitude(double* magnitude_data) {
 }
 
 
-double* power_spectral_density(double* magnitude_data) {
+GLfloat* power_spectral_density(GLfloat* magnitude_data) {
 
-	double* psd = (double*)calloc(buffer_size, sizeof(double));
+	GLfloat* psd = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
 
 	for (int k = 0; k < buffer_size; k++) {
 
@@ -237,10 +237,10 @@ double* power_spectral_density(double* magnitude_data) {
 
 
 // Organize data into the form {f_0, m_0, f_1, m_1, ... , f_k, m_k, .... }
-double* prep_data_for_plot(double* freqs, double* spectrum) {
+GLfloat* prep_data_for_plot(GLfloat* freqs, GLfloat* spectrum) {
 
 	int plot_data_size = 2 * buffer_size; 
-	double* data_for_plot = (double*)calloc(plot_data_size, sizeof(double));
+	GLfloat* data_for_plot = (GLfloat*)calloc(plot_data_size, sizeof(GLfloat));
 
 	for (int k = 0; k < plot_data_size; k+=2) {
 
@@ -255,15 +255,15 @@ double* prep_data_for_plot(double* freqs, double* spectrum) {
 }
 
 
-double* spectrum_output(double* buffer, int SET_OUTPUT) {
+GLfloat* spectrum_output(GLfloat* buffer, int SET_OUTPUT) {
 
-	double*	freqs_array = frequency_array();
+	GLfloat* freqs_array = frequency_array();
 
-	fftw_complex* fftin_ptr = better_fft_shift(buffer);
-	fftw_complex* fft_ptr = better_set_fft(fftin_ptr);
+	fftwf_complex* fftin_ptr = better_fft_shift(buffer);
+	fftwf_complex* fft_ptr = better_set_fft(fftin_ptr);
 	
-	double* mag_data = magnitude(fft_ptr); 
-	double* output_ptr; 
+	GLfloat* mag_data = magnitude(fft_ptr); 
+	GLfloat* output_ptr; 
 	
 	switch (SET_OUTPUT) {
 	case 0: output_ptr = prep_data_for_plot(freqs_array, mag_data);
@@ -278,8 +278,8 @@ double* spectrum_output(double* buffer, int SET_OUTPUT) {
 		output_ptr = prep_data_for_plot(freqs_array, mag_data); 
 	}
 
-	fftw_free(fftin_ptr);
-	fftw_free(fft_ptr);
+	fftwf_free(fftin_ptr);
+	fftwf_free(fft_ptr);
 	free(mag_data);
 
 	return output_ptr; 

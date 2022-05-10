@@ -20,43 +20,45 @@ using namespace std;
 class SpectrumModel {
 
 public:
-	vector<Plot*> plotVector;
-	vector<void(SpectrumModel::*)(Plot*)> plotMethodVector;
-	
 	SpectrumModel();
 	~SpectrumModel();
 
-	GLfloat phase = 0.0f;
-	// -- plot object methods
-	Plot* detectHit(GLfloat xpos, GLfloat ypos);
+	// -- Get and Set methods.
+	vector<Plot*> getPlotVector();
 
+	// -- Plot object methods.
+	Plot* detectHit(GLfloat xpos, GLfloat ypos);
 	void addPlot(GLfloat xpos, GLfloat ypos, GLfloat width, GLfloat height, GLfloat refminX, GLfloat refminY, GLfloat refmaxX, GLfloat refmaxY, int rows, int cols, int funFlag);
 	void removePlot(Plot* plot);
 
-	// -- plot modifiers
+	// -- Plot object modifier methods.
 	void processData();
 	void changePlotRefenceFrame(Plot* plot, GLfloat x, GLfloat y);
 	void movePlot(Plot* plot, GLfloat x, GLfloat y);
 	void scalePlot(Plot* plot, GLfloat x, GLfloat y);
 
-	// -- read micData method.
+	// -- Read micData.
 	void readMicData();
 
-	// -- pub-sub methods
+	// -- Pub-Sub methods.
 	void addSubscriber(SpectrumModelSubscriber* newSub);
 
 
 private:
-	GLfloat* inputData;
 	int inputDataSize;
+	GLfloat* inputData;
+	vector<Plot*> plotVector;
 	vector<SpectrumModelSubscriber*> subscribers;
+	vector<void(SpectrumModel::*)(Plot*)> plotMethodVector;
+	
 
-	// -- DSP methods
+	// -- DSP methods.
 	void magnitudeOvertime(Plot* plot);
 	void magnitudeResponse(Plot* plot);
 	void DBmagnitudeResponse(Plot* plot);
-	void generateSine(Plot* plot);
+	void powerSpectralDensity(Plot* plot);
 
+	// -- Pub-Sub methods.
 	void notifySubscribers();
 
 };

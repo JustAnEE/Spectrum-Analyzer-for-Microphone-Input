@@ -4,13 +4,13 @@
 #include <fftw3.h>
 #include <math.h> 
 #include <iostream>
-
+#include <GLFW/glfw3.h>
 
 
 #define REAL 1
 #define IMAG 0
 #define sample_rate 44100
-#define buffer_size 1024*8
+#define buffer_size 1024*4
 
 
 /* USING THESE FUNCTIONS:
@@ -23,7 +23,7 @@ x axis for plotting: frequency array.
 y axis for plotting: magnitude array.
 
 The data is ready for plot via passing the frequency and magnitude (or other output) array to prep_data_for_plot.
-prep_data_for_plot returns a pointer to a double array with entries [freq_0, mag_0, freq_1, mag_1, ... ].
+prep_data_for_plot returns a pointer to a GLfloat array with entries [freq_0, mag_0, freq_1, mag_1, ... ].
 
 Other:
 dB_magnitude returns the magnitude array according to the dB scale, i.e 20log_10(magnitude). This function has a default noise floor of -120dB.
@@ -40,23 +40,23 @@ NOTE: The standard .wav or PCM data sampling rate for audio applications is 4410
 of human hearing (-22050Hz, 22050Hz). In most audio applications, the audio present is contained within a much smaller frequency support, it may be necessary to only plot on
 fractions of the returned frequency range for a more coherent output.
 
-When freeing variables of the fftw_complex data-type, make sure to use fftw_free instead of free or delete. 
+When freeing variables of the fftwf_complex data-type, make sure to use fftw_free instead of free or delete. 
 
 */
 
 
-void fft(fftw_complex* input, fftw_complex* output);
-void ifft(fftw_complex* in, fftw_complex* out);
-fftw_complex* set_fft(double* buffer);
-fftw_complex* better_set_fft(fftw_complex* shifted_input);
-fftw_complex* fft_shift(fftw_complex* fft_data);
-fftw_complex* better_fft_shift(double* buffer);
-double* magnitude(fftw_complex* fft_data);
-double* dB_magnitude(double* magnitude_data);
-double* dBm_magnitude(double* magnitude_data);
-double* power_spectral_density(double* magnitude_data);
-double* frequency_array();
-double* prep_data_for_plot(double* freqs, double* spectrum);
-double* spectrum_output(double* buffer, int SET_OUTPUT);
+void fft(fftwf_complex* input, fftwf_complex* output);
+void ifft(fftwf_complex* in, fftwf_complex* out);
+fftwf_complex* set_fft(GLfloat* buffer);
+fftwf_complex* better_set_fft(fftwf_complex* shifted_input);
+fftwf_complex* fft_shift(fftwf_complex* fft_data);
+fftwf_complex* better_fft_shift(GLfloat* buffer);
+GLfloat* magnitude(fftwf_complex* fft_data);
+GLfloat* dB_magnitude(GLfloat* magnitude_data);
+GLfloat* dBm_magnitude(GLfloat* magnitude_data);
+GLfloat* power_spectral_density(GLfloat* magnitude_data);
+GLfloat* frequency_array();
+GLfloat* prep_data_for_plot(GLfloat* freqs, GLfloat* spectrum);
+GLfloat* spectrum_output(GLfloat* buffer, int SET_OUTPUT);
 
 #endif // !spectrum_generation.h

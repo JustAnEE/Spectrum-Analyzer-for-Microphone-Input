@@ -42,7 +42,9 @@ private:
 	GLfloat* vertexPlotArray;
 	GLfloat* vertexDataArray;
 	GLfloat* rawDataArray;
-	int plotSize, dataSize, rawSize;
+	GLfloat* labelDataArray;
+
+	int plotSize, dataSize, rawSize, labelSize;
 	int ROWS, COLS;
 	SCALE curScale;
 
@@ -52,7 +54,6 @@ private:
 	void fillGridVertexArray (SCALE scale);
 	void fillDataVertexArray();
 	void initGridVertexArray();
-	//void initRawDataArray();
 	void initDataVertexArray();
 };
 
