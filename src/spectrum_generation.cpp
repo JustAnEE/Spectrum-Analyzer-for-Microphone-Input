@@ -253,3 +253,35 @@ double* prep_data_for_plot(double* freqs, double* spectrum) {
 
 	return data_for_plot; 
 }
+
+
+double* spectrum_output(double* buffer, int SET_OUTPUT) {
+
+	double*	freqs_array = frequency_array();
+
+	fftw_complex* fftin_ptr = better_fft_shift(buffer);
+	fftw_complex* fft_ptr = better_set_fft(fftin_ptr);
+	
+	double* mag_data = magnitude(fft_ptr); 
+	double* output_ptr; 
+	
+	switch (SET_OUTPUT) {
+	case 0: output_ptr = prep_data_for_plot(freqs_array, mag_data);
+		break; 
+	case 1: output_ptr = prep_data_for_plot(freqs_array, dB_magnitude(mag_data));
+		break;
+	case 2: output_ptr = prep_data_for_plot(freqs_array, dBm_magnitude(mag_data));
+		break; 
+	case 3: output_ptr = prep_data_for_plot(freqs_array, power_spectral_density(mag_data));
+		break; 
+	default:
+		output_ptr = prep_data_for_plot(freqs_array, mag_data); 
+	}
+
+	fftw_free(fftin_ptr);
+	fftw_free(fft_ptr);
+	free(mag_data);
+
+	return output_ptr; 
+
+}
