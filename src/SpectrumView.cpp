@@ -66,7 +66,7 @@ void SpectrumView::draw(){
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	for (Plot* plot : model->plotVector) {
+	for (Plot* plot : model->getPlotVector()) {
 		drawPlot(plot);
 	}
 
