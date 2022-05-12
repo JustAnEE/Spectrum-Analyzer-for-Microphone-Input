@@ -22,8 +22,7 @@ public:
 	void handleMouseClick(GLFWwindow* window, int button, int action, int mods);
 
 private:
-	enum STATE { READY = 0, READING = 1, PROCCESSING = 2,
-	             HALT = 3 };
+	enum STATE { READY, READING, PROCESSING, HALT };
 	STATE currentState;
 };
 
