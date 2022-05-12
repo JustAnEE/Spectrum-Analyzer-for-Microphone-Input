@@ -2,9 +2,9 @@
 
 
 /* PUBLIC METHODS */
-Plot::Plot( GLfloat centX, GLfloat centY, GLfloat w, GLfloat h,
-	        GLfloat refminX, GLfloat refminY, GLfloat refmaxX, GLfloat refmaxY,
-	        int rows, int cols, SCALE scale){
+Plot::Plot( GLfloat centX,	  GLfloat centY,	GLfloat w,		  GLfloat h,
+	        GLfloat refminX,  GLfloat refminY,  GLfloat refmaxX,  GLfloat refmaxY,
+	        int rows,		  int cols,		    SCALE scale){
 
 	centerX = centX;	centerY = centY;
 	width = w;		height = h;
@@ -31,7 +31,6 @@ Plot::Plot( GLfloat centX, GLfloat centY, GLfloat w, GLfloat h,
 void Plot::setRowsAndCols(int numRows, int numCols){
 	ROWS = numRows;
 	COLS = numCols;
-	// -- this is most likly not good.
 	free(vertexPlotArray);
 	
 	initGridVertexArray();
@@ -40,11 +39,10 @@ void Plot::setRowsAndCols(int numRows, int numCols){
 
 void Plot::setRawData(GLfloat* vertexArrayPtr, int size){
 	free(rawDataArray);
-	// -- vertexArray must contain X and Y values. 
+	 
 	rawSize = size;
 	rawDataArray = (GLfloat*)calloc(rawSize, sizeof(GLfloat));
 
-	// -- copy the data locally
 	for (int i = 0; i < size; i++) {
 		rawDataArray[i] = vertexArrayPtr[i];
 	}

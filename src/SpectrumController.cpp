@@ -15,9 +15,9 @@ void SpectrumController::jobStartEvent(){
 		case SpectrumController::READING:
 			model->readMicData();
 			// -- multiple processing states for different types of data
-			currentState = PROCCESSING;
+			currentState = PROCESSING;
 			break;
-		case SpectrumController::PROCCESSING:
+		case SpectrumController::PROCESSING:
 			model->processData();
 			// -- multiple processing states for different types of data
 			currentState = READING;
@@ -43,18 +43,21 @@ void SpectrumController::handleMouseClick(GLFWwindow* window, int button, int ac
 	switch (currentState) {
 		case SpectrumController::READY:
 			if (clickedPlot == nullptr) {
-				model->addPlot(0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 255.0f, 1, 1, 1);
-				model->addPlot(-0.5f, 0.5f, 1.0f, 1.0f, -1000.0f, 0.0f, 1000.0f, 100000.0f, 1, 1, 2);
-				model->addPlot(-0.5f, -0.5f, 1.0f, 1.0f, -1000.0f, -130.0f, 1000.0f, 300.0f, 1, 1, 3);
-				model->addPlot(0.5f, -0.5f, 1.0f, 1.0f, -1000.0f, 0.0f, 1000.0f, 500.0f, 1, 1, 4);
+				// --            x      y     wid   height  XrefMin  YrefMin   XrefMax  YrefMax  rows cols     Methodflag   
+ 				model->addPlot( 0.5f,  0.5f,  1.0f,  1.0f,     0.0f, -128.0f,    1.0f,   128.0f, 6, 6, SpectrumModel::NORMAL);
+				model->addPlot(-0.5f,  0.5f,  1.0f,  1.0f, -1000.0f,    0.0f, 1000.0f, 10000.0f, 1, 1, SpectrumModel::MAG);
+				model->addPlot(-0.5f, -0.5f,  1.0f,  1.0f, -1000.0f,  -90.0f, 1000.0f,   180.0f, 1, 1, SpectrumModel::DB_MAG);
+				model->addPlot( 0.5f, -0.5f,  1.0f,  1.0f, -1000.0f,    0.0f, 1000.0f,   500.0f, 1, 1, SpectrumModel::PWR_SPECTRUM);
 				currentState = READING;
 			}
 			break;
 		default:
 			if (clickedPlot != nullptr) {
+				// -- TESTING PLOT functionality
 				//model->movePlot(clickedPlot, (xpos * 2 / 800) - 1, ((ypos * 2 / 800) - 1) * -1);
 				//model->scalePlot(clickedPlot, 0.0f, 0.02f);
 				//model->changePlotRef(clickedPlot, xpos, ypos);
+				//model->removePlot(clickedPlot);
 				currentState = READING;
 			}
 			break;

@@ -1,25 +1,30 @@
 #include "MicInput.h"
 
-void readMicInput(char* buffer, int size) {
+MicInput::MicInput(int channels, long sampleRate, long bitsPerSample) {
+    // -- Defining the audio format.
+    formatMono44khz.wFormatTag = WAVE_FORMAT_PCM;
+    formatMono44khz.nChannels = channels;
+    formatMono44khz.nSamplesPerSec = sampleRate;
+    formatMono44khz.wBitsPerSample = bitsPerSample;
+    formatMono44khz.nAvgBytesPerSec = sampleRate * channels * bitsPerSample / 8;
+    formatMono44khz.nBlockAlign = channels * bitsPerSample / 8;
+    formatMono44khz.cbSize = 0;
+}
+
+
+int MicInput::getBlockAlign(){
+    return formatMono44khz.nBlockAlign;
+}
+
+
+
+void MicInput::readMicInput(char* inputBuffer, int bufSize) {
     // -- device handle pointer.
     HWAVEIN hWaveIn;
 
-    // -- Defining the audio format.
-    WAVEFORMATEX formatMono44khz;
-    formatMono44khz.wFormatTag = WAVE_FORMAT_PCM;
-    formatMono44khz.nChannels = 1;
-    formatMono44khz.nSamplesPerSec = 44100L;
-    formatMono44khz.nAvgBytesPerSec = 44100L;
-    formatMono44khz.nBlockAlign = 1;
-    formatMono44khz.wBitsPerSample = 8;
-    formatMono44khz.cbSize = 0;
-
-    // -- creation waveform-audio buffer.
-    DWORD bufSize = size;
-
     // -- creation of the buffer header
     WAVEHDR bufH;                           /* MUST SET ITEMS BELOW PREPARE! */
-    bufH.lpData = (LPSTR)buffer;            // -- pointer to the data buffer.     
+    bufH.lpData = inputBuffer;            // -- pointer to the data buffer.     
     bufH.dwBufferLength = bufSize;          // -- buffer size in Bytes.           
     bufH.dwFlags = WHDR_BEGINLOOP;          // -- Flag, indicating buffer status. 
     bufH.dwLoops = 0L;
@@ -70,7 +75,7 @@ void readMicInput(char* buffer, int size) {
 
     // -- Busy wait while device driver reads data.
     while (!(bufH.dwFlags & WHDR_DONE)) {}
-    cout << "bytes recorded:  " << bufH.dwBytesRecorded << endl;
+    //cout << "bytes recorded:  " << bufH.dwBytesRecorded << endl;
 
 
     // -- stop recording.
@@ -81,4 +86,7 @@ void readMicInput(char* buffer, int size) {
 
     // -- close device.
     auto closeResult = waveInClose(hWaveIn);
+
+    // for (int i = 0; i < bufSize; i++) {cout << +inputBuffer[i] << endl;}
 }
+
