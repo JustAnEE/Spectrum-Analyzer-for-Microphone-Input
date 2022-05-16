@@ -167,7 +167,7 @@ GLfloat* dB_magnitude(GLfloat* magnitude_data) {
 	GLfloat* dB_magnitude_data = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
 
 	// Need to deal with magnitude data close to zero. Noise floor of -120 dB corresponds to a magnitude of 1e-6. 
-	GLfloat noise_floor = -200; 
+	GLfloat noise_floor = -80; 
 
 
 	for (int k = 0; k < buffer_size; k++) {
@@ -250,7 +250,6 @@ GLfloat* prep_data_for_plot(GLfloat* freqs, GLfloat* spectrum) {
 		data_for_plot[k + 1] = spectrum[index];
 		
 	}
-
 	return data_for_plot; 
 }
 
@@ -263,16 +262,19 @@ GLfloat* spectrum_output(GLfloat* buffer, int SET_OUTPUT) {
 	fftwf_complex* fft_ptr = better_set_fft(fftin_ptr);
 	
 	GLfloat* mag_data = magnitude(fft_ptr); 
+	GLfloat* dB_mag_data = dB_magnitude(mag_data);
+	GLfloat* dBm_mag_data = dBm_magnitude(mag_data);
+	GLfloat* pwr_spec_data = power_spectral_density(mag_data);
 	GLfloat* output_ptr; 
 	
 	switch (SET_OUTPUT) {
 	case 0: output_ptr = prep_data_for_plot(freqs_array, mag_data);
 		break; 
-	case 1: output_ptr = prep_data_for_plot(freqs_array, dB_magnitude(mag_data));
+	case 1: output_ptr = prep_data_for_plot(freqs_array, dB_mag_data);
 		break;
-	case 2: output_ptr = prep_data_for_plot(freqs_array, dBm_magnitude(mag_data));
+	case 2: output_ptr = prep_data_for_plot(freqs_array, dBm_mag_data);
 		break; 
-	case 3: output_ptr = prep_data_for_plot(freqs_array, power_spectral_density(mag_data));
+	case 3: output_ptr = prep_data_for_plot(freqs_array, pwr_spec_data);
 		break; 
 	default:
 		output_ptr = prep_data_for_plot(freqs_array, mag_data); 
@@ -280,7 +282,11 @@ GLfloat* spectrum_output(GLfloat* buffer, int SET_OUTPUT) {
 
 	fftwf_free(fftin_ptr);
 	fftwf_free(fft_ptr);
+	free(freqs_array);
 	free(mag_data);
+	free(dB_mag_data);
+	free(dBm_mag_data);
+	free(pwr_spec_data);
 
 	return output_ptr; 
 

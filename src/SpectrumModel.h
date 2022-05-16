@@ -3,7 +3,9 @@
 
 #include<iostream>
 #include<vector>
+
 #include<fstream>
+#include <bitset>
 
 #include<Windows.h>
 #include<mmsystem.h>
@@ -11,6 +13,7 @@
 #include<GLFW/glfw3.h>
 
 #include"Plot.h"
+#include"MicInput.h"
 #include"spectrum_generation.h"
 #include"SpectrumModelSubscriber.h"
 
@@ -20,6 +23,8 @@ using namespace std;
 class SpectrumModel {
 
 public:
+	enum DSP_METHOD {NORMAL, DB_MAG, MAG, PWR_SPECTRUM};
+
 	SpectrumModel();
 	~SpectrumModel();
 
@@ -28,8 +33,13 @@ public:
 
 	// -- Plot object methods.
 	Plot* detectHit(GLfloat xpos, GLfloat ypos);
-	void addPlot(GLfloat xpos, GLfloat ypos, GLfloat width, GLfloat height, GLfloat refminX, GLfloat refminY, GLfloat refmaxX, GLfloat refmaxY, int rows, int cols, int funFlag);
 	void removePlot(Plot* plot);
+	void addPlot(
+		GLfloat xpos,		GLfloat ypos,		GLfloat width,		GLfloat height,
+		GLfloat refminX,	GLfloat refminY,	GLfloat refmaxX,	GLfloat refmaxY,
+		int rows,			int cols,			DSP_METHOD funFlag
+	);
+
 
 	// -- Plot object modifier methods.
 	void processData();
@@ -45,15 +55,16 @@ public:
 
 
 private:
-	int inputDataSize;
+	int inputDataSize, SAMPLES;
 	GLfloat* inputData;
 	vector<Plot*> plotVector;
 	vector<SpectrumModelSubscriber*> subscribers;
 	vector<void(SpectrumModel::*)(Plot*)> plotMethodVector;
+	MicInput* format;
 	
 
 	// -- DSP methods.
-	void magnitudeOvertime(Plot* plot);
+	void timeSeries(Plot* plot);
 	void magnitudeResponse(Plot* plot);
 	void DBmagnitudeResponse(Plot* plot);
 	void powerSpectralDensity(Plot* plot);
