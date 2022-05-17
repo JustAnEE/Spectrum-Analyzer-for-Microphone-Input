@@ -47,15 +47,23 @@ void SpectrumModel::addPlot(
 
 	switch (methodFlag){
 		case NORMAL:
-			functionPointer = &SpectrumModel::magnitudeOvertime;
+			newPlot->setTitle("Time Series");
+			newPlot->setAxisLables("t", "A");
+			functionPointer = &SpectrumModel::timeSeries;
 			break;
 		case MAG:
+			newPlot->setTitle("Magnitude Response");
+			newPlot->setAxisLables("f (Hz)", "|X(f)|");
 			functionPointer = &SpectrumModel::magnitudeResponse;
 			break;
 		case DB_MAG:
+			newPlot->setTitle("Decible Magnitude Response");
+			newPlot->setAxisLables("f (Hz)", "dB");
 			functionPointer = &SpectrumModel::DBmagnitudeResponse;
 			break;
 		case PWR_SPECTRUM:
+			newPlot->setTitle("Power Spectral Density");
+			newPlot->setAxisLables("f (Hz)", "A");
 			functionPointer = &SpectrumModel::powerSpectralDensity;
 			break;
 		default:
@@ -115,7 +123,7 @@ void SpectrumModel::scalePlot(Plot* plot, GLfloat x, GLfloat y){
 
 void SpectrumModel::readMicData() {
 	
-	SAMPLES = 1024;
+	SAMPLES = 1024*4;
 	const int PADDING = 4;
 
 	inputDataSize = SAMPLES * PADDING;
@@ -167,7 +175,7 @@ void SpectrumModel::powerSpectralDensity(Plot* plot) {
 	free(result);
 }
 
-void SpectrumModel::magnitudeOvertime(Plot* plot) {
+void SpectrumModel::timeSeries(Plot* plot) {
 	GLfloat* converted = (GLfloat*)calloc(SAMPLES*2, sizeof(GLfloat));
 	for (int i = 0; i < SAMPLES; i++) {
 		converted[2 * i]     = ((GLfloat)i) / ((GLfloat)SAMPLES);	// -- x coord

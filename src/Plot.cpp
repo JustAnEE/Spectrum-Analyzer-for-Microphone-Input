@@ -18,7 +18,10 @@ Plot::Plot( GLfloat centX,	  GLfloat centY,	GLfloat w,		  GLfloat h,
 	// -- initialize the vertex array.
 	vertexDataArray = nullptr;
 	dataSize = 0;
+
 	initGridVertexArray();
+	initRowColLabelVectors();
+	fillRowColLabelVectors();
 	fillGridVertexArray(curScale);
 }
 
@@ -31,9 +34,11 @@ Plot::Plot( GLfloat centX,	  GLfloat centY,	GLfloat w,		  GLfloat h,
 void Plot::setRowsAndCols(int numRows, int numCols){
 	ROWS = numRows;
 	COLS = numCols;
-	free(vertexPlotArray);
-	
+
+	initRowColLabelVectors();
 	initGridVertexArray();
+	initRowColLabelVectors();
+	fillRowColLabelVectors();
 	fillGridVertexArray(curScale);
 }
 
@@ -51,36 +56,45 @@ void Plot::setRawData(GLfloat* vertexArrayPtr, int size){
 	fillDataVertexArray();
 }
 
-
-GLfloat Plot::getHeight(){
-	return height;
+void Plot::setTitle(string newTitle){
+	title = newTitle;
 }
 
-GLfloat Plot::getWidth(){
-	return width;
+void Plot::setAxisLables(string xLabel, string yLabel){
+	xAxisLabel = xLabel;
+	yAxisLabel = yLabel;
 }
 
-GLfloat* Plot::getVertexDataArray(){
-	return vertexDataArray;
-}
+string Plot::getTitle() { return title; }
+string Plot::getXLabel() { return xAxisLabel; }
+string Plot::getYLabel() { return yAxisLabel; }
+GLfloat Plot::getTitleXPos() { return centerX - (0.01f * title.size() / 2.0f); }
+GLfloat Plot::getTitleYPos() { return centerY + (height / 2.0f) + 0.025f; }
+GLfloat Plot::getXLabelXPos() { return centerX + (width / 2.0f) + 0.025f; }
+vector<GLfloat> Plot::getRowLabelsYPos(){ return rowLabelsYPos; }
+vector<GLfloat> Plot::getColLabelsXPos(){ return colLabelsXPos; }
+vector<string> Plot::getRowLabels(){ return rowLabels; }
+vector<string> Plot::getColLabels(){ return colLabels; }
+GLfloat Plot::getRowLabelXpos() { return centerX - (width / 2.0f) - 0.15f; }
+GLfloat Plot::getColLabelYpos() { return centerY - (height / 2.0f) - 0.075f; }
+GLfloat Plot::getXLabelYPos() { return centerY - (height / 2.0f); }
+GLfloat Plot::getYLabelXPos() { return centerX - (width / 2.0f); }
+GLfloat Plot::getYLabelYPos() { return centerY + (height / 2.0f) + 0.025f; }
+GLfloat Plot::getHeight(){ return height; }
+GLfloat Plot::getWidth() { return width; }
+GLfloat* Plot::getVertexDataArray() { return vertexDataArray; }
+GLfloat* Plot::getVertexPlotArray() { return vertexPlotArray; }
+int Plot::getDataSize(){ return dataSize; }
+int Plot::getPlotSize(){ return plotSize; }
 
-GLfloat* Plot::getVertexPlotArray() {
-	return vertexPlotArray;
-}
-
-int Plot::getDataSize(){
-	return dataSize;
-}
-
-int Plot::getPlotSize(){
-	return plotSize;
-}
 
 
 void Plot::changeReferenceFrame(GLfloat minX, GLfloat minY, GLfloat maxX, GLfloat maxY) {
 	refMinX = minX;	refMaxX = maxX;
 	refMinY = minY;	refMaxY = maxY;
 	fillDataVertexArray();
+	initRowColLabelVectors();
+	fillRowColLabelVectors();
 }
 
 void Plot::scalePlot(GLfloat givenW, GLfloat givenH){
@@ -88,6 +102,8 @@ void Plot::scalePlot(GLfloat givenW, GLfloat givenH){
 	height += givenH;
 	fillGridVertexArray(curScale);
 	fillDataVertexArray();
+	initRowColLabelVectors();
+	fillRowColLabelVectors();
 }
 
 void Plot::movePlot(GLfloat givenX, GLfloat givenY){
@@ -95,6 +111,8 @@ void Plot::movePlot(GLfloat givenX, GLfloat givenY){
 	centerY = givenY;
 	fillGridVertexArray(curScale);
 	fillDataVertexArray();
+	initRowColLabelVectors();
+	fillRowColLabelVectors();
 }
 
 bool Plot::validClick(GLfloat givenX, GLfloat givenY){
@@ -111,8 +129,8 @@ bool Plot::validClick(GLfloat givenX, GLfloat givenY){
 
 void Plot::initGridVertexArray() {
 	free(vertexPlotArray);
-	vertexPlotArray = (GLfloat*)calloc(12 * (ROWS + COLS + 2), sizeof(GLfloat));
-	plotSize = sizeof(GLfloat) * 12 * (ROWS + COLS + 2);
+	vertexPlotArray = (GLfloat*)calloc(12 * (ROWS + COLS), sizeof(GLfloat));
+	plotSize = sizeof(GLfloat) * 12 * (ROWS + COLS);
 }
 
 void Plot::initDataVertexArray() {
@@ -121,45 +139,59 @@ void Plot::initDataVertexArray() {
 	vertexDataArray = (GLfloat*)calloc(dataSize, sizeof(GLfloat));
 }
 
+void Plot::initRowColLabelVectors() {
+	// -- discregard contents, aquire indices.
+	rowLabels.clear();
+	colLabels.clear();
+	rowLabelsYPos.clear();
+	colLabelsXPos.clear();
+}
 
 
 void Plot::fillGridVertexArray(SCALE scale){
-	// -- optimal for GL_LINE_STRIP
+
 	GLfloat absOffsetX, absOffsetY;
 	GLfloat left = centerX - (width / 2);
 	GLfloat right = centerX + (width / 2);
 	GLfloat top = centerY + (height / 2);
 	GLfloat bottom = centerY - (height / 2);
 
-	GLfloat x = right, y = top;
+	GLfloat x = left, y = top;
 
-	// -- Scale
-	if (scale == LINEAR) {
-		absOffsetX = width / static_cast<float>(COLS);
-		absOffsetY = height / static_cast<float>(ROWS);
-	}
-	else{
-		absOffsetX = width / static_cast<float>(COLS);
-		absOffsetY = height / static_cast<float>(ROWS);
-	}
+	absOffsetX = width / static_cast<float>(COLS);
+	absOffsetY = height / static_cast<float>(ROWS);
 	
-	/* fill the plot vertex array.*/
-	// TODO: border is the same a each row col divider
-	// TODO: I should probably switch seperate internal and border lines.
-	// TODO: internal will be based on reference frame and SCALE.
-	for (int i = 0; i < 12 * (ROWS + 1); i += 12) {
+	// -- Holy Smokes this is some duplicate code!
+	// -- Fill border data.
+	for (int i = 0; i < 24; i += 12) { 
+		if (i == 0) {
+			vertexPlotArray[  i  ] = left;	 vertexPlotArray[i + 1] = top;				vertexPlotArray[i + 2] = 0.0f; // xyz vert1
+			vertexPlotArray[i + 6] = left;	 vertexPlotArray[i + 7] = bottom - 0.05f;	vertexPlotArray[i + 8] = 0.0f; // xyz vert2
+		}
+		else {
+			vertexPlotArray[  i  ] =  left - 0.05f;	 vertexPlotArray[i + 1] = bottom;	vertexPlotArray[i + 2] = 0.0f; // xyz vert1
+			vertexPlotArray[i + 6] = right;	 vertexPlotArray[i + 7] = bottom;	vertexPlotArray[i + 8] = 0.0f; // xyz vert2
+		}
+		vertexPlotArray[i + 3] = 1.0f;		 vertexPlotArray[i + 4] = 1.0f;		vertexPlotArray[i + 5] = 1.0f; // rgb vert1
+		vertexPlotArray[i + 9] = 1.0f;		 vertexPlotArray[i + 10] = 1.0f;	vertexPlotArray[i + 11] = 1.0f; // rgb vert2
+	}
+
+	const int rowVerts = (12 * (ROWS - 1)) + 24;
+	const int totalVerts = 12 * (ROWS + COLS) - 12;
+	// -- Fill internal grid line data.
+	for (int i = 24; i < rowVerts; i += 12) { // -- rows
+		y -= absOffsetY;
 		vertexPlotArray[i] = left;			vertexPlotArray[i + 1] = y;		vertexPlotArray[i + 2] = 0.0f; // xyz vert1
 		vertexPlotArray[i + 6] = right;		vertexPlotArray[i + 7] = y;		vertexPlotArray[i + 8] = 0.0f; // xyz vert2
-		vertexPlotArray[i + 3] = 1.0f;		vertexPlotArray[i + 4] = 1.0f;	vertexPlotArray[i + 5] = 1.0f; // rgb vert1
+		vertexPlotArray[i + 3] = 0.3f;		vertexPlotArray[i + 4] = 0.3f;	vertexPlotArray[i + 5] = 0.3f; // rgb vert1
 		vertexPlotArray[i + 9] = 0.2f;		vertexPlotArray[i + 10] = 0.2f;	vertexPlotArray[i + 11] = 0.2f; // rgb vert2
-		y -= absOffsetY;
 	}
-	for (int i = 12 * (ROWS + 1); i <= 12 * (ROWS + COLS + 1); i += 12) {
+	for (int i = rowVerts; i <= totalVerts; i += 12) {  // -- cols
+		x += absOffsetX;
 		vertexPlotArray[i] = x;			vertexPlotArray[i + 1] = top;		vertexPlotArray[i + 2] = 0.0f; // xyz vert1
 		vertexPlotArray[i + 6] = x;	    vertexPlotArray[i + 7] = bottom;	vertexPlotArray[i + 8] = 0.0f; // xyz vert2
-		vertexPlotArray[i + 3] = 1.0f;	vertexPlotArray[i + 4] = 1.0f;		vertexPlotArray[i + 5] = 1.0f; // rgb vert1
+		vertexPlotArray[i + 3] = 0.3f;	vertexPlotArray[i + 4] = 0.3f;		vertexPlotArray[i + 5] = 0.3f; // rgb vert1
 		vertexPlotArray[i + 9] = 0.2f;	vertexPlotArray[i + 10] = 0.2f;		vertexPlotArray[i + 11] = 0.2f; // rgb vert2
-		x -= absOffsetX;
 	}
 }
 
@@ -189,4 +221,40 @@ void Plot::fillDataVertexArray() {
 		vertexDataArray[i + 4] = 1.0f;// G
 		vertexDataArray[i + 5] = 0.0f;// B
 	}
+}
+
+void Plot::fillRowColLabelVectors(){
+
+	GLfloat left = centerX - (width / 2);
+	GLfloat right = centerX + (width / 2);
+	GLfloat bottom = centerY - (height / 2);
+	GLfloat top = centerY + (height / 2);
+
+	GLfloat absOffsetX = width / static_cast<float>(COLS);
+	GLfloat absOffsetY = height / static_cast<float>(ROWS);
+	GLfloat deltaX = (refMaxX - refMinX) / static_cast<float>(COLS);
+	GLfloat deltaY = (refMaxY - refMinY) / static_cast<float>(ROWS);
+	
+	rowLabels.push_back(to_string((int)refMinY));
+	rowLabelsYPos.push_back(bottom);
+	colLabels.push_back(to_string((int)refMinX));
+	colLabelsXPos.push_back(left);
+
+	rowLabels.push_back(to_string((int)refMaxY));
+	rowLabelsYPos.push_back(top);
+	colLabels.push_back(to_string((int)refMaxX));
+	colLabelsXPos.push_back(right);
+
+	// -- fill positions and calculate label strings
+	for (int i = 1; i < ROWS; i++) {
+		bottom += absOffsetY;
+		rowLabelsYPos.push_back(bottom);
+		rowLabels.push_back(to_string((int)(refMinY + ( i * deltaY))));
+	}
+	for (int i = 1; i < COLS; i++) {
+		left += absOffsetX;
+		colLabelsXPos.push_back(left);
+		colLabels.push_back(to_string((int)(refMinX + (i * deltaX))));
+	}
+
 }

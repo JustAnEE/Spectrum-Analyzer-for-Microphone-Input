@@ -64,7 +64,7 @@ private:
 	
 
 	// -- DSP methods.
-	void magnitudeOvertime(Plot* plot);
+	void timeSeries(Plot* plot);
 	void magnitudeResponse(Plot* plot);
 	void DBmagnitudeResponse(Plot* plot);
 	void powerSpectralDensity(Plot* plot);

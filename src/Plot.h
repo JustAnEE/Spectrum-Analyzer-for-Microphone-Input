@@ -1,6 +1,8 @@
 #ifndef PLOT_H
 #define PLOT_H
 #include <iostream>
+#include <string>
+#include <vector>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 using namespace std;
@@ -41,13 +43,149 @@ public:
 	* @return,					Void.
 	*/
 	void setRawData(GLfloat* vertexArrayPtr, int size);
+	
+
+	/**
+	* Sets the title text of the Plot.
+	*
+	* @param newTitle,	An GLfloat Array representing the Plot's function data.
+	* @return,					Void.
+	*/
+	void setTitle(string newTitle);
+
+
+	/**
+	* Sets the title text of the Plot.
+	*
+	* @param newTitle,	An GLfloat Array representing the Plot's function data.
+	* @return,					Void.
+	*/
+	void setAxisLables(string xAxisLabel, string yAxisLabel);
+
+	/**
+	* Gets the Plot's title.
+	*
+	* @return, string
+	*/
+	string getTitle();
+
+	/**
+	* Gets the Plot's x-axis lable.
+	*
+	* @return, string
+	*/
+	string getXLabel();
+
+	/**
+	* Gets the Plot's y-axis lable.
+	*
+	* @return, string
+	*/
+	string getYLabel();
+
+
+	/**
+	* Calculates the Plot's title x-Coordinate.
+	*
+	* @return, GLfloat
+	*/
+	GLfloat getTitleXPos();
+
+
+	/**
+	* Calculates the Plot's title y-Coordinate.
+	*
+	* @return, GLfloat
+	*/
+	GLfloat getTitleYPos();
+
+
+	/**
+	* Calculates the Plot's xAxisLabel's x-Coordinate.
+	*
+	* @return, GLfloat
+	*/
+	GLfloat getXLabelXPos();
+	
+	
+	/**
+	* Gets each row label's x-Coordinate.
+	*
+	* @return, GLfloat vector pointer
+	*/
+	vector<GLfloat>  getRowLabelsYPos();
+	
+	
+	/**
+	* Gets the row labels.
+	*
+	* @return, string vector pointer
+	*/
+	vector<string> getRowLabels();
+	
+
+	/**
+	* Gets each column label's y-Coordinate.
+	*
+	* @return, GLfloat vector pointer
+	*/
+	vector<GLfloat>  getColLabelsXPos();
+
+
+	/**
+	* Gets the column labels.
+	*
+	* @return, string vector pointer
+	*/
+	vector<string> getColLabels();
+
+
+	/**
+	* Calculates the row label x-Coordinate.
+	*
+	* @return, GLfloat
+	*/
+	GLfloat getRowLabelXpos();
+
+
+	/**
+	* Calculates the column label y-Coordinate.
+	*
+	* @return, GLfloat
+	*/
+	GLfloat getColLabelYpos();
+
+
+	/**
+	* Calculates the Plot's xAxisLabel's y-Coordinate.
+	*
+	* @return, GLfloat
+	*/
+	GLfloat getXLabelYPos();
+
+
+	/**
+	* Calculates the Plot's yAxisLabel's x-Coordinate.
+	*
+	* @return, GLfloat
+	*/
+	GLfloat getYLabelXPos();
+
+
+	/**
+	* Calculates the Plot's yAxisLabel's y-Coordinate.
+	*
+	* @return, GLfloat
+	*/
+	GLfloat getYLabelYPos();
+
 
 
 	/**
 	* Gets the Plot's World height with respect to the OpenGL window.
 	* NOTE: values are between -1.0f and +1.0f.
 	* 
-	* @return, void
+	* @return, GLfloat
 	*/
 	GLfloat getHeight();
 
@@ -57,7 +195,7 @@ public:
 	* Gets the Plot's World width with respect to the OpenGL window.
 	* NOTE: values are between -1.0f and +1.0f.
 	*
-	* @return, void
+	* @return, GLfloat
 	*/
 	GLfloat getWidth();
 
@@ -145,9 +283,10 @@ public:
 
 
 private:
-	// -- actual locations inside OpenGL window
-	// -- given values should be normalized
+	// -- actual locations inside OpenGL window. values should be normalized
 	GLfloat centerX, centerY, width, height;
+
+	// -- vertex arrays.
 	GLfloat* vertexPlotArray;
 	GLfloat* vertexDataArray;
 	GLfloat* rawDataArray;
@@ -157,6 +296,11 @@ private:
 	int ROWS, COLS;
 	SCALE curScale;
 
+	string title, xAxisLabel, yAxisLabel;
+	vector<string> rowLabels;
+	vector<string> colLabels;
+	vector<GLfloat> rowLabelsYPos;
+	vector<GLfloat> colLabelsXPos;
 
 	//GLfloat refMinX, refMinY, refMaxX, refMaxY;
 
@@ -176,7 +320,14 @@ private:
 	*/
 	void fillDataVertexArray();
 
-	
+  
+	/**
+	* Fills row and column label vectors with GLfloats.
+	*
+	* @return,					Void.
+	*/
+	void fillRowColLabelVectors();
+
 
 	/**
 	* Initializes vertexPlotArray dynamically to plotSize * sizeof(GLfloat).
@@ -192,6 +343,15 @@ private:
 	* @return,					Void.
 	*/
 	void initDataVertexArray();
+
+
+	/**
+	* Initializes row and column label vectors by reshaping them to ROWS and COLS respectivly.
+	*
+	* @return,					Void.
+	*/
+	void initRowColLabelVectors();
+
 };
 
 

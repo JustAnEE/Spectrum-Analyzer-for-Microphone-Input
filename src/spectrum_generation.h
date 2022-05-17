@@ -4,13 +4,13 @@
 #include <fftw3.h>
 #include <math.h> 
 #include <iostream>
-#include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 
 #define REAL 1
 #define IMAG 0
 #define sample_rate 44100
-#define buffer_size 1024*4
+#define buffer_size 1024 * 4 * 4
 
 
 /* USING THESE FUNCTIONS:
