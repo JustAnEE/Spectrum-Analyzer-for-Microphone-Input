@@ -180,6 +180,7 @@ public:
 	GLfloat getYLabelYPos();
 
 
+
 	/**
 	* Gets the Plot's World height with respect to the OpenGL window.
 	* NOTE: values are between -1.0f and +1.0f.
@@ -319,7 +320,7 @@ private:
 	*/
 	void fillDataVertexArray();
 
-
+  
 	/**
 	* Fills row and column label vectors with GLfloats.
 	*
