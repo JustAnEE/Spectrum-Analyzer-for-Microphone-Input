@@ -29,6 +29,6 @@ TODO!
 
 ## Authors
 
-GUI and software architecture written by Nolan-Rewega.
+GUI and software architecture written by Nolan-Rewega.  
 Digital signal processing code written by JustAnEE. 
 
