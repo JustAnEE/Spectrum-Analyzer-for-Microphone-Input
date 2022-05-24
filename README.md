@@ -1,6 +1,6 @@
 # Spectrum-Analyzer-for-Microphone-Input
 
-A desktop Spectrum Analyzer.
+A real-time desktop Spectrum Analyzer.
 
 ## Description
 
