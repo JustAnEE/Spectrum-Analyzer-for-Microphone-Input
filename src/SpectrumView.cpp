@@ -57,7 +57,7 @@ SpectrumView::SpectrumView(){
 	FT_Face face;
 
 	FT_Init_FreeType(&freetype);
-	FT_New_Face(freetype, "fonts/arial.ttf", 0, &face);
+	FT_New_Face(freetype, "C:/Users/Shadow/Desktop/openGLtest/openGLtest/fonts/arial.ttf", 0, &face);
 	FT_Set_Pixel_Sizes(face, 0, 14);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -178,20 +178,18 @@ void SpectrumView::draw(){
 }
 
 void SpectrumView::drawPlot(Plot* plot) {
-	// -- Draw Plot grid.
+	/* Draw Plot structure. */
+
+	// -- Gen Buffers.
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
+
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, plot->getPlotSize(), plot->getVertexPlotArray(), GL_STATIC_DRAW);
+
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, plot->getPlotSize(), plot->getVertexPlotArray(), GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
@@ -203,30 +201,34 @@ void SpectrumView::drawPlot(Plot* plot) {
 	glBindVertexArray(VAO);
 	glDrawArrays(GL_LINES, 0, (plot->getPlotSize() * 2) / (12 * sizeof(GLfloat)));
 
-	// -- Draw Plot data.
+	// -- Delete buffers.
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+
+	/* Draw Plot data. */
 	if (plot->getVertexDataArray() != nullptr) {
+		// -- Gen Buffers.
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
+
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferData(GL_ARRAY_BUFFER, plot->getDataSize() * 4, plot->getVertexDataArray(), GL_DYNAMIC_DRAW);
+
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		glGenBuffers(1, &VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, plot->getDataSize() * 4, plot->getVertexDataArray(), GL_DYNAMIC_DRAW);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 		glEnableVertexAttribArray(1);
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
 
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_LINE_STRIP, 0, plot->getDataSize() / 6);
+
+		// -- Delete buffers.
+		glDeleteVertexArrays(1, &VAO);
+		glDeleteBuffers(1, &VBO);
 	}
+
 }
 
 
