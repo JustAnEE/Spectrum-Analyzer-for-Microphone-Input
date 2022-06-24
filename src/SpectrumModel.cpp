@@ -1,6 +1,10 @@
 #include "SpectrumModel.h"
 
 SpectrumModel::SpectrumModel(){
+
+	SAMPLES = 1024 * 4;
+	PADDING = 4;
+	dsp = new spectrumdsp(44100, SAMPLES*PADDING);
 	format = new MicInput(1, 44100, 8);
 }
 
@@ -123,9 +127,6 @@ void SpectrumModel::scalePlot(Plot* plot, GLfloat x, GLfloat y){
 
 void SpectrumModel::readMicData() {
 	
-	SAMPLES = 1024*4;
-	const int PADDING = 4;
-
 	inputDataSize = SAMPLES * PADDING;
 	inputData = (GLfloat*)calloc(inputDataSize, sizeof(GLfloat));
 	
@@ -158,19 +159,19 @@ void SpectrumModel::readMicData() {
 
 /* Private - methods */
 void SpectrumModel::magnitudeResponse(Plot* plot) {
-	GLfloat* result = spectrum_output(inputData, 0);
+	GLfloat* result = dsp->spectrum_output(inputData, 0);
 	plot->setRawData(result, inputDataSize * 2);
 	free(result);
 }
 
 void SpectrumModel::DBmagnitudeResponse(Plot* plot) {
-	GLfloat* result = spectrum_output(inputData, 1);
+	GLfloat* result = dsp->spectrum_output(inputData, 1);
 	plot->setRawData(result, inputDataSize * 2);
 	free(result);
 }
 
 void SpectrumModel::powerSpectralDensity(Plot* plot) {
-	GLfloat* result = spectrum_output(inputData, 3);
+	GLfloat* result = dsp->spectrum_output(inputData, 3);
 	plot->setRawData(result, inputDataSize * 2);
 	free(result);
 }

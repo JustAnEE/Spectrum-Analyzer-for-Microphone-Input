@@ -14,7 +14,7 @@
 
 #include"Plot.h"
 #include"MicInput.h"
-#include"spectrum_generation.h"
+#include"spectrumdsp.h"
 #include"SpectrumModelSubscriber.h"
 
 using namespace std;
@@ -24,6 +24,9 @@ class SpectrumModel {
 
 public:
 	enum DSP_METHOD {NORMAL, DB_MAG, MAG, PWR_SPECTRUM};
+
+
+	spectrumdsp* dsp; 
 
 	SpectrumModel();
 	~SpectrumModel();
@@ -55,7 +58,7 @@ public:
 
 
 private:
-	int inputDataSize, SAMPLES;
+	int inputDataSize, PADDING, SAMPLES;
 	GLfloat* inputData;
 	vector<Plot*> plotVector;
 	vector<SpectrumModelSubscriber*> subscribers;
