@@ -36,10 +36,10 @@ Plot* SpectrumModel::detectHit(GLfloat xpos, GLfloat ypos){
 void SpectrumModel::addPlot(
 	GLfloat xpos,		GLfloat ypos,		GLfloat width,		GLfloat height,
 	GLfloat refminX,	GLfloat refminY,	GLfloat refmaxX,	GLfloat refmaxY,
-	int rows,			int cols,			DSP_METHOD methodFlag ){
+	int rows,			int cols,			DSP_METHOD methodFlag, bool xLinear, bool yLinear){
 	
 	// -- Create a new plot.
-	Plot* newPlot = new Plot(xpos, ypos, width, height, refminX, refminY, refmaxX, refmaxY, rows, cols, Plot::LINEAR);
+	Plot* newPlot = new Plot(xpos, ypos, width, height, refminX, refminY, refmaxX, refmaxY, rows, cols, xLinear, yLinear);
 	plotVector.push_back(newPlot);
 
 	// -- Create a function pointer.
@@ -53,17 +53,17 @@ void SpectrumModel::addPlot(
 			break;
 		case MAG:
 			newPlot->setTitle("Magnitude Response");
-			newPlot->setAxisLables("f (Hz)", "|X(f)|");
+			newPlot->setAxisLables("f(Hz)", "|X(f)|");
 			functionPointer = &SpectrumModel::magnitudeResponse;
 			break;
 		case DB_MAG:
 			newPlot->setTitle("Decible Magnitude Response");
-			newPlot->setAxisLables("f (Hz)", "dB");
+			newPlot->setAxisLables("f(Hz)", "dB");
 			functionPointer = &SpectrumModel::DBmagnitudeResponse;
 			break;
 		case PWR_SPECTRUM:
 			newPlot->setTitle("Power Spectral Density");
-			newPlot->setAxisLables("f (Hz)", "A");
+			newPlot->setAxisLables("f(Hz)", "A");
 			functionPointer = &SpectrumModel::powerSpectralDensity;
 			break;
 		default:
@@ -150,6 +150,10 @@ void SpectrumModel::readMicData() {
 		count++;
 
 	}
+	ofstream audioFile;
+	audioFile.open("AFTER.WAV", ios::binary | ios::out);
+	audioFile.write(rawBytesPtr, rawSize);
+	audioFile.close();
 	free(rawBytesPtr);
 }
 

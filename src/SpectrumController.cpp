@@ -43,11 +43,11 @@ void SpectrumController::handleMouseClick(GLFWwindow* window, int button, int ac
 	switch (currentState) {
 		case SpectrumController::READY:
 			if (clickedPlot == nullptr) {
-				// --            x      y     wid   height  XrefMin  YrefMin   XrefMax  YrefMax  rows cols     Methodflag   
- 				model->addPlot( 0.5f,  0.5f,  0.6f, 0.6f,     0.0f, -128.0f,    1.0f,   128.0f,  5,   5, SpectrumModel::NORMAL);
-				model->addPlot(-0.5f,  0.5f,  0.6f, 0.6f, -1000.0f,    0.0f, 1000.0f, 10000.0f,  5,   5, SpectrumModel::MAG);
-				model->addPlot(-0.5f, -0.5f,  0.6f, 0.6f, -1000.0f,  -90.0f, 1000.0f,   180.0f,  5,   5, SpectrumModel::DB_MAG);
-				model->addPlot( 0.5f, -0.5f,  0.6f, 0.6f, -1000.0f,    0.0f, 1000.0f,   500.0f,  4,   4, SpectrumModel::PWR_SPECTRUM);
+				// --            x      y     wid   height  XrefMin  YrefMin    XrefMax  YrefMax  rows cols     Methodflag   
+ 				model->addPlot( 0.5f,  0.5f,  0.6f, 0.6f,     0.0f, -128.0f,     1.0f,   128.0f,  5,   5, SpectrumModel::NORMAL, true, true);
+				model->addPlot(-0.5f,  0.5f,  0.6f, 0.6f, -1000.0f,    0.0f,  1000.0f, 10000.0f,  5,   5, SpectrumModel::MAG, true, true);
+				model->addPlot(-0.5f, -0.5f,  0.6f, 0.6f,       1.0f,  -90.0f, 10000.0f,   180.0f,  5,   4, SpectrumModel::DB_MAG, false, true);
+				//model->addPlot( 0.5f, -0.5f,  0.6f, 0.6f, -1000.0f,    0.0f,  1000.0f,   500.0f,  4,   4, SpectrumModel::PWR_SPECTRUM);
 				currentState = READING;
 			}
 			break;

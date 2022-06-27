@@ -57,7 +57,7 @@ SpectrumView::SpectrumView(){
 	FT_Face face;
 
 	FT_Init_FreeType(&freetype);
-	FT_New_Face(freetype, "C:/Users/Shadow/Desktop/openGLtest/openGLtest/fonts/arial.ttf", 0, &face);
+	FT_New_Face(freetype, "C:/Users/Shadow/Desktop/openGLtest/openGLtest/fonts/monofonto.otf", 0, &face);
 	FT_Set_Pixel_Sizes(face, 0, 14);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -213,7 +213,7 @@ void SpectrumView::drawPlot(Plot* plot) {
 
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, plot->getDataSize() * 4, plot->getVertexDataArray(), GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, plot->getDataSize() * 4, plot->getVertexDataArray(), GL_STATIC_DRAW);
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);

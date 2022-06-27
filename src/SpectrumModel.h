@@ -37,7 +37,7 @@ public:
 	void addPlot(
 		GLfloat xpos,		GLfloat ypos,		GLfloat width,		GLfloat height,
 		GLfloat refminX,	GLfloat refminY,	GLfloat refmaxX,	GLfloat refmaxY,
-		int rows,			int cols,			DSP_METHOD funFlag
+		int rows,			int cols,			DSP_METHOD funFlag, bool xLinear, bool yLinear
 	);
 
 
