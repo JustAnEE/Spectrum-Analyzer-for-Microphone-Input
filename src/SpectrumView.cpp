@@ -4,20 +4,15 @@
 
 SpectrumView::SpectrumView(){
 
-	// -- TODO: seperate shader files.
-	const char* VSS = "#version 330 core\n"
-		"layout (location = 0) in vec3 pos;\n"
-		"layout (location = 1) in vec3 color;\n"
-		"out vec3 outColor;\n"
-		"void main() {\n"
-		"gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);\n"
-		"outColor = color; }\0";
-
-
-	const char* FSS = "#version 330 core\n"
-		"out vec4 FragColor;\n"
-		"in vec3 outColor;\n"
-		"void main() { FragColor = vec4(outColor, 1.0f); }\n\0";
+	// -- Read glsl files.
+	std::string VSSinput = readShaderCode("VSS.glsl");
+	std::string FSSinput = readShaderCode("FSS.glsl");
+	std::string TVSSinput = readShaderCode("TVSS.glsl");
+	std::string TFSSinput = readShaderCode("TFSS.glsl");
+	const char* VSS = VSSinput.c_str();
+	const char* FSS = FSSinput.c_str();
+	const char* TVS = TVSSinput.c_str();
+	const char* TFS = TFSSinput.c_str();
 
 	glfwInit();
 
@@ -36,8 +31,8 @@ SpectrumView::SpectrumView(){
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	/* Compile each shader's source code into a program. */
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	shaderProgram = glCreateProgram();
 	glShaderSource(vertexShader, 1, &VSS, NULL);
 	glShaderSource(fragmentShader, 1, &FSS, NULL);
@@ -49,6 +44,20 @@ SpectrumView::SpectrumView(){
 	glDeleteShader(vertexShader);	// -- delete shader after compilation.
 	glDeleteShader(fragmentShader);	// -- delete shader after compilation.
 
+	GLuint textureVertexShader = glCreateShader(GL_VERTEX_SHADER);
+	GLuint textureFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	textureShaderProgram = glCreateProgram();
+	glShaderSource(textureVertexShader, 1, &TVS, NULL);
+	glShaderSource(textureFragmentShader, 1, &TFS, NULL);
+	glCompileShader(textureVertexShader);
+	glCompileShader(textureFragmentShader);
+	glAttachShader(textureShaderProgram, textureVertexShader);
+	glAttachShader(textureShaderProgram, textureFragmentShader);
+	glLinkProgram(textureShaderProgram);
+	glDeleteShader(textureVertexShader);	// -- delete shader after compilation.
+	glDeleteShader(textureFragmentShader);	// -- delete shader after compilation.
+
+
 	glViewport(0, 0, 800, 800);
 	
 
@@ -57,7 +66,7 @@ SpectrumView::SpectrumView(){
 	FT_Face face;
 
 	FT_Init_FreeType(&freetype);
-	FT_New_Face(freetype, "C:/Users/Shadow/Desktop/openGLtest/openGLtest/fonts/monofonto.otf", 0, &face);
+	FT_New_Face(freetype, "./fonts/monofonto.otf", 0, &face);
 	FT_Set_Pixel_Sizes(face, 0, 14);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -98,39 +107,8 @@ SpectrumView::SpectrumView(){
 	glBindTexture(GL_TEXTURE_2D, 0);
 	FT_Done_Face(face);
 	FT_Done_FreeType(freetype);
-
-	const char* TVS =
-		"#version 330 core\n"
-		"layout (location = 0) in vec4 vertex;\n"
-		"out vec2 TexCoords;\n"
-		"uniform mat4 projection;\n"
-		"void main() {\n"
-		"   gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);\n"
-		"   TexCoords = vertex.zw;}\0 \n";
-
-	const char* TFS = 
-		"#version 330 core\n"
-		"in vec2 TexCoords;\n"
-		"out vec4 color;\n"
-		"uniform sampler2D text;\n"
-		"void main() {\n"
-		"   vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\n"
-		"   color = vec4(0.0, 1.0, 0.0, 1.0) * sampled;\n"
-		"}\n\0";
-
-	textureVertexShader = glCreateShader(GL_VERTEX_SHADER);
-	textureFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	textureShaderProgram = glCreateProgram();
-	glShaderSource(textureVertexShader, 1, &TVS, NULL);
-	glShaderSource(textureFragmentShader, 1, &TFS, NULL);
-	glCompileShader(textureVertexShader);
-	glCompileShader(textureFragmentShader);
-	glAttachShader(textureShaderProgram, textureVertexShader);
-	glAttachShader(textureShaderProgram, textureFragmentShader);
-	glLinkProgram(textureShaderProgram);
-	glDeleteShader(textureVertexShader);	// -- delete shader after compilation.
-	glDeleteShader(textureFragmentShader);	// -- delete shader after compilation.
-
+	
+	// -- generate text buffer. (switch text to batch rendering not char by char.)
 	glGenVertexArrays(1, &TVAO);
 	glGenBuffers(1, &TVBO);
 	glBindVertexArray(TVAO);
@@ -145,8 +123,11 @@ SpectrumView::SpectrumView(){
 SpectrumView::~SpectrumView(){
 	/* Memory Management */
 	glDeleteVertexArrays(1, &VAO);
+	glDeleteVertexArrays(1, &TVAO);
 	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &TVBO);
 	glDeleteProgram(shaderProgram);
+	glDeleteProgram(textureShaderProgram);
 	//glDeleteBuffers(1, &EBO);
 	glfwDestroyWindow(window);
 
@@ -176,6 +157,7 @@ void SpectrumView::draw(){
 
 	glfwSwapBuffers(window);
 }
+
 
 void SpectrumView::drawPlot(Plot* plot) {
 	/* Draw Plot structure. */
@@ -281,13 +263,11 @@ void SpectrumView::drawText(string text, float xNormalized , float yNormalized, 
 }
 
 
-GLFWwindow* SpectrumView::getWindow() {
-	return window;
-}
 
-void SpectrumView::setModel(SpectrumModel* givenModel){
-	model = givenModel;
-}
+GLFWwindow* SpectrumView::getWindow() { return window; }
+void SpectrumView::setModel(SpectrumModel* givenModel) { model = givenModel; }
+void SpectrumView::modelChanged() { draw(); }
+
 
 
 void SpectrumView::setController(SpectrumController* givenController){
@@ -304,11 +284,22 @@ void SpectrumView::setController(SpectrumController* givenController){
 	glfwSetMouseButtonCallback(window, mouseClick);
 	glfwSetKeyCallback(window, keyPress);
 
-
 	//glfwSetCursorPosCallback(window, handleMouseMovement);
 }
 
 
-void SpectrumView::modelChanged(){
-	draw();
+
+string SpectrumView::readShaderCode(const char* filename) {
+	string shader, line;
+	ifstream inputFile(filename);
+	if (!inputFile.good()) {
+		cout << "FAILED TO LOAD FILE: " << filename << " IN readShaderCode()" << endl;
+		exit(-42);
+	}
+	while (getline(inputFile, line)) {
+		shader.append(line);
+		shader.append("\n");
+	}
+	return shader;
 }
+

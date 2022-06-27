@@ -29,26 +29,27 @@ public:
 	};
 	std::map<char, Character> Characters;
 
-	SpectrumModel* model;
-
 	SpectrumView();
 	~SpectrumView();
-	void draw();
+
 	void setModel(SpectrumModel* givenModel);
 	void setController(SpectrumController* givenController);
 	GLFWwindow* getWindow();
+
 	void modelChanged();
 
 private:
 	GLuint VAO, VBO, TVAO, TVBO; //EBO;
-	GLuint vertexShader, fragmentShader, shaderProgram;
-	GLuint textureVertexShader, textureFragmentShader, textureShaderProgram;
+	GLuint shaderProgram, textureShaderProgram;
 	GLFWwindow* window;
 
+	SpectrumModel* model;
+
+	void draw();
 	void drawPlot(Plot* plot);
 	void drawText(string text, float xNormalized, float yNormalized, float scale);
-	
+	string readShaderCode(const char* filename); 
+
 };
 
 #endif // !SPECTRUMVIEW_H
-
