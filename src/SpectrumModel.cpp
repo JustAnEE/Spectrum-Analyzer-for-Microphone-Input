@@ -17,13 +17,16 @@ SpectrumModel::~SpectrumModel(){
 
 
 
-vector<Plot*> SpectrumModel::getPlotVector(){
-	return plotVector;
-}
+vector<Plot*> SpectrumModel::getPlotVector() { return plotVector; }
+void SpectrumModel::setWindowFlag(int flag) { WINDOWFLAG = flag; }
+void SpectrumModel::setMethodFlag(int flag) { METHODFLAG = flag; }
+void SpectrumModel::setFilterFlag(int flag) { FILTERFLAG = flag; }
+void SpectrumModel::setDetrendFlag() { DETREND = !DETREND; }
 
 
 
-Plot* SpectrumModel::detectHit(GLfloat xpos, GLfloat ypos){
+
+Plot* SpectrumModel::detectHitPlot(GLfloat xpos, GLfloat ypos){
 	for (Plot* plot : plotVector) {
 		if (plot->validClick(xpos, ypos)) {
 			return plot;
@@ -33,10 +36,13 @@ Plot* SpectrumModel::detectHit(GLfloat xpos, GLfloat ypos){
 	return nullptr;
 }
 
+
+
+
 void SpectrumModel::addPlot(
 	GLfloat xpos,		GLfloat ypos,		GLfloat width,		GLfloat height,
 	GLfloat refminX,	GLfloat refminY,	GLfloat refmaxX,	GLfloat refmaxY,
-	int rows,			int cols,			DSP_METHOD methodFlag, bool xLinear, bool yLinear){
+	int rows,			int cols,			DSPFUNC methodFlag, bool xLinear, bool yLinear){
 	
 	// -- Create a new plot.
 	Plot* newPlot = new Plot(xpos, ypos, width, height, refminX, refminY, refmaxX, refmaxY, rows, cols, xLinear, yLinear);
@@ -46,7 +52,7 @@ void SpectrumModel::addPlot(
 	void (SpectrumModel::*functionPointer)(Plot*);
 
 	switch (methodFlag){
-		case NORMAL:
+		case TIMESERIES:
 			newPlot->setTitle("Time Series");
 			newPlot->setAxisLables("t", "A");
 			functionPointer = &SpectrumModel::timeSeries;
@@ -88,6 +94,11 @@ void SpectrumModel::removePlot(Plot* givenPlot){
 	}
 	notifySubscribers();
 }
+
+
+
+
+
 
 void SpectrumModel::processData(){
 	
@@ -150,10 +161,10 @@ void SpectrumModel::readMicData() {
 		count++;
 
 	}
-	ofstream audioFile;
+	/*ofstream audioFile;
 	audioFile.open("AFTER.WAV", ios::binary | ios::out);
 	audioFile.write(rawBytesPtr, rawSize);
-	audioFile.close();
+	audioFile.close();*/
 	free(rawBytesPtr);
 }
 
@@ -183,7 +194,7 @@ void SpectrumModel::timeSeries(Plot* plot) {
 	GLfloat* converted = (GLfloat*)calloc(SAMPLES*2, sizeof(GLfloat));
 	for (int i = 0; i < SAMPLES; i++) {
 		converted[2 * i]     = ((GLfloat)i) / ((GLfloat)SAMPLES);	// -- x coord
-		converted[2 * i + 1] = inputData[i];							// -- y cord
+		converted[2 * i + 1] = inputData[i];						// -- y cord
 	}
 
 	plot->setRawData(converted, SAMPLES * 2);
@@ -201,6 +212,6 @@ void SpectrumModel::addSubscriber(SpectrumModelSubscriber* newSub){
 
 void SpectrumModel::notifySubscribers(){
 	for (SpectrumModelSubscriber* sub : subscribers) {
-		sub->modelChanged();
+		sub->DModelChanged();
 	}
 }

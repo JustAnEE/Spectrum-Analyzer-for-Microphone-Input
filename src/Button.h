@@ -6,32 +6,24 @@
 
 #include <glm/glm.hpp>
 
-#include "TextLabel.h"
+#include "Widget.h"
 
-class Button{
+class Button : public Widget{
 public:
-	Button(glm::vec3 _location, glm::vec3 _color, float _width, float _height, std::string _text);
+	Button(glm::vec3 _location, glm::vec3 _color, float _width, float _height, std::string _text, std::string _ID);
 	~Button();
 
-
-	bool detectClick(double xpos, double ypos, int type);
+	// -- virtual function implemntation
+	int detectClick(double xpos, double ypos);
 
 	glm::vec3 getDrawLocation();
 	TextLabel* getLabelText();
-	float getWidth();
-	float getHeight();
-
-	void setPressedFlag(bool status);
 
 
 private:
 	bool PRESSED;
+	float bottom, top, left, right;
 
-	float* vertexBuffer;
-
-	glm::vec3 location, color;
-	float width, height;
-	TextLabel* text;
 	std::string textString;
 
 	void fillVertexBuffer();

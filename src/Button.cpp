@@ -1,6 +1,8 @@
 #include "Button.h"
 
-Button::Button(glm::vec3 _location, glm::vec3 _color, float _width, float _height, std::string _text){
+Button::Button(glm::vec3 _location, glm::vec3 _color, float _width, float _height, std::string _text, std::string _ID){
+    ID = _ID;
+    
     PRESSED = false;
     location = _location;
     color = _color;
@@ -8,9 +10,16 @@ Button::Button(glm::vec3 _location, glm::vec3 _color, float _width, float _heigh
     height = _height;
     textString = _text;
 
+    left = location.x - (width / 2);
+    right = location.x + (width / 2);
+    bottom = location.y - (height / 2);
+    top = location.y + (height / 2);
+
+    vertexBufferSizeBytes = 8 * 6 * sizeof(float);
     vertexBuffer = (float*)calloc(8 * 6, sizeof(float));
     
     fillVertexBuffer();
+    fillTextLabel();
 }
 
 Button::~Button(){
@@ -19,20 +28,16 @@ Button::~Button(){
 
 
 
-bool Button::detectClick(double xpos, double ypos, int type) {
-    if (xpos > location.x && xpos < location.x + width && ypos > location.y && ypos < location.y + height) {
-        PRESSED = (type == 1) ? true : false;
-        return true;
+int Button::detectClick(double xpos, double ypos) {
+    if (xpos >= left && xpos <= right && ypos >= bottom && ypos <= top) {
+        return 0;
     }
-    return false;
+    return -1;
 }
 
 
 glm::vec3 Button::getDrawLocation(){ return location; }
-TextLabel* Button::getLabelText(){ return text; }
-float Button::getWidth() { return width; }
-float Button::getHeight() { return height; }
-
+TextLabel* Button::getLabelText(){ return  textList[0]; }
 
 
 
@@ -69,7 +74,7 @@ void Button::fillVertexBuffer(){
 }
 
 void Button::fillTextLabel(){
-    free(text);
-    if (PRESSED) { text = new TextLabel(location, glm::vec3 (1.0f, 0.7f, 0.27f), width * 0.7, textString); }
-    else { text = new TextLabel(location, color, width * 0.7, textString); }
+    textList.clear();
+    if (PRESSED) { textList.push_back(new TextLabel(location, glm::vec3 (1.0f, 0.7f, 0.27f), width * 0.7, textString)); }
+    else { textList.push_back(new TextLabel(location, color, width * 0.7, textString)); }
 }

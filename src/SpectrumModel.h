@@ -5,7 +5,6 @@
 #include<vector>
 
 #include<fstream>
-#include <bitset>
 
 #include<Windows.h>
 #include<mmsystem.h>
@@ -23,7 +22,9 @@ using namespace std;
 class SpectrumModel {
 
 public:
-	enum DSP_METHOD {NORMAL, DB_MAG, MAG, PWR_SPECTRUM};
+	enum DSPFUNC {TIMESERIES, DB_MAG, MAG, PWR_SPECTRUM};
+	enum WINDOWFUNC {};
+	enum FILTERFUNC {};
 
 	SpectrumModel();
 	~SpectrumModel();
@@ -32,13 +33,20 @@ public:
 	vector<Plot*> getPlotVector();
 
 	// -- Plot object methods.
-	Plot* detectHit(GLfloat xpos, GLfloat ypos);
+	Plot* detectHitPlot(GLfloat xpos, GLfloat ypos);
 	void removePlot(Plot* plot);
 	void addPlot(
 		GLfloat xpos,		GLfloat ypos,		GLfloat width,		GLfloat height,
 		GLfloat refminX,	GLfloat refminY,	GLfloat refmaxX,	GLfloat refmaxY,
-		int rows,			int cols,			DSP_METHOD funFlag, bool xLinear, bool yLinear
+		int rows,			int cols,           DSPFUNC funFlag, bool xLinear, bool yLinear
 	);
+
+	// -- Flagset methods
+	void setWindowFlag(int flag);
+	void setMethodFlag(int flag);
+	void setFilterFlag(int flag);
+	void setDetrendFlag();
+	//void setNormalizeFlag();
 
 
 	// -- Plot object modifier methods.
@@ -55,9 +63,14 @@ public:
 
 
 private:
+	int WINDOWFLAG, METHODFLAG, FILTERFLAG;
+	bool DETREND, NORMALIZE;
+
 	int inputDataSize, SAMPLES;
 	GLfloat* inputData;
+
 	vector<Plot*> plotVector;
+
 	vector<SpectrumModelSubscriber*> subscribers;
 	vector<void(SpectrumModel::*)(Plot*)> plotMethodVector;
 	MicInput* format;

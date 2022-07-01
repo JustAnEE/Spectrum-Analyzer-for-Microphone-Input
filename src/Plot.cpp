@@ -4,13 +4,14 @@
 /* PUBLIC METHODS */
 Plot::Plot( GLfloat centX,	  GLfloat centY,	GLfloat w,		  GLfloat h,
 	        GLfloat refminX,  GLfloat refminY,  GLfloat refmaxX,  GLfloat refmaxY,
-	        int rows,		  int cols,		    SCALE scale){
+	        int rows,		  int cols,		    bool XLinear,     bool YLinear){
 
 	centerX = centX;	centerY = centY;
 	width = w;		height = h;
 	ROWS = rows;	COLS = cols;
 
-	curScale = scale;
+	isXAxisLinear = XLinear;
+	isYAxisLinear = YLinear;
 
 	refMinX = refminX;	refMaxX = refmaxX;
 	refMinY = refminY;	refMaxY = refmaxY;
@@ -22,7 +23,7 @@ Plot::Plot( GLfloat centX,	  GLfloat centY,	GLfloat w,		  GLfloat h,
 	initGridVertexArray();
 	initRowColLabelVectors();
 	fillRowColLabelVectors();
-	fillGridVertexArray(curScale);
+	fillGridVertexArray();
 }
 
 //Plot::~Plot(){
@@ -39,7 +40,7 @@ void Plot::setRowsAndCols(int numRows, int numCols){
 	initGridVertexArray();
 	initRowColLabelVectors();
 	fillRowColLabelVectors();
-	fillGridVertexArray(curScale);
+	fillGridVertexArray();
 }
 
 void Plot::setRawData(GLfloat* vertexArrayPtr, int size){
@@ -100,7 +101,7 @@ void Plot::changeReferenceFrame(GLfloat minX, GLfloat minY, GLfloat maxX, GLfloa
 void Plot::scalePlot(GLfloat givenW, GLfloat givenH){
 	width += givenW;
 	height += givenH;
-	fillGridVertexArray(curScale);
+	fillGridVertexArray();
 	fillDataVertexArray();
 	initRowColLabelVectors();
 	fillRowColLabelVectors();
@@ -109,7 +110,7 @@ void Plot::scalePlot(GLfloat givenW, GLfloat givenH){
 void Plot::movePlot(GLfloat givenX, GLfloat givenY){
 	centerX = givenX;
 	centerY = givenY;
-	fillGridVertexArray(curScale);
+	fillGridVertexArray();
 	fillDataVertexArray();
 	initRowColLabelVectors();
 	fillRowColLabelVectors();
@@ -148,7 +149,7 @@ void Plot::initRowColLabelVectors() {
 }
 
 
-void Plot::fillGridVertexArray(SCALE scale){
+void Plot::fillGridVertexArray(){
 
 	GLfloat absOffsetX, absOffsetY;
 	GLfloat left = centerX - (width / 2);
@@ -205,8 +206,24 @@ void Plot::fillDataVertexArray() {
 
 	for (int i = 0; i < dataSize; i += 6) {
 		int rawIdx = i / 3;
-		GLfloat x = ((rawDataArray[rawIdx] - refMinX) / (refMaxX - refMinX) * width) + left;
-		GLfloat y = ((rawDataArray[rawIdx + 1] - refMinY) / (refMaxY - refMinY) * height) + bottom;
+		GLfloat x = 0;
+		GLfloat y = 0;
+
+		// -- Linear / log PLOTTING
+		if (isXAxisLinear) {
+			x = ((rawDataArray[rawIdx] - refMinX) / (refMaxX - refMinX) * width) + left;
+		}
+		else {
+			x = (log10(rawDataArray[rawIdx] - refMinX) / log10(refMaxX - refMinX) * width) + left;
+		}
+
+		if (isYAxisLinear) {
+			y = ((rawDataArray[rawIdx + 1] - refMinY) / (refMaxY - refMinY) * height) + bottom;
+		}
+		else{
+			y = ( log10(rawDataArray[rawIdx + 1] - refMinY) / log10(refMaxY - refMinY) * height) + bottom;
+		}
+		
 
 		// -- SMUSHING NOT GOOD need to remove the points from rendering buffer.
 		if (y < bottom) { y = bottom; }
@@ -223,7 +240,7 @@ void Plot::fillDataVertexArray() {
 	}
 }
 
-void Plot::fillRowColLabelVectors(){
+void Plot::fillRowColLabelVectors() {
 
 	GLfloat left = centerX - (width / 2);
 	GLfloat right = centerX + (width / 2);
@@ -232,29 +249,46 @@ void Plot::fillRowColLabelVectors(){
 
 	GLfloat absOffsetX = width / static_cast<float>(COLS);
 	GLfloat absOffsetY = height / static_cast<float>(ROWS);
-	GLfloat deltaX = (refMaxX - refMinX) / static_cast<float>(COLS);
-	GLfloat deltaY = (refMaxY - refMinY) / static_cast<float>(ROWS);
+	GLfloat deltaX = (isXAxisLinear) ? (refMaxX - refMinX) / static_cast<float>(COLS) : 1.0f;
+	GLfloat deltaY = (isYAxisLinear) ? (refMaxY - refMinY) / static_cast<float>(ROWS) : 1.0f;
 	
+
 	rowLabels.push_back(to_string((int)refMinY));
 	rowLabelsYPos.push_back(bottom);
-	colLabels.push_back(to_string((int)refMinX));
-	colLabelsXPos.push_back(left);
-
 	rowLabels.push_back(to_string((int)refMaxY));
 	rowLabelsYPos.push_back(top);
+
+	colLabels.push_back(to_string((int)refMinX));
+	colLabelsXPos.push_back(left);
 	colLabels.push_back(to_string((int)refMaxX));
 	colLabelsXPos.push_back(right);
 
-	// -- fill positions and calculate label strings
+
+	// -- fill main positions and calculate label strings
 	for (int i = 1; i < ROWS; i++) {
 		bottom += absOffsetY;
 		rowLabelsYPos.push_back(bottom);
-		rowLabels.push_back(to_string((int)(refMinY + ( i * deltaY))));
+
+		int value = (int)(refMinY + (i * deltaY));
+		if (!isYAxisLinear) { 
+			deltaY *= 10.0f;
+			value = deltaY;
+		}
+
+		rowLabels.push_back(to_string(value));
 	}
+
 	for (int i = 1; i < COLS; i++) {
 		left += absOffsetX;
 		colLabelsXPos.push_back(left);
-		colLabels.push_back(to_string((int)(refMinX + (i * deltaX))));
+
+		int value = (int)(refMinX + (i * deltaX));
+		if (!isXAxisLinear) {
+			deltaX *= 10.0f;
+			value = deltaX;
+		}
+
+		colLabels.push_back(to_string(value));
 	}
 
 }

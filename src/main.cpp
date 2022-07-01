@@ -1,18 +1,25 @@
 #include <iostream>
 #include "SpectrumModel.h"
+#include "InteractionModel.h"
 #include "SpectrumView.h"
 #include "SpectrumController.h"
 
 int main() {
 	SpectrumController* controller = new SpectrumController();
 	SpectrumModel* model = new SpectrumModel();
+	InteractionModel* IModel = new InteractionModel();
 	SpectrumView* view = new SpectrumView();
 
 	// -- Set MVC connections.
-	view->setModel(model);
+	view->setModels(model, IModel);
 	view->setController(controller);
-	controller->setModel(model);
+	controller->setDModel(model);
+	controller->setIModel(IModel);
+
+	// -- Pub Sub connections.
 	model->addSubscriber(view);
+	IModel->addSubscriber(view);
+
 
 	GLFWwindow* window = view->getWindow();
 

@@ -118,6 +118,28 @@ SpectrumView::SpectrumView(){
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+
+
+	// -- adding widgets
+	Button* b1 = new Button(glm::vec3(-0.8f, 0.9f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.2f, 0.1f, "Methods", "Method");
+	Button* b2 = new Button(glm::vec3(-0.5f, 0.9f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.2f, 0.1f, "Windows", "Window");
+	Button* b3 = new Button(glm::vec3(-0.2f, 0.9f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.2f, 0.1f, "Filters", "Filter");
+	Button* b4 = new Button(glm::vec3( 0.1f, 0.9f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.2f, 0.1f, "Detrend", "Detrend");
+
+
+	methods = { "Time series", "Frequency Response", "dB Magnitude Response", "Power spectrum", "2D Spectrogram"};
+	windows = { "Hamming", "Blackman", "Barlett", "Rectangular"};
+	filters = { "A", "B",  "C",  "D",  "E",  "F...",  "G...",  "H...",  "I...",  "J...", };
+
+	ListMenu* menu = new ListMenu(glm::vec3(0.65f, -0.25f, 0.0f), 0.5f, 1.25f, "Methods", methods, "list");
+
+	widgets.push_back(b1);
+	widgets.push_back(b2);
+	widgets.push_back(b3);
+	widgets.push_back(b4);
+	widgets.push_back(menu);
+
 }
 
 SpectrumView::~SpectrumView(){
@@ -136,11 +158,33 @@ SpectrumView::~SpectrumView(){
 
 
 
+
+void SpectrumView::detectClick(double xpos, double ypos) {
+	// -- Yucky click detection method in the view
+	for (Widget* w : widgets) {
+		int result = w->detectClick(xpos, ypos);
+		if (result != -1) {
+			// -- call widgets callback function pointer.
+			w->action(result);
+		}
+	}
+}
+
+void SpectrumView::swapListMenu(std::string menuID){
+	if (menuID == "Method") { ((ListMenu*)widgets[4])->setText(menuID, methods); }
+	else if (menuID == "Window") { ((ListMenu*)widgets[4])->setText(menuID, windows); }
+	else if (menuID == "Filter") { ((ListMenu*)widgets[4])->setText(menuID, filters); }
+}
+
+
+
+
 void SpectrumView::draw(){
 	// -- Draw background.
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	// -- Draw Plots.
 	for (Plot* plot : model->getPlotVector()) {
 		drawPlot(plot);
 		drawText(plot->getTitle(),  plot->getTitleXPos(), plot->getTitleYPos(), 1.0f);
@@ -155,8 +199,46 @@ void SpectrumView::draw(){
 		}
 	}
 
+	// -- Draw Widgets.
+	for (Widget* w : widgets) {
+		drawWidget(w);
+	}
+
+
 	glfwSwapBuffers(window);
 }
+
+
+void SpectrumView::drawWidget(Widget* widget) {
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, widget->getVertexBufferSizeBytes(), widget->getVertexBuffer(), GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+
+	glUseProgram(shaderProgram);
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_LINES, 0, widget->getVertexBufferSizeBytes() / (6 * sizeof(float)));
+
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+
+	for (TextLabel* t : widget->getTextList()) {
+		drawText(t);
+	}
+}
+
+
 
 
 void SpectrumView::drawPlot(Plot* plot) {
@@ -181,7 +263,7 @@ void SpectrumView::drawPlot(Plot* plot) {
 
 	glUseProgram(shaderProgram);
 	glBindVertexArray(VAO);
-	glDrawArrays(GL_LINES, 0, (plot->getPlotSize() * 2) / (12 * sizeof(GLfloat)));
+	glDrawArrays(GL_LINES, 0, plot->getPlotSize() / (6 * sizeof(GLfloat)));
 
 	// -- Delete buffers.
 	glDeleteVertexArrays(1, &VAO);
@@ -214,17 +296,30 @@ void SpectrumView::drawPlot(Plot* plot) {
 }
 
 
-void SpectrumView::drawText(string text, float xNormalized , float yNormalized, float scale) {
+void SpectrumView::drawText(TextLabel* textLabel) {
 	// activate corresponding render state	
 	glUseProgram(textureShaderProgram);
-	glm::mat4 projection = glm::ortho(0.0f, 800.0f, 0.0f, 800.0f);
-	glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(TVAO);
 
-	// -- Unnormalize.
-	float x = (xNormalized + 1.0f) * (800.0f / 2.0f);
-	float y = (yNormalized + 1.0f) * (800.0f / 2.0f);
+	// -- set uniforms
+	glUniform3f(glGetUniformLocation(textureShaderProgram, "textColor"), textLabel->color.r, textLabel->color.g, textLabel->color.b);
+	
+	string text = textLabel->text;
+
+
+	float span = 0.0f;
+	for (int i = 0; i < text.size(); i++) {
+		span += (Characters[text[i]].Advance >> 6);
+	}
+
+	// -- Pixel world locations of TextLabel position.
+	float x = ((textLabel->origin.x - textLabel->width / 2.0f) + 1.0f) * (600.0f / 2.0f);
+	float y = (textLabel->origin.y + 1.0f) * (800.0f / 2.0f);
+
+	// -- Calculate how much to scale the text to fit the label.
+	float scale = (textLabel->width / 2.0f * 600) / span;
+	float scale = 1.0f;
 
 	// iterate through all characters
 	for (int i = 0; i < text.size(); i++) {
@@ -233,8 +328,11 @@ void SpectrumView::drawText(string text, float xNormalized , float yNormalized, 
 		float xpos = x + ch.Bearing.x * scale;
 		float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
 
-		float w = ch.Size.x * scale;
-		float h = ch.Size.y * scale;
+		// -- Normalized position to -1.0 to 1.0
+		xpos = ((2.0f * xpos) / 600.0f) - 1.0f;
+		ypos = ((2.0f * ypos) / 800.0f) - 1.0f;
+		float w = (ch.Size.x * scale) / (600.0f / 2.0f);
+		float h = (ch.Size.y * scale) / (800.0f / 2.0f);
 
 
 		// update VBO for each character
@@ -265,14 +363,15 @@ void SpectrumView::drawText(string text, float xNormalized , float yNormalized, 
 
 
 GLFWwindow* SpectrumView::getWindow() { return window; }
-void SpectrumView::setModel(SpectrumModel* givenModel) { model = givenModel; }
-void SpectrumView::modelChanged() { draw(); }
+void SpectrumView::setModels(SpectrumModel* _model, InteractionModel* _IModel) {
+	model = _model;
+	IModel = _IModel;
+}
 
 
-
-void SpectrumView::setController(SpectrumController* givenController){
+void SpectrumView::setController(SpectrumController* _controller){
 	// -- Event Handling
-	glfwSetWindowUserPointer(window, givenController);
+	glfwSetWindowUserPointer(window, _controller);
 
 	auto mouseClick = [](GLFWwindow* window, int button, int action, int mods) {
 		static_cast<SpectrumController*>(glfwGetWindowUserPointer(window))->handleMouseClick(window, button, action, mods);
@@ -281,12 +380,22 @@ void SpectrumView::setController(SpectrumController* givenController){
 	auto keyPress = [](GLFWwindow* window, int key, int scancode, int action, int mods) {
 		static_cast<SpectrumController*>(glfwGetWindowUserPointer(window))->handleKeyPressed(window, key, scancode, action, mods);
 	};
+
+	auto mouseScroll = [](GLFWwindow* window, double xoffset, double yoffset) {
+		static_cast<SpectrumController*>(glfwGetWindowUserPointer(window))->handleMouseScroll(window, xoffset, yoffset);
+	};
+
+	widgets[0]->setWidgetCallback(&(SpectrumController::handleListButton), _controller);
+	widgets[1]->setWidgetCallback(&(SpectrumController::handleListButton), _controller);
+	widgets[2]->setWidgetCallback(&(SpectrumController::handleListButton), _controller);
+	widgets[3]->setWidgetCallback(&(SpectrumController::handleBooleanButton), _controller);
+	widgets[4]->setWidgetCallback(&(SpectrumController::handleListMenu), _controller);
+
 	glfwSetMouseButtonCallback(window, mouseClick);
 	glfwSetKeyCallback(window, keyPress);
-
+	glfwSetScrollCallback(window, mouseScroll);
 	//glfwSetCursorPosCallback(window, handleMouseMovement);
 }
-
 
 
 string SpectrumView::readShaderCode(const char* filename) {
@@ -303,3 +412,10 @@ string SpectrumView::readShaderCode(const char* filename) {
 	return shader;
 }
 
+
+
+void SpectrumView::DModelChanged() { draw(); }
+void SpectrumView::IModelChanged() { 
+	swapListMenu(IModel->getCurrentListMenuID());
+	draw(); 
+}

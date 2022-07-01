@@ -1,15 +1,17 @@
 #ifndef PLOT_H
 #define PLOT_H
+
 #include <iostream>
 #include <string>
 #include <vector>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "TextLabel.h"
+
 using namespace std;
 
 class Plot {
 public:
-	enum SCALE { LINEAR = 0, LOGARITHMIC = 1 };
 	GLfloat refMinX, refMinY, refMaxX, refMaxY;
 
 	/**
@@ -20,7 +22,7 @@ public:
 	*/
 	Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h,
 		GLfloat refminX, GLfloat refminY, GLfloat refmaxX, GLfloat refmaxY,
-		int rows, int cols, SCALE scale);
+		int rows, int cols, bool XLinear, bool YLinear);
 
 
 	/**
@@ -293,7 +295,8 @@ private:
 
 	int plotSize, dataSize, rawSize, labelSize;
 	int ROWS, COLS;
-	SCALE curScale;
+	
+	bool isXAxisLinear, isYAxisLinear;
 
 	string title, xAxisLabel, yAxisLabel;
 	vector<string> rowLabels;
@@ -309,7 +312,7 @@ private:
 	*
 	* @return,					Void.
 	*/
-	void fillGridVertexArray (SCALE scale);
+	void fillGridVertexArray();
 	
 
 	/**

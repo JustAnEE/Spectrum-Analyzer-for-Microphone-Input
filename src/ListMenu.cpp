@@ -2,7 +2,12 @@
 
 
 
-ListMenu::ListMenu(glm::vec3 _location, float _width, float _height, std::string _title, std::vector<std::string> _options) {
+ListMenu::ListMenu(
+        glm::vec3 _location, float _width, float _height, std::string _title, 
+        std::vector<std::string> _options, std::string _ID
+    ) {
+    ID = _ID;
+
     optionsShown = 6;
     windowStart = 1;
 
@@ -10,19 +15,19 @@ ListMenu::ListMenu(glm::vec3 _location, float _width, float _height, std::string
     width = _width;
     height = _height;
     optionStrings = _options;
+    title = _title;
+
 
     left = location.x - (width / 2);
     right = location.x + (width / 2);
     bottom = location.y - (height / 2);
     top = location.y + (height / 2);
 
-    float titleHeight = (15.0f / 16.0f) * height + bottom;
-
     // -- create title and options TextLables.
-    title = new TextLabel(glm::vec3(_location.x, titleHeight, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), width * 0.9f, _title);
     fillOptionText();
 
     // -- Initialize the vertex buffer
+    vertexBufferSizeBytes = 10 * 6 * sizeof(float);
     vertexBuffer = (float*)calloc(10 * 6, sizeof(float));
     fillVertexBuffer();
 }
@@ -34,9 +39,15 @@ ListMenu::~ListMenu() {
 
 
 
+void ListMenu::setText(std::string _title, std::vector<std::string> _options) {
+    title = _title;
+    optionStrings = _options;
+    fillOptionText();
+}
 
+// -- Virtual function implemntation.
 int ListMenu::detectClick(double xpos, double ypos) {
-    float range  = 0.01;
+    float range  = 0.05;
     float optionHeight = 7.0f / 8.0f * height;
 
     int size = (optionStrings.size() >= optionsShown) ? optionsShown : optionStrings.size();
@@ -46,12 +57,13 @@ int ListMenu::detectClick(double xpos, double ypos) {
         float y = i * (optionHeight / (optionsShown + 1)) + bottom;
 
         if (xpos > left && xpos < right && ypos > y - range && ypos < y + range) {
+            cout << "selected: " << i << endl;
             return i;
         }
     }
 
     
-    return 0;
+    return -1;
 }
 
 
@@ -102,12 +114,18 @@ void ListMenu::fillVertexBuffer(){
 
 
 void ListMenu::fillOptionText(){
-    optionLabels.clear();
+    textList.clear();
+
+    float titleHeight = (15.0f / 16.0f) * height + bottom;
+    textList.push_back(new TextLabel(glm::vec3(location.x, titleHeight, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), width * 0.9f, title));
+
     float optionHeight = 7.0f / 8.0f * height;
 
-    for (int i = windowStart; i <= windowStart + optionsShown; i++) {
-        float y = i * (optionHeight / (optionsShown + 1)) + bottom;
-        optionLabels.push_back(
+    int size = (optionStrings.size() >= optionsShown) ? optionsShown : optionStrings.size();
+
+    for (int i = windowStart; i < windowStart + size; i++) {
+        float y = optionHeight - ( i * (optionHeight / (optionsShown + 1))) + bottom;
+        textList.push_back(
             new TextLabel(
                 glm::vec3(location.x, y, 0.0f),
                 glm::vec3(0.0f, 1.0f, 0.0f),
@@ -115,7 +133,6 @@ void ListMenu::fillOptionText(){
                 optionStrings[i - 1]
             )
         );
-    
     }
 
 }
