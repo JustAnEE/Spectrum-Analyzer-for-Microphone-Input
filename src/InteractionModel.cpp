@@ -9,11 +9,18 @@ std::string InteractionModel::getCurrentListMenuID() {
 	return currentListMenuID;
 }
 
-void InteractionModel::detectHitWidget(double xpos, double ypos){
+void InteractionModel::detectClickWidget(double xpos, double ypos){
 	for (InteractionModelSubscriber* sub : subscribers) {
 		sub->detectClick(xpos, ypos);
 	}
 }
+
+void InteractionModel::detectScrollWidget(double xpos, double ypos, int direction) {
+	for (InteractionModelSubscriber* sub : subscribers) {
+		sub->detectScroll(xpos, ypos, direction);
+	}
+}
+
 
 void InteractionModel::swapListMenu(std::string MenuID){
 	currentListMenuID = MenuID;

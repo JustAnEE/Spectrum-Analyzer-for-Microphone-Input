@@ -18,7 +18,7 @@ public:
 	void setText(std::string _title, std::vector<std::string> _options);
 
 	int detectClick(double xpos, double ypos);
-	void scrollOptions(int direction);
+	void scrollOptions(double xpos, double ypos, int direction);
 
 private:
 	// -- only draw 6 options 1 for each slot. if there are more than 6 options, each scroll will slide

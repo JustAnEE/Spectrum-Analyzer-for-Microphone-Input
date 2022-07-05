@@ -26,7 +26,7 @@ void SpectrumModel::setDetrendFlag() { DETREND = !DETREND; }
 
 
 
-Plot* SpectrumModel::detectHitPlot(GLfloat xpos, GLfloat ypos){
+Plot* SpectrumModel::detectClickPlot(GLfloat xpos, GLfloat ypos){
 	for (Plot* plot : plotVector) {
 		if (plot->validClick(xpos, ypos)) {
 			return plot;
@@ -63,7 +63,7 @@ void SpectrumModel::addPlot(
 			functionPointer = &SpectrumModel::magnitudeResponse;
 			break;
 		case DB_MAG:
-			newPlot->setTitle("Decible Magnitude Response");
+			newPlot->setTitle("Decibel Magnitude Response");
 			newPlot->setAxisLables("f(Hz)", "dB");
 			functionPointer = &SpectrumModel::DBmagnitudeResponse;
 			break;

@@ -20,7 +20,9 @@ public:
 	std::string getCurrentListMenuID();
 
 	// -- Widget Methods.
-	void detectHitWidget(double xpos, double ypos);
+	void detectClickWidget(double xpos, double ypos);
+	void detectScrollWidget(double xpos, double ypos, int direction);
+
 	void swapListMenu(std::string MenuID);
 
 	// -- Pub-Sub methods.

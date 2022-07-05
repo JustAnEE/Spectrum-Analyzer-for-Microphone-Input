@@ -33,7 +33,7 @@ public:
 	vector<Plot*> getPlotVector();
 
 	// -- Plot object methods.
-	Plot* detectHitPlot(GLfloat xpos, GLfloat ypos);
+	Plot* detectClickPlot(GLfloat xpos, GLfloat ypos);
 	void removePlot(Plot* plot);
 	void addPlot(
 		GLfloat xpos,		GLfloat ypos,		GLfloat width,		GLfloat height,

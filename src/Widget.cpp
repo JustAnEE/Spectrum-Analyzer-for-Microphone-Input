@@ -20,12 +20,16 @@ std::vector<TextLabel*> Widget::getTextList() {
     return textList;
 }
 
-
-void Widget::setWidgetCallback(func_ptr _ptr, SpectrumController* _controller) {
+void Widget::setController(SpectrumController* _controller) {
     controller = _controller;
-    ptr = _ptr;
 }
 
-void Widget::action(int flag){
-    (controller->*ptr)(ID, flag);
+
+void Widget::setClickCallback(func_ptr _ptr) {
+    clickCallbackFunction = _ptr;
 }
+
+void Widget::clickAction(int flag){
+    (controller->*clickCallbackFunction)(ID, flag);
+}
+

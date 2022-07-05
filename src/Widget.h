@@ -18,18 +18,23 @@ public:
 	float getWidth();
 	float getHeight();
 
+	// -- openGL vertex Objects
 	float* getVertexBuffer();
 	int getVertexBufferSizeBytes();
 	std::vector<TextLabel*> getTextList();
 
-	void setWidgetCallback(func_ptr _ptr, SpectrumController* controller);
-	void action(int flag);
+	// -- yucky
+	void setController(SpectrumController* controller);
+
+	// -- Callback functions.
+	void setClickCallback(func_ptr _ptr);
+	void clickAction(int flag);
 
 	virtual int detectClick(double xpos, double ypos) = 0;
 
 protected:
 	// -- Yucky pointers to controller in the widget class.
-	func_ptr ptr;
+	func_ptr clickCallbackFunction, scrollCallbackFunction;
 	SpectrumController* controller;
 
 

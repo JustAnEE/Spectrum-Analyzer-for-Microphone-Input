@@ -9,7 +9,7 @@ ListMenu::ListMenu(
     ID = _ID;
 
     optionsShown = 6;
-    windowStart = 1;
+    windowStart = 0;
 
     location = _location;
     width = _width;
@@ -42,23 +42,22 @@ ListMenu::~ListMenu() {
 void ListMenu::setText(std::string _title, std::vector<std::string> _options) {
     title = _title;
     optionStrings = _options;
+    windowStart = 0;
     fillOptionText();
 }
 
-// -- Virtual function implemntation.
+
 int ListMenu::detectClick(double xpos, double ypos) {
     float range  = 0.05;
     float optionHeight = 7.0f / 8.0f * height;
 
-    int size = (optionStrings.size() >= optionsShown) ? optionsShown : optionStrings.size();
+    int size = (optionStrings.size() < optionsShown) ? optionStrings.size() : optionsShown;
 
-    // -- check each option top down.
-    for (int i = optionsShown; i > optionsShown - size; i--) {
-        float y = i * (optionHeight / (optionsShown + 1)) + bottom;
+    for(int i = 0; i < size; i++){
+        float y = optionHeight - ( (i+1) / 7.0) + bottom;
 
         if (xpos > left && xpos < right && ypos > y - range && ypos < y + range) {
-            cout << "selected: " << i << endl;
-            return i;
+            return windowStart + i + 1;
         }
     }
 
@@ -67,12 +66,17 @@ int ListMenu::detectClick(double xpos, double ypos) {
 }
 
 
-void ListMenu::scrollOptions(int direction){
-    int upperLimit = optionStrings.size() - optionsShown;
-
+void ListMenu::scrollOptions(double xpos, double ypos, int direction){
+    // -- Only scroll if mouse is over the ListMenu
+    if( !(xpos > left && xpos < right && ypos > bottom && ypos < top) ) { return; }
+    
     // -- Only scroll if there are more options than 'optionsShown'.
     if (optionStrings.size() < optionsShown) { return; }
-    if ((windowStart == 1 && direction == -1) || (windowStart == upperLimit && direction == 1)) { return; }
+
+    // -- Only scroll if we have room to scroll. 
+    int upperLimit = optionStrings.size() - optionsShown - 1;
+    if (  (windowStart == 0 && direction == -1) || (windowStart == upperLimit && direction == 1)  ) { return; }
+    
     windowStart += direction;
     fillOptionText();
 }
@@ -117,20 +121,19 @@ void ListMenu::fillOptionText(){
     textList.clear();
 
     float titleHeight = (15.0f / 16.0f) * height + bottom;
+    float optionHeight = 7.0f / 8.0f * height;
+    int size = (optionStrings.size() < optionsShown) ? optionStrings.size() : optionsShown;
+
     textList.push_back(new TextLabel(glm::vec3(location.x, titleHeight, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), width * 0.9f, title));
 
-    float optionHeight = 7.0f / 8.0f * height;
-
-    int size = (optionStrings.size() >= optionsShown) ? optionsShown : optionStrings.size();
-
-    for (int i = windowStart; i < windowStart + size; i++) {
-        float y = optionHeight - ( i * (optionHeight / (optionsShown + 1))) + bottom;
+    for(int i = 0; i < size; i++){
+        float y = optionHeight - ((i + 1) / 7.0) + bottom;
         textList.push_back(
             new TextLabel(
                 glm::vec3(location.x, y, 0.0f),
                 glm::vec3(0.0f, 1.0f, 0.0f),
                 width * 0.9f,
-                optionStrings[i - 1]
+                optionStrings[windowStart + i]
             )
         );
     }

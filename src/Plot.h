@@ -6,6 +6,7 @@
 #include <vector>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 #include "TextLabel.h"
 
 using namespace std;
@@ -23,8 +24,18 @@ public:
 	Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h,
 		GLfloat refminX, GLfloat refminY, GLfloat refmaxX, GLfloat refmaxY,
 		int rows, int cols, bool XLinear, bool YLinear);
-
-
+	
+	~Plot();
+	
+	/**
+	* Gets a vector of Textlabels.
+	*
+	* @return, vector<Textlabel*> pointer
+	*/
+	vector<TextLabel*> getText();
+	
+	
+	
 	/**
 	* Sets the number of rows and columns of the THIS Plot object.
 	*
@@ -63,123 +74,6 @@ public:
 	* @return,					Void.
 	*/
 	void setAxisLables(string xAxisLabel, string yAxisLabel);
-
-	/**
-	* Gets the Plot's title.
-	*
-	* @return, string
-	*/
-	string getTitle();
-
-	/**
-	* Gets the Plot's x-axis lable.
-	*
-	* @return, string
-	*/
-	string getXLabel();
-
-	/**
-	* Gets the Plot's y-axis lable.
-	*
-	* @return, string
-	*/
-	string getYLabel();
-
-
-	/**
-	* Calculates the Plot's title x-Coordinate.
-	*
-	* @return, GLfloat
-	*/
-	GLfloat getTitleXPos();
-
-
-	/**
-	* Calculates the Plot's title y-Coordinate.
-	*
-	* @return, GLfloat
-	*/
-	GLfloat getTitleYPos();
-
-
-	/**
-	* Calculates the Plot's xAxisLabel's x-Coordinate.
-	*
-	* @return, GLfloat
-	*/
-	GLfloat getXLabelXPos();
-	
-	
-	/**
-	* Gets each row label's x-Coordinate.
-	*
-	* @return, GLfloat vector pointer
-	*/
-	vector<GLfloat>  getRowLabelsYPos();
-	
-	
-	/**
-	* Gets the row labels.
-	*
-	* @return, string vector pointer
-	*/
-	vector<string> getRowLabels();
-	
-
-	/**
-	* Gets each column label's y-Coordinate.
-	*
-	* @return, GLfloat vector pointer
-	*/
-	vector<GLfloat>  getColLabelsXPos();
-
-
-	/**
-	* Gets the column labels.
-	*
-	* @return, string vector pointer
-	*/
-	vector<string> getColLabels();
-
-
-	/**
-	* Calculates the row label x-Coordinate.
-	*
-	* @return, GLfloat
-	*/
-	GLfloat getRowLabelXpos();
-
-
-	/**
-	* Calculates the column label y-Coordinate.
-	*
-	* @return, GLfloat
-	*/
-	GLfloat getColLabelYpos();
-
-
-	/**
-	* Calculates the Plot's xAxisLabel's y-Coordinate.
-	*
-	* @return, GLfloat
-	*/
-	GLfloat getXLabelYPos();
-
-
-	/**
-	* Calculates the Plot's yAxisLabel's x-Coordinate.
-	*
-	* @return, GLfloat
-	*/
-	GLfloat getYLabelXPos();
-
-
-	/**
-	* Calculates the Plot's yAxisLabel's y-Coordinate.
-	*
-	* @return, GLfloat
-	*/
-	GLfloat getYLabelYPos();
 
 
 	/**
@@ -284,28 +178,32 @@ public:
 
 
 private:
-	// -- actual locations inside OpenGL window. values should be normalized
+	// -- World locations. Values must be between -1.0 and 1.0.
 	GLfloat centerX, centerY, width, height;
+	GLfloat left, right, top, bottom;
 
 	// -- vertex arrays.
 	GLfloat* vertexPlotArray;
 	GLfloat* vertexDataArray;
 	GLfloat* rawDataArray;
-	GLfloat* labelDataArray;
 
+	// -- Plot parameters
 	int plotSize, dataSize, rawSize, labelSize;
 	int ROWS, COLS;
-	
 	bool isXAxisLinear, isYAxisLinear;
 
+	// -- text objects.
 	string title, xAxisLabel, yAxisLabel;
-	vector<string> rowLabels;
-	vector<string> colLabels;
-	vector<GLfloat> rowLabelsYPos;
-	vector<GLfloat> colLabelsXPos;
+	vector<TextLabel*> text;
 
 	//GLfloat refMinX, refMinY, refMaxX, refMaxY;
-
+	
+	/**
+	* Calculates top, left, bottom, right values.
+	*
+	* @return,					Void.
+	*/
+	void updateBounds();
 
 	/**
 	* Fills vertexPlotArray with GLfloats used by OpenGL.
@@ -324,11 +222,11 @@ private:
 
 
 	/**
-	* Fills row and column label vectors with GLfloats.
+	* Fills 'text' vector with TextLabels.
 	*
 	* @return,					Void.
 	*/
-	void fillRowColLabelVectors();
+	void fillText();
 
 
 	/**
@@ -346,16 +244,7 @@ private:
 	*/
 	void initDataVertexArray();
 
-
-	/**
-	* Initializes row and column label vectors by reshaping them to ROWS and COLS respectivly.
-	*
-	* @return,					Void.
-	*/
-	void initRowColLabelVectors();
-
 };
-
 
 
 #endif // !PLOT_H

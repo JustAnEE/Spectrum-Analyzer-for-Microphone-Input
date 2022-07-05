@@ -8,7 +8,7 @@ int main() {
 	SpectrumController* controller = new SpectrumController();
 	SpectrumModel* model = new SpectrumModel();
 	InteractionModel* IModel = new InteractionModel();
-	SpectrumView* view = new SpectrumView();
+	SpectrumView* view = new SpectrumView(800,800);
 
 	// -- Set MVC connections.
 	view->setModels(model, IModel);
