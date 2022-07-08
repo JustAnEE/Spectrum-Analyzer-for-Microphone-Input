@@ -1,6 +1,10 @@
 #include "SpectrumModel.h"
 
 SpectrumModel::SpectrumModel(){
+
+	SAMPLES = 1024 * 4;
+	PADDING = 4;
+	dsp = new spectrumdsp(44100, SAMPLES*PADDING);
 	format = new MicInput(1, 44100, 8);
 
 	// -- Setup function pointer list.
@@ -152,11 +156,13 @@ void SpectrumModel::magnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DE
 	free(result);
 }
 
+
 void SpectrumModel::DBmagnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE) {
 	GLfloat* result = spectrum_output(inputData, 1);
 	plot->setRawData(result, inputDataSize * 2);
 	free(result);
 }
+
 
 void SpectrumModel::powerSpectralDensity(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE) {
 	GLfloat* result = spectrum_output(inputData, 3);
