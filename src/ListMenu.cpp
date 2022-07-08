@@ -42,6 +42,7 @@ ListMenu::~ListMenu() {
 void ListMenu::setText(std::string _title, std::vector<std::string> _options) {
     title = _title;
     optionStrings = _options;
+    ID = _title;
     windowStart = 0;
     fillOptionText();
 }
@@ -57,7 +58,7 @@ int ListMenu::detectClick(double xpos, double ypos) {
         float y = optionHeight - ( (i+1) / 7.0) + bottom;
 
         if (xpos > left && xpos < right && ypos > y - range && ypos < y + range) {
-            return windowStart + i + 1;
+            return windowStart + i;
         }
     }
 

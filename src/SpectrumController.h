@@ -35,7 +35,7 @@ public:
 	void handleListMenu(std::string ListID, int optionNum);
 
 private:
-	enum STATE { READY, READING, PROCESSING, HALT };
+	enum STATE { START, READING, PROCESSING, HALT };
 	STATE currentState;
 };
 

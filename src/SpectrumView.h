@@ -56,16 +56,13 @@ public:
 	void IModelChanged();
 
 
-	void swapListMenu(std::string NewMenuID);
-
-
 private:
 	GLuint VAO, VBO, TVAO, TVBO;
 	GLuint shaderProgram, textureShaderProgram;
 
 	GLFWwindow* window;
 	GLuint windowWidth, windowHeight;
-
+	
 	std::vector<Widget*> widgets;
 	std::vector<std::string> methods, filters, windows;
 
@@ -76,6 +73,10 @@ private:
 	void drawWidget(Widget* widget);
 	void drawPlot(Plot* plot);
 	void drawText(TextLabel* textLabel);
+
+	void swapListMenu(std::string NewMenuID);
+
+
 	string readShaderCode(const char* filename); 
 
 };

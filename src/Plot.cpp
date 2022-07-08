@@ -2,19 +2,17 @@
 
 
 /* PUBLIC METHODS */
-Plot::Plot( GLfloat centX,	  GLfloat centY,	GLfloat w,		  GLfloat h,
-	        GLfloat refminX,  GLfloat refminY,  GLfloat refmaxX,  GLfloat refmaxY,
-	        int rows,		  int cols,		    bool XLinear,     bool YLinear){
+Plot::Plot( GLfloat centX, GLfloat centY, GLfloat w, GLfloat h, int rows, int cols){
 
 	centerX = centX;	centerY = centY;
 	width = w;		height = h;
 	ROWS = rows;	COLS = cols;
 
-	isXAxisLinear = XLinear;
-	isYAxisLinear = YLinear;
+	refMinX = 0.0;	refMaxX = 0.0;
+	refMinY = 0.0;	refMaxY = 0.0;
 
-	refMinX = refminX;	refMaxX = refmaxX;
-	refMinY = refminY;	refMaxY = refmaxY;
+	isXAxisLinear = true;
+	isYAxisLinear = true;
 
 	updateBounds();
 
@@ -34,6 +32,61 @@ Plot::~Plot(){
 }
 
 
+void Plot::setMethodFlag(int flag) { 
+	// -- Also sets the reference frame and labels. (move this to a seperate function.)
+	switch (flag) {
+		case 0:
+			this->setTitle("Time Series");
+			this->setAxisLables("t", "A");
+			refMinX = 0.0f;	refMaxX = 1.0f;
+			refMinY = -128.0f;	refMaxY = 128.0f;
+			isXAxisLinear = true;
+			isYAxisLinear = true;
+			break;
+		case 1:
+			this->setTitle("Magnitude Response");
+			this->setAxisLables("f(Hz)", "|X(f)|");
+			refMinX = -1000.0f;	refMaxX = 1000.0f;
+			refMinY =  0.0f;	refMaxY = 10000.0f;
+			isXAxisLinear = true;
+			isYAxisLinear = true;
+			break;
+		case 2:
+			this->setTitle("Decibel Magnitude Response");
+			this->setAxisLables("f(Hz)", "dB");
+			refMinX = 0.0f;	refMaxX = 10000.0f;
+			refMinY = -90.0f;	refMaxY = 180.0f;
+			isXAxisLinear = false;
+			isYAxisLinear = true;
+			break;
+		case 3:
+			this->setTitle("Power Spectral Density");
+			this->setAxisLables("f(Hz)", "A");
+			refMinX = -1000.0f;	refMaxX = 1000.0f;
+			refMinY = -0.0f;	refMaxY = 500.0f;
+			isXAxisLinear = true;
+			isYAxisLinear = true;
+			break;
+		default:
+			cout << "Invalid function flag in SpectrumModel::addPlot." << endl;
+			exit(-69);
+			break;
+	}
+
+	fillDataVertexArray();
+	fillText();
+
+	METHODFLAG = flag; 
+}
+void Plot::setWindowFlag(int flag) { WINDOWFLAG = flag; }
+void Plot::setFilterFlag(int flag) { FILTERFLAG = flag; }
+void Plot::setDetrendFlag(bool flag)   { DETREND = flag; }
+void Plot::setNormalizeFlag(bool flag) { NORMALIZE = flag; };
+int  Plot::getWindowFlag()  { return WINDOWFLAG; }
+int  Plot::getMethodFlag()  { return METHODFLAG; }
+int  Plot::getFilterFlag()  { return FILTERFLAG; }
+bool Plot::getDetrendFlag() { return DETREND; }
+bool Plot::getNormalizeFlag() { return NORMALIZE; }
 
 void Plot::setRowsAndCols(int numRows, int numCols){
 	ROWS = numRows;

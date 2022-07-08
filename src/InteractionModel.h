@@ -1,14 +1,14 @@
 #ifndef INTERACTIONMODEL_H
 #define INTERACTIONMODEL_H
 
-#include<iostream>
-#include<vector>
+#include <iostream>
+#include <vector>
 
-#include<glad/glad.h>
-#include<GLFW/glfw3.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
-#include"InteractionModelSubscriber.h"
-
+#include "InteractionModelSubscriber.h"
+#include "Plot.h"
 
 class InteractionModel{
 
@@ -18,6 +18,9 @@ public:
 
 	// -- getters and setters
 	std::string getCurrentListMenuID();
+	Plot* getSelectedPlot();
+	void  setSelectedPlot(Plot* _plot);
+
 
 	// -- Widget Methods.
 	void detectClickWidget(double xpos, double ypos);
@@ -31,6 +34,7 @@ public:
 
 private:
 	std::string currentListMenuID;
+	Plot* selectedPlot;
 	std::vector<InteractionModelSubscriber*> subscribers;
 
 	// -- Pub-Sub methods.

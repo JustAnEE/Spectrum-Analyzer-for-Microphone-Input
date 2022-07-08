@@ -23,8 +23,6 @@ class SpectrumModel {
 
 public:
 	enum DSPFUNC {TIMESERIES, DB_MAG, MAG, PWR_SPECTRUM};
-	enum WINDOWFUNC {};
-	enum FILTERFUNC {};
 
 	SpectrumModel();
 	~SpectrumModel();
@@ -37,16 +35,9 @@ public:
 	void removePlot(Plot* plot);
 	void addPlot(
 		GLfloat xpos,		GLfloat ypos,		GLfloat width,		GLfloat height,
-		GLfloat refminX,	GLfloat refminY,	GLfloat refmaxX,	GLfloat refmaxY,
-		int rows,			int cols,           DSPFUNC funFlag, bool xLinear, bool yLinear
+		int rows,			int cols,			DSPFUNC methodFlag,
+		int windowFlag,		int filterFlag,		bool detrendFlag,	bool normalizeFlag
 	);
-
-	// -- Flagset methods
-	void setWindowFlag(int flag);
-	void setMethodFlag(int flag);
-	void setFilterFlag(int flag);
-	void setDetrendFlag();
-	//void setNormalizeFlag();
 
 
 	// -- Plot object modifier methods.
@@ -63,24 +54,21 @@ public:
 
 
 private:
-	int WINDOWFLAG, METHODFLAG, FILTERFLAG;
-	bool DETREND, NORMALIZE;
-
 	int inputDataSize, SAMPLES;
 	GLfloat* inputData;
 
 	vector<Plot*> plotVector;
 
 	vector<SpectrumModelSubscriber*> subscribers;
-	vector<void(SpectrumModel::*)(Plot*)> plotMethodVector;
+	vector<void(SpectrumModel::*)(Plot*, int, int, int, int)> plotMethodVector;
 	MicInput* format;
 	
 
 	// -- DSP methods.
-	void timeSeries(Plot* plot);
-	void magnitudeResponse(Plot* plot);
-	void DBmagnitudeResponse(Plot* plot);
-	void powerSpectralDensity(Plot* plot);
+	void timeSeries(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE);
+	void magnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE);
+	void DBmagnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE);
+	void powerSpectralDensity(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE);
 
 	// -- Pub-Sub methods.
 	void notifySubscribers();

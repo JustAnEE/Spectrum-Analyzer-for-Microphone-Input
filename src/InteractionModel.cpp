@@ -1,12 +1,20 @@
 #include "InteractionModel.h"
 
-InteractionModel::InteractionModel(){
-}
+InteractionModel::InteractionModel(){}
 
 
 
 std::string InteractionModel::getCurrentListMenuID() {
 	return currentListMenuID;
+}
+
+Plot* InteractionModel::getSelectedPlot(){
+	return selectedPlot;
+}
+
+void InteractionModel::setSelectedPlot(Plot* _plot){
+	selectedPlot = _plot;
+	notifySubscribers();
 }
 
 void InteractionModel::detectClickWidget(double xpos, double ypos){

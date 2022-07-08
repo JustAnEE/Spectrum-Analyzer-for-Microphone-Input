@@ -2,6 +2,13 @@
 
 SpectrumModel::SpectrumModel(){
 	format = new MicInput(1, 44100, 8);
+
+	// -- Setup function pointer list.
+	plotMethodVector.push_back(&SpectrumModel::timeSeries);
+	plotMethodVector.push_back(&SpectrumModel::magnitudeResponse);
+	plotMethodVector.push_back(&SpectrumModel::DBmagnitudeResponse);
+	plotMethodVector.push_back(&SpectrumModel::powerSpectralDensity);
+
 }
 
 SpectrumModel::~SpectrumModel(){
@@ -15,14 +22,7 @@ SpectrumModel::~SpectrumModel(){
 
 
 
-
-
-vector<Plot*> SpectrumModel::getPlotVector() { return plotVector; }
-void SpectrumModel::setWindowFlag(int flag) { WINDOWFLAG = flag; }
-void SpectrumModel::setMethodFlag(int flag) { METHODFLAG = flag; }
-void SpectrumModel::setFilterFlag(int flag) { FILTERFLAG = flag; }
-void SpectrumModel::setDetrendFlag() { DETREND = !DETREND; }
-
+vector<Plot*> SpectrumModel::getPlotVector(){ return plotVector; }
 
 
 
@@ -41,44 +41,20 @@ Plot* SpectrumModel::detectClickPlot(GLfloat xpos, GLfloat ypos){
 
 void SpectrumModel::addPlot(
 	GLfloat xpos,		GLfloat ypos,		GLfloat width,		GLfloat height,
-	GLfloat refminX,	GLfloat refminY,	GLfloat refmaxX,	GLfloat refmaxY,
-	int rows,			int cols,			DSPFUNC methodFlag, bool xLinear, bool yLinear){
+	int rows,			int cols,			DSPFUNC methodFlag,
+	int windowFlag,     int filterFlag,     bool detrendFlag,	bool normalizeFlag
+	){
 	
 	// -- Create a new plot.
-	Plot* newPlot = new Plot(xpos, ypos, width, height, refminX, refminY, refmaxX, refmaxY, rows, cols, xLinear, yLinear);
+	Plot* newPlot = new Plot(xpos, ypos, width, height, rows, cols);
+	newPlot->setMethodFlag(methodFlag);
+	newPlot->setWindowFlag(windowFlag);
+	newPlot->setFilterFlag(filterFlag);
+	newPlot->setDetrendFlag(detrendFlag);
+	newPlot->setNormalizeFlag(normalizeFlag);
+
 	plotVector.push_back(newPlot);
-
-	// -- Create a function pointer.
-	void (SpectrumModel::*functionPointer)(Plot*);
-
-	switch (methodFlag){
-		case TIMESERIES:
-			newPlot->setTitle("Time Series");
-			newPlot->setAxisLables("t", "A");
-			functionPointer = &SpectrumModel::timeSeries;
-			break;
-		case MAG:
-			newPlot->setTitle("Magnitude Response");
-			newPlot->setAxisLables("f(Hz)", "|X(f)|");
-			functionPointer = &SpectrumModel::magnitudeResponse;
-			break;
-		case DB_MAG:
-			newPlot->setTitle("Decibel Magnitude Response");
-			newPlot->setAxisLables("f(Hz)", "dB");
-			functionPointer = &SpectrumModel::DBmagnitudeResponse;
-			break;
-		case PWR_SPECTRUM:
-			newPlot->setTitle("Power Spectral Density");
-			newPlot->setAxisLables("f(Hz)", "A");
-			functionPointer = &SpectrumModel::powerSpectralDensity;
-			break;
-		default:
-			cout << "Invalid function flag in SpectrumModel::addPlot." << endl;
-			exit(-69);
-			break;
-	}
-
-	plotMethodVector.push_back(functionPointer);
+	
 	notifySubscribers();
 }
 
@@ -88,7 +64,6 @@ void SpectrumModel::removePlot(Plot* givenPlot){
 		if (givenPlot == plotVector[i]) {
 			delete plotVector[i];
 			plotVector.erase(plotVector.begin() + i);
-			plotMethodVector.erase(plotMethodVector.begin() + i);
 			break;
 		}
 	}
@@ -103,9 +78,8 @@ void SpectrumModel::removePlot(Plot* givenPlot){
 void SpectrumModel::processData(){
 	
 	// -- Call each Plot's corrisponding method
-	for (int i = 0; i < plotMethodVector.size(); i++) {
-		Plot* plot = plotVector[i];
-		(this->*plotMethodVector.at(i))(plot);
+	for (Plot* plot : plotVector) {
+		(this->*plotMethodVector[plot->getMethodFlag()])(plot, plot->getWindowFlag(), plot->getFilterFlag(), plot->getDetrendFlag(), 0);
 	}
 	free(inputData);
 	notifySubscribers();
@@ -133,7 +107,7 @@ void SpectrumModel::scalePlot(Plot* plot, GLfloat x, GLfloat y){
 
 
 void SpectrumModel::readMicData() {
-	
+	// -- To do swap this to multiple formats, and super sampling
 	SAMPLES = 1024*4;
 	const int PADDING = 4;
 
@@ -172,25 +146,25 @@ void SpectrumModel::readMicData() {
 
 
 /* Private - methods */
-void SpectrumModel::magnitudeResponse(Plot* plot) {
+void SpectrumModel::magnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE) {
 	GLfloat* result = spectrum_output(inputData, 0);
 	plot->setRawData(result, inputDataSize * 2);
 	free(result);
 }
 
-void SpectrumModel::DBmagnitudeResponse(Plot* plot) {
+void SpectrumModel::DBmagnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE) {
 	GLfloat* result = spectrum_output(inputData, 1);
 	plot->setRawData(result, inputDataSize * 2);
 	free(result);
 }
 
-void SpectrumModel::powerSpectralDensity(Plot* plot) {
+void SpectrumModel::powerSpectralDensity(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE) {
 	GLfloat* result = spectrum_output(inputData, 3);
 	plot->setRawData(result, inputDataSize * 2);
 	free(result);
 }
 
-void SpectrumModel::timeSeries(Plot* plot) {
+void SpectrumModel::timeSeries(Plot* plot, int WINDOW, int FILTER, int NORMALIZE, int DETREND) {
 	GLfloat* converted = (GLfloat*)calloc(SAMPLES*2, sizeof(GLfloat));
 	for (int i = 0; i < SAMPLES; i++) {
 		converted[2 * i]     = ((GLfloat)i) / ((GLfloat)SAMPLES);	// -- x coord

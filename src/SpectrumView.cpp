@@ -139,7 +139,7 @@ SpectrumView::SpectrumView(GLuint _windowWidth, GLuint _windowHeight){
 	windows = { "Hamming", "Blackman", "Barlett", "Rectangular"};
 	filters = { "A", "B",  "C",  "D",  "E",  "F...",  "G...",  "H...",  "I...",  "J...", };
 
-	ListMenu* menu = new ListMenu(glm::vec3(0.65f, -0.25f, 0.0f), 0.5f, 1.25f, "Methods", methods, "list");
+	ListMenu* menu = new ListMenu(glm::vec3(0.65f, -0.25f, 0.0f), 0.5f, 1.25f, "Methods", methods, "Method");
 
 	widgets.push_back(b1);
 	widgets.push_back(b2);

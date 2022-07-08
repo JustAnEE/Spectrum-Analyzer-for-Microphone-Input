@@ -21,9 +21,7 @@ public:
 	* @param way too many,	 :(.
 	* @return,				 Plot object.
 	*/
-	Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h,
-		GLfloat refminX, GLfloat refminY, GLfloat refmaxX, GLfloat refmaxY,
-		int rows, int cols, bool XLinear, bool YLinear);
+	Plot(GLfloat centX, GLfloat centY, GLfloat w, GLfloat h, int rows, int cols );
 	
 	~Plot();
 	
@@ -176,6 +174,18 @@ public:
 	bool validClick(GLfloat xpos, GLfloat ypos);
 
 
+	// -- Flag methods
+	int getWindowFlag();
+	int getMethodFlag();
+	int getFilterFlag();
+	bool getDetrendFlag();
+	bool getNormalizeFlag();
+	void setWindowFlag(int flag);
+	void setMethodFlag(int flag);
+	void setFilterFlag(int flag);
+	void setDetrendFlag(bool flag);
+	void setNormalizeFlag(bool flag);
+
 
 private:
 	// -- World locations. Values must be between -1.0 and 1.0.
@@ -188,6 +198,9 @@ private:
 	GLfloat* rawDataArray;
 
 	// -- Plot parameters
+	int WINDOWFLAG, METHODFLAG, FILTERFLAG;
+	bool DETREND, NORMALIZE;
+
 	int plotSize, dataSize, rawSize, labelSize;
 	int ROWS, COLS;
 	bool isXAxisLinear, isYAxisLinear;
