@@ -5,7 +5,7 @@
 /* Interface for subscribers to get notified of model change. */
 class SpectrumModelSubscriber {
 public:
-	virtual void modelChanged() = 0;
+	virtual void DModelChanged() = 0;
 };
 
 

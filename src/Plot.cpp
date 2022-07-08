@@ -2,44 +2,99 @@
 
 
 /* PUBLIC METHODS */
-Plot::Plot( GLfloat centX,	  GLfloat centY,	GLfloat w,		  GLfloat h,
-	        GLfloat refminX,  GLfloat refminY,  GLfloat refmaxX,  GLfloat refmaxY,
-	        int rows,		  int cols,		    SCALE scale){
+Plot::Plot( GLfloat centX, GLfloat centY, GLfloat w, GLfloat h, int rows, int cols){
 
 	centerX = centX;	centerY = centY;
 	width = w;		height = h;
 	ROWS = rows;	COLS = cols;
 
-	curScale = scale;
+	refMinX = 0.0;	refMaxX = 0.0;
+	refMinY = 0.0;	refMaxY = 0.0;
 
-	refMinX = refminX;	refMaxX = refmaxX;
-	refMinY = refminY;	refMaxY = refmaxY;
+	isXAxisLinear = true;
+	isYAxisLinear = true;
+
+	updateBounds();
 
 	// -- initialize the vertex array.
 	vertexDataArray = nullptr;
 	dataSize = 0;
 
 	initGridVertexArray();
-	initRowColLabelVectors();
-	fillRowColLabelVectors();
-	fillGridVertexArray(curScale);
+	fillGridVertexArray();
+	fillText();
 }
 
-//Plot::~Plot(){
-//	delete[] plot;
-//	delete[] data;
-//}
+Plot::~Plot(){
+	free(vertexPlotArray);
+	free(vertexDataArray);
+	free(rawDataArray);
+}
 
+
+void Plot::setMethodFlag(int flag) { 
+	// -- Also sets the reference frame and labels. (move this to a seperate function.)
+	switch (flag) {
+		case 0:
+			this->setTitle("Time Series");
+			this->setAxisLables("t", "A");
+			refMinX = 0.0f;	refMaxX = 1.0f;
+			refMinY = -128.0f;	refMaxY = 128.0f;
+			isXAxisLinear = true;
+			isYAxisLinear = true;
+			break;
+		case 1:
+			this->setTitle("Magnitude Response");
+			this->setAxisLables("f(Hz)", "|X(f)|");
+			refMinX = -1000.0f;	refMaxX = 1000.0f;
+			refMinY =  0.0f;	refMaxY = 10000.0f;
+			isXAxisLinear = true;
+			isYAxisLinear = true;
+			break;
+		case 2:
+			this->setTitle("Decibel Magnitude Response");
+			this->setAxisLables("f(Hz)", "dB");
+			refMinX = 0.0f;	refMaxX = 10000.0f;
+			refMinY = -90.0f;	refMaxY = 180.0f;
+			isXAxisLinear = false;
+			isYAxisLinear = true;
+			break;
+		case 3:
+			this->setTitle("Power Spectral Density");
+			this->setAxisLables("f(Hz)", "A");
+			refMinX = -1000.0f;	refMaxX = 1000.0f;
+			refMinY = -0.0f;	refMaxY = 500.0f;
+			isXAxisLinear = true;
+			isYAxisLinear = true;
+			break;
+		default:
+			cout << "Invalid function flag in SpectrumModel::addPlot." << endl;
+			exit(-69);
+			break;
+	}
+
+	fillDataVertexArray();
+	fillText();
+
+	METHODFLAG = flag; 
+}
+void Plot::setWindowFlag(int flag) { WINDOWFLAG = flag; }
+void Plot::setFilterFlag(int flag) { FILTERFLAG = flag; }
+void Plot::setDetrendFlag(bool flag)   { DETREND = flag; }
+void Plot::setNormalizeFlag(bool flag) { NORMALIZE = flag; };
+int  Plot::getWindowFlag()  { return WINDOWFLAG; }
+int  Plot::getMethodFlag()  { return METHODFLAG; }
+int  Plot::getFilterFlag()  { return FILTERFLAG; }
+bool Plot::getDetrendFlag() { return DETREND; }
+bool Plot::getNormalizeFlag() { return NORMALIZE; }
 
 void Plot::setRowsAndCols(int numRows, int numCols){
 	ROWS = numRows;
 	COLS = numCols;
 
-	initRowColLabelVectors();
 	initGridVertexArray();
-	initRowColLabelVectors();
-	fillRowColLabelVectors();
-	fillGridVertexArray(curScale);
+	fillGridVertexArray();
+	fillText();
 }
 
 void Plot::setRawData(GLfloat* vertexArrayPtr, int size){
@@ -56,30 +111,18 @@ void Plot::setRawData(GLfloat* vertexArrayPtr, int size){
 	fillDataVertexArray();
 }
 
+
 void Plot::setTitle(string newTitle){
 	title = newTitle;
+	fillText();
 }
-
 void Plot::setAxisLables(string xLabel, string yLabel){
 	xAxisLabel = xLabel;
 	yAxisLabel = yLabel;
+	fillText();
 }
 
-string Plot::getTitle() { return title; }
-string Plot::getXLabel() { return xAxisLabel; }
-string Plot::getYLabel() { return yAxisLabel; }
-GLfloat Plot::getTitleXPos() { return centerX - (0.01f * title.size() / 2.0f); }
-GLfloat Plot::getTitleYPos() { return centerY + (height / 2.0f) + 0.025f; }
-GLfloat Plot::getXLabelXPos() { return centerX + (width / 2.0f) + 0.025f; }
-vector<GLfloat> Plot::getRowLabelsYPos(){ return rowLabelsYPos; }
-vector<GLfloat> Plot::getColLabelsXPos(){ return colLabelsXPos; }
-vector<string> Plot::getRowLabels(){ return rowLabels; }
-vector<string> Plot::getColLabels(){ return colLabels; }
-GLfloat Plot::getRowLabelXpos() { return centerX - (width / 2.0f) - 0.15f; }
-GLfloat Plot::getColLabelYpos() { return centerY - (height / 2.0f) - 0.075f; }
-GLfloat Plot::getXLabelYPos() { return centerY - (height / 2.0f); }
-GLfloat Plot::getYLabelXPos() { return centerX - (width / 2.0f); }
-GLfloat Plot::getYLabelYPos() { return centerY + (height / 2.0f) + 0.025f; }
+vector<TextLabel*> Plot::getText(){ return text; }
 GLfloat Plot::getHeight(){ return height; }
 GLfloat Plot::getWidth() { return width; }
 GLfloat* Plot::getVertexDataArray() { return vertexDataArray; }
@@ -93,33 +136,28 @@ void Plot::changeReferenceFrame(GLfloat minX, GLfloat minY, GLfloat maxX, GLfloa
 	refMinX = minX;	refMaxX = maxX;
 	refMinY = minY;	refMaxY = maxY;
 	fillDataVertexArray();
-	initRowColLabelVectors();
-	fillRowColLabelVectors();
+	fillText();
 }
 
 void Plot::scalePlot(GLfloat givenW, GLfloat givenH){
 	width += givenW;
 	height += givenH;
-	fillGridVertexArray(curScale);
+	updateBounds();
+	fillGridVertexArray();
 	fillDataVertexArray();
-	initRowColLabelVectors();
-	fillRowColLabelVectors();
+	fillText();
 }
 
 void Plot::movePlot(GLfloat givenX, GLfloat givenY){
 	centerX = givenX;
 	centerY = givenY;
-	fillGridVertexArray(curScale);
+	updateBounds();
+	fillGridVertexArray();
 	fillDataVertexArray();
-	initRowColLabelVectors();
-	fillRowColLabelVectors();
+	fillText();
 }
 
 bool Plot::validClick(GLfloat givenX, GLfloat givenY){
-	GLfloat left = centerX - (width / 2);
-	GLfloat right = centerX + (width / 2);
-	GLfloat top = centerY + (height / 2);
-	GLfloat bottom = centerY - (height / 2);
 	return (givenX >= left && givenX <= right && givenY >= bottom && givenY <= top);
 }
 
@@ -139,23 +177,9 @@ void Plot::initDataVertexArray() {
 	vertexDataArray = (GLfloat*)calloc(dataSize, sizeof(GLfloat));
 }
 
-void Plot::initRowColLabelVectors() {
-	// -- discregard contents, aquire indices.
-	rowLabels.clear();
-	colLabels.clear();
-	rowLabelsYPos.clear();
-	colLabelsXPos.clear();
-}
 
-
-void Plot::fillGridVertexArray(SCALE scale){
-
+void Plot::fillGridVertexArray(){
 	GLfloat absOffsetX, absOffsetY;
-	GLfloat left = centerX - (width / 2);
-	GLfloat right = centerX + (width / 2);
-	GLfloat top = centerY + (height / 2);
-	GLfloat bottom = centerY - (height / 2);
-
 	GLfloat x = left, y = top;
 
 	absOffsetX = width / static_cast<float>(COLS);
@@ -198,15 +222,26 @@ void Plot::fillGridVertexArray(SCALE scale){
 
 void Plot::fillDataVertexArray() {
 	// -- switch to proccess from raw data
-	GLfloat left = centerX - (width / 2);
-	GLfloat right = centerX + (width / 2);
-	GLfloat bottom = centerY - (height / 2);
-	GLfloat top = centerY + (height / 2);
-
 	for (int i = 0; i < dataSize; i += 6) {
 		int rawIdx = i / 3;
-		GLfloat x = ((rawDataArray[rawIdx] - refMinX) / (refMaxX - refMinX) * width) + left;
-		GLfloat y = ((rawDataArray[rawIdx + 1] - refMinY) / (refMaxY - refMinY) * height) + bottom;
+		GLfloat x = 0;
+		GLfloat y = 0;
+
+		// -- Linear / log PLOTTING
+		if (isXAxisLinear) {
+			x = ((rawDataArray[rawIdx] - refMinX) / (refMaxX - refMinX) * width) + left;
+		}
+		else {
+			x = (log10(rawDataArray[rawIdx] - refMinX) / log10(refMaxX - refMinX) * width) + left;
+		}
+
+		if (isYAxisLinear) {
+			y = ((rawDataArray[rawIdx + 1] - refMinY) / (refMaxY - refMinY) * height) + bottom;
+		}
+		else{
+			y = ( log10(rawDataArray[rawIdx + 1] - refMinY) / log10(refMaxY - refMinY) * height) + bottom;
+		}
+		
 
 		// -- SMUSHING NOT GOOD need to remove the points from rendering buffer.
 		if (y < bottom) { y = bottom; }
@@ -223,38 +258,58 @@ void Plot::fillDataVertexArray() {
 	}
 }
 
-void Plot::fillRowColLabelVectors(){
+void Plot::fillText() {
+	text.clear();
 
-	GLfloat left = centerX - (width / 2);
-	GLfloat right = centerX + (width / 2);
-	GLfloat bottom = centerY - (height / 2);
-	GLfloat top = centerY + (height / 2);
-
+	GLfloat y = bottom;
+	GLfloat x = left;
 	GLfloat absOffsetX = width / static_cast<float>(COLS);
 	GLfloat absOffsetY = height / static_cast<float>(ROWS);
-	GLfloat deltaX = (refMaxX - refMinX) / static_cast<float>(COLS);
-	GLfloat deltaY = (refMaxY - refMinY) / static_cast<float>(ROWS);
-	
-	rowLabels.push_back(to_string((int)refMinY));
-	rowLabelsYPos.push_back(bottom);
-	colLabels.push_back(to_string((int)refMinX));
-	colLabelsXPos.push_back(left);
+	GLfloat deltaX = (isXAxisLinear) ? (refMaxX - refMinX) / static_cast<float>(COLS) : 1.0f;
+	GLfloat deltaY = (isYAxisLinear) ? (refMaxY - refMinY) / static_cast<float>(ROWS) : 1.0f;
 
-	rowLabels.push_back(to_string((int)refMaxY));
-	rowLabelsYPos.push_back(top);
-	colLabels.push_back(to_string((int)refMaxX));
-	colLabelsXPos.push_back(right);
+	// -- Title and unit labels.
+	text.push_back(new TextLabel(glm::vec3(centerX, top + 0.03, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), width * 0.75, title));
+	text.push_back(new TextLabel(glm::vec3(right + 0.1, bottom, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.1, xAxisLabel));
+	text.push_back(new TextLabel(glm::vec3(left, top + 0.03, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.1, yAxisLabel));
 
-	// -- fill positions and calculate label strings
+	// -- Push max and min values
+	text.push_back(new TextLabel(glm::vec3(left - 0.1, bottom, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.1, to_string((int)refMinY)));
+	text.push_back(new TextLabel(glm::vec3(left - 0.1,    top, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.1, to_string((int)refMaxY)));
+	text.push_back(new TextLabel(glm::vec3(right, bottom - 0.1, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.1, to_string((int)refMaxX)));
+	text.push_back(new TextLabel(glm::vec3( left, bottom - 0.1, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.1, to_string((int)refMinX)));
+
+	// -- fill main positions and calculate label strings
 	for (int i = 1; i < ROWS; i++) {
-		bottom += absOffsetY;
-		rowLabelsYPos.push_back(bottom);
-		rowLabels.push_back(to_string((int)(refMinY + ( i * deltaY))));
-	}
-	for (int i = 1; i < COLS; i++) {
-		left += absOffsetX;
-		colLabelsXPos.push_back(left);
-		colLabels.push_back(to_string((int)(refMinX + (i * deltaX))));
+		y += absOffsetY;
+
+		int value = (int)(refMinY + (i * deltaY));
+		if (!isYAxisLinear) { 
+			deltaY *= 10.0f;
+			value = deltaY;
+		}
+
+		text.push_back(new TextLabel(glm::vec3(left-0.1, y, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.1, to_string(value)));
 	}
 
+	for (int i = 1; i < COLS; i++) {
+		x += absOffsetX;
+
+		int value = (int)(refMinX + (i * deltaX));
+		if (!isXAxisLinear) {
+			deltaX *= 10.0f;
+			value = deltaX;
+		}
+
+		text.push_back(new TextLabel(glm::vec3(x, bottom - 0.1, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.1, to_string(value)));
+	}
+
+}
+
+
+void Plot::updateBounds() {
+	left = centerX - (width / 2);
+	right = centerX + (width / 2);
+	top = centerY + (height / 2);
+	bottom = centerY - (height / 2);
 }
