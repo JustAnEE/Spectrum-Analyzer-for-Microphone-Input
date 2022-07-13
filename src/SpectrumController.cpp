@@ -1,7 +1,7 @@
 #include "SpectrumController.h"
 
 SpectrumController::SpectrumController(){
-	currentState = READY;
+	currentState = START;
 }
 
 SpectrumController::~SpectrumController(){}
@@ -18,16 +18,30 @@ void SpectrumController::setIModel(InteractionModel* _IModel) {
 // -- Event handling methods.
 void SpectrumController::jobStartEvent(){
 	switch (currentState){
-		case SpectrumController::READING:
-			model->readMicData();
-			// -- multiple processing states for different types of data
-			currentState = PROCESSING;
-			break;
-		case SpectrumController::PROCESSING:
-			model->processData();
-			// -- multiple processing states for different types of data
+		case SpectrumController::START:
+			// -- Initial setup featuring the worlds longest function.
+			model->addPlot(
+				-0.25f,  -0.25f,	  1.0f,		   1.0f,  
+					 5,		  5, 
+			    SpectrumModel::TIMESERIES, 
+					 0,		  0,	  false,	  false
+			);
+			IModel->setSelectedPlot(model->getPlotVector()[0]);
 			currentState = READING;
 			break;
+
+		case SpectrumController::READING:
+			// -- Read data from device, then swap state to PROCCESSING
+			model->readMicData();
+			currentState = PROCESSING;
+			break;
+
+		case SpectrumController::PROCESSING:
+			// -- process data then swap state to READING
+			model->processData();
+			currentState = READING;
+			break;
+
 		default:
 			break;
 	}
@@ -46,20 +60,11 @@ void SpectrumController::handleMouseClick(GLFWwindow* window, int button, int ac
 	glfwGetCursorPos(window, &xpos, &ypos);
 
 
-	Plot* clickedPlot = model->detectClickPlot((xpos * 2 / 800) - 1, ((ypos * 2 / 800) - 1) * -1);
+	//Plot* clickedPlot = model->detectClickPlot((xpos * 2 / 800) - 1, ((ypos * 2 / 800) - 1) * -1);
+	//IModel->setSelectedPlot(clickedPlot);
 	IModel->detectClickWidget((xpos * 2 / 800) - 1, ((ypos * 2 / 800) - 1) * -1);
 	
 	switch (currentState) {
-		case SpectrumController::READY:
-			if (clickedPlot == nullptr) {
-				// --            x      y     wid   height  XrefMin  YrefMin    XrefMax  YrefMax  rows cols     Methodflag   
- 				//model->addPlot( 0.5f,  0.5f,  0.6f, 0.6f,     0.0f, -128.0f,     1.0f,   128.0f,  5,   5, SpectrumModel::NORMAL, true, true);
-				model->addPlot(-0.5f,  0.5f,  0.6f, 0.6f, -1000.0f,    0.0f,  1000.0f, 10000.0f,  5,   5, SpectrumModel::MAG, true, true);
-				model->addPlot(-0.5f, -0.5f,  0.6f, 0.6f,     1.0f,  -90.0f, 10000.0f,   180.0f,  5,   4, SpectrumModel::DB_MAG, false, true);
-				//model->addPlot( 0.5f, -0.5f,  0.6f, 0.6f, -1000.0f,    0.0f,  1000.0f,   500.0f,  4,   4, SpectrumModel::PWR_SPECTRUM);
-				currentState = READING;
-			}
-			break;
 		default:
 			break;
 	}
@@ -76,19 +81,26 @@ void SpectrumController::handleMouseScroll(GLFWwindow* window, double xoffset, d
 
 void SpectrumController::handleListButton(std::string buttonID, int type) {
 	IModel->swapListMenu(buttonID);
+	// -- change selection box
 }
 
 void SpectrumController::handleBooleanButton(std::string buttonID, int type){
-	std::cout << buttonID << std::endl;
-	if (buttonID == "Detrend") { model->setDetrendFlag(); }
+	bool detrendFlag = IModel->getSelectedPlot()->getDetrendFlag();
+
+	if (buttonID == "Detrend") { IModel->getSelectedPlot()->setDetrendFlag(!detrendFlag); }
 	//else if (buttonID == "Normalize") {}
 }
 
 void SpectrumController::handleListMenu(std::string ListID, int optionNum) {
-	std::cout << ListID << std::endl;
-	if      (ListID == "Filter") { model->setFilterFlag(optionNum); }
-	else if (ListID == "Window") { model->setWindowFlag(optionNum); }
-	else if (ListID == "Method") { model->setMethodFlag(optionNum); }
+	if      (ListID == "Filter") { IModel->getSelectedPlot()->setFilterFlag(optionNum); }
+	else if (ListID == "Window") { IModel->getSelectedPlot()->setWindowFlag(optionNum); }
+	else if (ListID == "Method") { IModel->getSelectedPlot()->setMethodFlag(optionNum); }
+	cout << endl;
+	cout << "DETRED FLAG: " << IModel->getSelectedPlot()->getDetrendFlag() << endl;
+	cout << "FILTER FLAG: " << IModel->getSelectedPlot()->getFilterFlag() << endl;
+	cout << "WINDOW FLAG: " << IModel->getSelectedPlot()->getWindowFlag() << endl;
+	cout << "METHOD FLAG: " << IModel->getSelectedPlot()->getMethodFlag() << endl;
+	cout << endl;
 }
 
 
