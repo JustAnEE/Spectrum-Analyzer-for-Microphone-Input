@@ -74,7 +74,6 @@ public:
 	void setAxisLables(string xAxisLabel, string yAxisLabel);
 
 
-
 	/**
 	* Gets the Plot's World height with respect to the OpenGL window.
 	* NOTE: values are between -1.0f and +1.0f.
@@ -234,7 +233,7 @@ private:
 	*/
 	void fillDataVertexArray();
 
-  
+
 	/**
 	* Fills 'text' vector with TextLabels.
 	*

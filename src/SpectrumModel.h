@@ -24,9 +24,6 @@ class SpectrumModel {
 public:
 	enum DSPFUNC {TIMESERIES, DB_MAG, MAG, PWR_SPECTRUM};
 
-
-	spectrumdsp* dsp; 
-
 	SpectrumModel();
 	~SpectrumModel();
 
@@ -57,8 +54,11 @@ public:
 
 
 private:
-	int inputDataSize, PADDING, SAMPLES;
+	int inputDataSize, SAMPLES, PADDING;
 	GLfloat* inputData;
+
+	spectrumdsp* dsp;
+
 
 	vector<Plot*> plotVector;
 
