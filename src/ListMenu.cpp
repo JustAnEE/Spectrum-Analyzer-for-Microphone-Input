@@ -17,6 +17,7 @@ ListMenu::ListMenu(
     optionStrings = _options;
     title = _title;
 
+    selectedOption = 0;
 
     left = location.x - (width / 2);
     right = location.x + (width / 2);
@@ -27,8 +28,8 @@ ListMenu::ListMenu(
     fillOptionText();
 
     // -- Initialize the vertex buffer
-    vertexBufferSizeBytes = 10 * 6 * sizeof(float);
-    vertexBuffer = (float*)calloc(10 * 6, sizeof(float));
+    vertexBufferSizeBytes = 18 * 6 * sizeof(float);
+    vertexBuffer = (float*)calloc(18 * 6, sizeof(float));
     fillVertexBuffer();
 }
 
@@ -45,6 +46,11 @@ void ListMenu::setText(std::string _title, std::vector<std::string> _options) {
     ID = _title;
     windowStart = 0;
     fillOptionText();
+}
+
+void ListMenu::setSelectedOption(int value) {
+    selectedOption = value;
+    fillVertexBuffer();
 }
 
 
@@ -89,10 +95,14 @@ void ListMenu::scrollOptions(double xpos, double ypos, int direction){
 void ListMenu::fillVertexBuffer(){
     float halfWidth = width / 2;
     float halfHeight = height / 2;
-    
+
+    float selectionBoxWidth  = width * 0.8f / 2.0f;
+    float selectionBoxHeight = ((1.0f / 7.0f) * 0.8f) / 2.0f;
+    float selectionBoxYpos = (7.0f / 8.0f * height) - ((selectedOption + 1) / 7.0f) + bottom;
+
     float titleBarY = (29.0f / 32.0f) * height + bottom;
     
-
+    // -- The first 59 vertices are the Listmenu vertices
     for (int i = 2; i < 10 * 6; i += 6) {
         vertexBuffer[i + 0] = 0.0f;    // -- Z position
         vertexBuffer[i + 1] = 0.0f;
@@ -115,11 +125,31 @@ void ListMenu::fillVertexBuffer(){
     // -- title bar location
     vertexBuffer[48] = location.x + halfWidth;      vertexBuffer[49] = titleBarY;
     vertexBuffer[54] = location.x - halfWidth;      vertexBuffer[55] = titleBarY;
+
+    // -- The last 48 are for the selection box.
+    for (int i = 62; i < 18 * 6; i += 6) {
+        vertexBuffer[i + 0] = 0.0f;    // -- Z position
+        vertexBuffer[i + 1] = 1.0f;
+        vertexBuffer[i + 2] = 0.75f;
+        vertexBuffer[i + 3] = 0.0f;
+    }
+    // -- location based on selection button
+    vertexBuffer[60] = location.x - selectionBoxWidth;      vertexBuffer[61] = selectionBoxYpos - selectionBoxHeight;
+    vertexBuffer[66] = location.x - selectionBoxWidth;      vertexBuffer[67] = selectionBoxYpos + selectionBoxHeight;
+    
+    vertexBuffer[72] = location.x - selectionBoxWidth;      vertexBuffer[73] = selectionBoxYpos - selectionBoxHeight;
+    vertexBuffer[78] = location.x + selectionBoxWidth;      vertexBuffer[79] = selectionBoxYpos - selectionBoxHeight;
+
+    vertexBuffer[84] = location.x + selectionBoxWidth;      vertexBuffer[85] = selectionBoxYpos + selectionBoxHeight;
+    vertexBuffer[90] = location.x + selectionBoxWidth;      vertexBuffer[91] = selectionBoxYpos - selectionBoxHeight;
+
+    vertexBuffer[96] = location.x + selectionBoxWidth;      vertexBuffer[97] = selectionBoxYpos + selectionBoxHeight;
+    vertexBuffer[102] = location.x - selectionBoxWidth;      vertexBuffer[103] = selectionBoxYpos + selectionBoxHeight;
 }
 
 
 void ListMenu::fillOptionText(){
-    textList.clear();
+    clearTextList();
 
     float titleHeight = (15.0f / 16.0f) * height + bottom;
     float optionHeight = 7.0f / 8.0f * height;

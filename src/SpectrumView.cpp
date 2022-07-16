@@ -135,11 +135,11 @@ SpectrumView::SpectrumView(GLuint _windowWidth, GLuint _windowHeight){
 	Button* b4 = new Button(glm::vec3( 0.1f, 0.9f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.2f, 0.1f, "Detrend", "Detrend");
 
 
-	methods = { "Time series", "Frequency Response", "dB Magnitude Response", "Power spectrum", "2D Spectrogram"};
+	methods = { "Time series", "Frequency Response", "dB Magnitude Response", "Power spectrum"};
 	windows = { "Hamming", "Blackman", "Barlett", "Rectangular"};
 	filters = { "A", "B",  "C",  "D",  "E",  "F...",  "G...",  "H...",  "I...",  "J...", };
 
-	ListMenu* menu = new ListMenu(glm::vec3(0.65f, -0.25f, 0.0f), 0.5f, 1.25f, "Methods", methods, "Method");
+	ListMenu* menu = new ListMenu(glm::vec3(0.75f, -0.25f, 0.0f), 0.4f, 1.25f, "Methods", methods, "Method");
 
 	widgets.push_back(b1);
 	widgets.push_back(b2);
@@ -186,13 +186,15 @@ void SpectrumView::draw(){
 		for (TextLabel* text : plot->getText()) {
 			drawText(text);
 		}
+
+		// -- Draw selection Box if applicable.
+
 	}
 
 	// -- Draw Widgets.
 	for (Widget* w : widgets) {
 		drawWidget(w);
 	}
-
 
 	glfwSwapBuffers(window);
 }
@@ -439,5 +441,6 @@ void SpectrumView::DModelChanged() {
 
 void SpectrumView::IModelChanged() { 
 	swapListMenu(IModel->getCurrentListMenuID());
+	((ListMenu*)widgets[4])->setSelectedOption(IModel->getCurrentListMenuOption());
 	draw(); 
 }

@@ -8,6 +8,20 @@ std::string InteractionModel::getCurrentListMenuID() {
 	return currentListMenuID;
 }
 
+void InteractionModel::setCurrentListMenuID(std::string MenuID) {
+	currentListMenuID = MenuID;
+	notifySubscribers();
+}
+
+int InteractionModel::getCurrentListMenuOption(){
+	return currentListMenuOption;
+}
+
+void InteractionModel::setCurrentListMenuOption(int _option){
+	currentListMenuOption = _option;
+	notifySubscribers();
+}
+
 Plot* InteractionModel::getSelectedPlot(){
 	return selectedPlot;
 }
@@ -28,13 +42,6 @@ void InteractionModel::detectScrollWidget(double xpos, double ypos, int directio
 		sub->detectScroll(xpos, ypos, direction);
 	}
 }
-
-
-void InteractionModel::swapListMenu(std::string MenuID){
-	currentListMenuID = MenuID;
-	notifySubscribers();
-}
-
 
 void InteractionModel::addSubscriber(InteractionModelSubscriber* newSub){
 	subscribers.push_back(newSub);

@@ -33,3 +33,10 @@ void Widget::clickAction(int flag){
     (controller->*clickCallbackFunction)(ID, flag);
 }
 
+void Widget::clearTextList() {
+    for (TextLabel* t : textList) {
+        delete t;
+    }
+    textList.clear();
+}
+

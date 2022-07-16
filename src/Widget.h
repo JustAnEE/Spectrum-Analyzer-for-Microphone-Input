@@ -30,6 +30,10 @@ public:
 	void setClickCallback(func_ptr _ptr);
 	void clickAction(int flag);
 
+	// -- Memory management
+	void clearTextList();
+
+	// -- Virtual functions.
 	virtual int detectClick(double xpos, double ypos) = 0;
 
 protected:
