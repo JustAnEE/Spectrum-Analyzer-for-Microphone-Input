@@ -86,6 +86,7 @@ void ListMenu::scrollOptions(double xpos, double ypos, int direction){
     
     windowStart += direction;
     fillOptionText();
+    fillVertexBuffer();
 }
 
 
@@ -93,12 +94,14 @@ void ListMenu::scrollOptions(double xpos, double ypos, int direction){
 
 // -- Private methods.
 void ListMenu::fillVertexBuffer(){
+    int optionPosition = (selectedOption < windowStart || selectedOption > windowStart + optionsShown-1) ? -10.0 : selectedOption - windowStart;
+
     float halfWidth = width / 2;
     float halfHeight = height / 2;
 
     float selectionBoxWidth  = width * 0.8f / 2.0f;
     float selectionBoxHeight = ((1.0f / 7.0f) * 0.8f) / 2.0f;
-    float selectionBoxYpos = (7.0f / 8.0f * height) - ((selectedOption + 1) / 7.0f) + bottom;
+    float selectionBoxYpos = (7.0f / 8.0f * height) - ((optionPosition + 1) / 7.0f) + bottom;
 
     float titleBarY = (29.0f / 32.0f) * height + bottom;
     

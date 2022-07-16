@@ -64,7 +64,22 @@ void SpectrumController::handleMouseClick(GLFWwindow* window, int button, int ac
 
 		Plot* clickedPlot = model->detectClickPlot((xpos * 2 / 1000) - 1, ((ypos * 2 / 900) - 1) * -1);
 		if (clickedPlot != nullptr) {
+
+			// -- The bellow code is gross.
 			IModel->setSelectedPlot(clickedPlot);
+			if (IModel->getCurrentListMenuID() == "Filter") {
+				IModel->setCurrentListMenuOption(clickedPlot->getFilterFlag());
+			}
+			else if (IModel->getCurrentListMenuID() == "Window") {
+				IModel->setCurrentListMenuOption(clickedPlot->getWindowFlag());
+			}
+			else if (IModel->getCurrentListMenuID() == "Method") {
+				IModel->setCurrentListMenuOption(clickedPlot->getMethodFlag());
+			}
+			else {
+				cout << "ERROR IN SpectrumController::handleMouseClick.     IModel->getCurrentListMenuID() not a valid ID.";
+				exit(-9); /* CRASH HARD. */
+			}
 		}
 
 		IModel->detectClickWidget((xpos * 2 / 1000) - 1, ((ypos * 2 / 900) - 1) * -1);

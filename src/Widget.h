@@ -22,6 +22,7 @@ public:
 	float* getVertexBuffer();
 	int getVertexBufferSizeBytes();
 	std::vector<TextLabel*> getTextList();
+	std::string getID();
 
 	// -- yucky
 	void setController(SpectrumController* controller);

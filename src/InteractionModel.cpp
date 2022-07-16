@@ -1,6 +1,9 @@
 #include "InteractionModel.h"
 
-InteractionModel::InteractionModel(){}
+InteractionModel::InteractionModel(){
+	currentListMenuOption = 0;
+	currentListMenuID = "Method";
+}
 
 
 

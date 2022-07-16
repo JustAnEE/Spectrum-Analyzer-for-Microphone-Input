@@ -440,7 +440,9 @@ void SpectrumView::DModelChanged() {
 }
 
 void SpectrumView::IModelChanged() { 
-	swapListMenu(IModel->getCurrentListMenuID());
+	if (IModel->getCurrentListMenuID() != ((ListMenu*)widgets[4])->getID()) {
+		swapListMenu(IModel->getCurrentListMenuID());
+	}
 	((ListMenu*)widgets[4])->setSelectedOption(IModel->getCurrentListMenuOption());
 	draw(); 
 }

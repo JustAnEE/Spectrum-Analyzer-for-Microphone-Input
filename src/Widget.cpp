@@ -20,6 +20,10 @@ std::vector<TextLabel*> Widget::getTextList() {
     return textList;
 }
 
+std::string Widget::getID(){
+    return ID;
+}
+
 void Widget::setController(SpectrumController* _controller) {
     controller = _controller;
 }
