@@ -38,7 +38,7 @@ void Plot::setMethodFlag(int flag) {
 		case 0:
 			this->setTitle("Time Series");
 			this->setAxisLables("t", "A");
-			refMinX = 0.0f;	refMaxX = 1.0f;
+			refMinX = 0.0f;		refMaxX = 1.0f;
 			refMinY = -128.0f;	refMaxY = 128.0f;
 			isXAxisLinear = true;
 			isYAxisLinear = true;
@@ -54,10 +54,11 @@ void Plot::setMethodFlag(int flag) {
 		case 2:
 			this->setTitle("Decibel Magnitude Response");
 			this->setAxisLables("f(Hz)", "dB");
-			refMinX = 0.0f;	refMaxX = 10000.0f;
+			refMinX = 0.0f;		refMaxX = 10000.0f;
 			refMinY = -90.0f;	refMaxY = 180.0f;
 			isXAxisLinear = false;
 			isYAxisLinear = true;
+			setRowsAndCols(4, 4);
 			break;
 		case 3:
 			this->setTitle("Power Spectral Density");
@@ -140,8 +141,8 @@ void Plot::changeReferenceFrame(GLfloat minX, GLfloat minY, GLfloat maxX, GLfloa
 }
 
 void Plot::scalePlot(GLfloat givenW, GLfloat givenH){
-	width += givenW;
-	height += givenH;
+	width = givenW;
+	height = givenH;
 	updateBounds();
 	fillGridVertexArray();
 	fillDataVertexArray();
@@ -259,6 +260,7 @@ void Plot::fillDataVertexArray() {
 }
 
 void Plot::fillText() {
+	for (TextLabel* t : text) { delete t; }
 	text.clear();
 
 	GLfloat y = bottom;
@@ -270,7 +272,7 @@ void Plot::fillText() {
 
 	// -- Title and unit labels.
 	text.push_back(new TextLabel(glm::vec3(centerX, top + 0.03, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), width * 0.75, title));
-	text.push_back(new TextLabel(glm::vec3(right + 0.1, bottom, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.1, xAxisLabel));
+	text.push_back(new TextLabel(glm::vec3(right + 0.05, bottom, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.1, xAxisLabel));
 	text.push_back(new TextLabel(glm::vec3(left, top + 0.03, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.1, yAxisLabel));
 
 	// -- Push max and min values

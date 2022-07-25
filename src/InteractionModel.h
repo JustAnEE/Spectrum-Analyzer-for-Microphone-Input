@@ -18,6 +18,11 @@ public:
 
 	// -- getters and setters
 	std::string getCurrentListMenuID();
+	void setCurrentListMenuID(std::string MenuID);
+
+	int getCurrentListMenuOption();
+	void setCurrentListMenuOption(int _option);
+
 	Plot* getSelectedPlot();
 	void  setSelectedPlot(Plot* _plot);
 
@@ -26,15 +31,16 @@ public:
 	void detectClickWidget(double xpos, double ypos);
 	void detectScrollWidget(double xpos, double ypos, int direction);
 
-	void swapListMenu(std::string MenuID);
-
 	// -- Pub-Sub methods.
 	void addSubscriber(InteractionModelSubscriber* newSub);
 
 
 private:
 	std::string currentListMenuID;
+	int currentListMenuOption;
+
 	Plot* selectedPlot;
+
 	std::vector<InteractionModelSubscriber*> subscribers;
 
 	// -- Pub-Sub methods.

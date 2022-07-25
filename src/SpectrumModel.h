@@ -34,7 +34,6 @@ public:
 	Plot* detectClickPlot(GLfloat xpos, GLfloat ypos);
 	void removePlot(Plot* plot);
 	void addPlot(
-		GLfloat xpos,		GLfloat ypos,		GLfloat width,		GLfloat height,
 		int rows,			int cols,			DSPFUNC methodFlag,
 		int windowFlag,		int filterFlag,		bool detrendFlag,	bool normalizeFlag
 	);
@@ -66,6 +65,7 @@ private:
 	vector<void(SpectrumModel::*)(Plot*, int, int, int, int)> plotMethodVector;
 	MicInput* format;
 	
+	void layoutPlots();
 
 	// -- DSP methods.
 	void timeSeries(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE);

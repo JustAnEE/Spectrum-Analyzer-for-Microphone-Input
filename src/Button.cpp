@@ -74,7 +74,7 @@ void Button::fillVertexBuffer(){
 }
 
 void Button::fillTextLabel(){
-    textList.clear();
+    clearTextList();
     if (PRESSED) { textList.push_back(new TextLabel(location, glm::vec3 (1.0f, 0.7f, 0.27f), width * 0.7, textString)); }
     else { textList.push_back(new TextLabel(location, color, width * 0.7, textString)); }
 }

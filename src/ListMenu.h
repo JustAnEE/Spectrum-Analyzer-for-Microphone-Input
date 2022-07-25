@@ -16,6 +16,7 @@ public:
 	~ListMenu();
 
 	void setText(std::string _title, std::vector<std::string> _options);
+	void setSelectedOption(int _value);
 
 	int detectClick(double xpos, double ypos);
 	void scrollOptions(double xpos, double ypos, int direction);
@@ -26,6 +27,8 @@ private:
 
 
 	float bottom, top, left, right;
+	int selectedOption;
+
 	std::vector<std::string> optionStrings;
 	std::string title;
 
