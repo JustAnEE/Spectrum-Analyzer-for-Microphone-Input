@@ -15,7 +15,7 @@
 #include"InteractionModelSubscriber.h"
 #include"SpectrumModel.h"
 #include"InteractionModel.h"
-
+#include"FontSystem.h"
 #include"SpectrumController.h"
 
 #include"Button.h"
@@ -28,16 +28,6 @@ using namespace std;
 
 class SpectrumView : public SpectrumModelSubscriber, public InteractionModelSubscriber {
 public:
-	// -- Character struct used for rendering character textures
-	struct Character {
-		unsigned int TextureID;  // ID handle of the glyph texture
-		glm::ivec2   Size;       // Size of glyph
-		glm::ivec2   Bearing;    // Offset from baseline to left/top of glyph
-		unsigned int Advance;    // Offset to advance to next glyph
-	};
-	// -- Map to store each Character
-	std::map<char, Character> Characters;
-
 
 	SpectrumView(GLuint windowWidth, GLuint windowHeight);
 	~SpectrumView();
@@ -63,6 +53,9 @@ private:
 	GLFWwindow* window;
 	GLuint windowWidth, windowHeight;
 	
+	FontSystem* fSys;
+	GLuint atlasID;
+
 	std::vector<Widget*> widgets;
 	std::vector<std::string> methods, filters, windows;
 

@@ -3,6 +3,8 @@
 
 
 SpectrumView::SpectrumView(GLuint _windowWidth, GLuint _windowHeight){
+	fSys = new FontSystem("./fonts/monofonto.otf", 32, "FONTATLAS.bmp");
+	fSys->generateFontAtlas();
 
 	windowWidth = _windowWidth;
 	windowHeight = _windowHeight;
@@ -25,7 +27,7 @@ SpectrumView::SpectrumView(GLuint _windowWidth, GLuint _windowHeight){
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// --  Initialize window.
-	window = glfwCreateWindow(windowWidth, windowHeight, "Spectrum Anal", NULL, NULL);
+	window = glfwCreateWindow(windowWidth, windowHeight, "Spectrum Analyizer", NULL, NULL);
 	glfwMakeContextCurrent(window);
 	gladLoadGL();
 
@@ -59,64 +61,36 @@ SpectrumView::SpectrumView(GLuint _windowWidth, GLuint _windowHeight){
 	glLinkProgram(textureShaderProgram);
 	glDeleteShader(textureVertexShader);	// -- delete shader after compilation.
 	glDeleteShader(textureFragmentShader);	// -- delete shader after compilation.
-
-
-	glViewport(0, 0, windowWidth, windowHeight);
 	
 
-	// -- freetype
-	FT_Library freetype;
-	FT_Face face;
+	glGenTextures(1, &atlasID);
+	glBindTexture(GL_TEXTURE_2D, atlasID);
+	// -- Set textures options.
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	FT_Init_FreeType(&freetype);
-	FT_New_Face(freetype, "./fonts/monofonto.otf", 0, &face);
-	FT_Set_Pixel_Sizes(face, 0, 30);
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0,
+		GL_RGBA,
+		fSys->getAtlasWidth(),
+		fSys->getAtlasHeight(),
+		0,
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		fSys->m_atlasData
+	);
 
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	//glBindTexture(GL_TEXTURE_2D, 0);
 
-	for (unsigned char c = 32; c < 128; c++){
-		// -- Load "c" as a font glyph.
-		FT_Load_Char(face, c, FT_LOAD_RENDER);
-
-		// -- Create a texture around "c".
-		GLuint texture;
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glTexImage2D(
-			GL_TEXTURE_2D,
-			0,
-			GL_RED,
-			face->glyph->bitmap.width,
-			face->glyph->bitmap.rows,
-			0,
-			GL_RED,
-			GL_UNSIGNED_BYTE,
-			face->glyph->bitmap.buffer
-		);
-		// -- Set textures options.
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		// -- Store "c".
-		Character character = {
-			texture,
-			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-			face->glyph->advance.x
-		};
-		Characters.insert(std::pair<char, Character>(c, character));
-	}
-	glBindTexture(GL_TEXTURE_2D, 0);
-	FT_Done_Face(face);
-	FT_Done_FreeType(freetype);
-	
-	// -- generate text buffer. (switch text to batch rendering not char by char.)
+	// -- Generate text buffer of size 50.
 	glGenVertexArrays(1, &TVAO);
 	glGenBuffers(1, &TVBO);
 	glBindVertexArray(TVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, TVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 5, NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 5 * 50, NULL, GL_DYNAMIC_DRAW);
 
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5, 0);
@@ -126,6 +100,8 @@ SpectrumView::SpectrumView(GLuint _windowWidth, GLuint _windowHeight){
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
+
+	glViewport(0, 0, windowWidth, windowHeight);
 
 
 	// -- adding widgets
@@ -159,6 +135,8 @@ SpectrumView::~SpectrumView(){
 	glDeleteProgram(textureShaderProgram);
 	//glDeleteBuffers(1, &EBO);
 	glfwDestroyWindow(window);
+
+	delete fSys;
 
 	glfwTerminate();
 }
@@ -195,7 +173,7 @@ void SpectrumView::draw(){
 	for (Widget* w : widgets) {
 		drawWidget(w);
 	}
-
+	//drawText(new TextLabel(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0), 34, "test"));
 	glfwSwapBuffers(window);
 }
 
@@ -275,6 +253,9 @@ void SpectrumView::drawPlot(Plot* plot) {
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 		glEnableVertexAttribArray(1);
 
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_LINE_STRIP, 0, plot->getDataSize() / 6);
@@ -288,19 +269,22 @@ void SpectrumView::drawPlot(Plot* plot) {
 
 
 void SpectrumView::drawText(TextLabel* textLabel) {
-	// activate corresponding render state	
-	glUseProgram(textureShaderProgram);
+	// -- Bind textures. 
 	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(TVAO);
+	glBindTexture(GL_TEXTURE_2D, atlasID);
 
-	// -- set uniforms
+	// -- Bind buffers
+	glBindVertexArray(TVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, TVBO);
+
+	// -- Set uniforms
 	glUniform3f(glGetUniformLocation(textureShaderProgram, "textColor"), textLabel->color.r, textLabel->color.g, textLabel->color.b);
 	
 	string text = textLabel->text;
 
 	float span = 0.0f;
 	for (int i = 0; i < text.size(); i++) {
-		span += (Characters[text[i]].Advance >> 6);
+		span += (fSys->getCharacterInformation(text[i]).advance >> 6);
 	}
 
 	// -- Calculate how much to scale the text to fit the label.
@@ -312,43 +296,42 @@ void SpectrumView::drawText(TextLabel* textLabel) {
 	float y = (textLabel->origin.y + 1.0f) * (windowHeight / 2.0f);
 
 
-
 	// iterate through all characters
+	int offset = 0;
 	for (int i = 0; i < text.size(); i++) {
-		Character ch = Characters[text[i]];
+		FontSystem::Glyph ch = fSys->getCharacterInformation(text[i]);
 
-		float xpos = (x + ch.Bearing.x);
-		float ypos = y - (ch.Size.y - ch.Bearing.y)*scale;
+		float xpos = x + ch.bearingX;
+		float ypos = y - (ch.height - ch.bearingY)*scale;
 		float z = textLabel->origin.z;
 
 		// -- Normalized position to -1.0 to 1.0
 		xpos = ((2.0f * xpos) / windowWidth) - 1.0f;
 		ypos = ((2.0f * ypos) / windowHeight) - 1.0f;
-		float w = (ch.Size.x * scale) / (windowWidth / 2.0f);
-		float h = (ch.Size.y * scale) / (windowHeight / 2.0f);
+		float w = (ch.width * scale) / (windowWidth / 2.0f);
+		float h = (ch.height * scale) / (windowHeight / 2.0f);
 
-
-		// update VBO for each character
+		// -- Load each char quad into the buffer.
 		GLfloat vertices[6][5] =
 		{
-			{ xpos,     ypos + h,	z,		0.0f, 0.0f },
-			{ xpos,     ypos,       z,		0.0f, 1.0f },
-			{ xpos + w, ypos,       z,		1.0f, 1.0f },
-			{ xpos,     ypos + h,   z,		0.0f, 0.0f },
-			{ xpos + w, ypos,       z,		1.0f, 1.0f },
-			{ xpos + w, ypos + h,   z,		1.0f, 0.0f }
+			{ xpos,     ypos + h,	z,      ch.atlasLeft ,      ch.atlasTop    },
+			{ xpos,     ypos,       z,      ch.atlasLeft ,      ch.atlasBottom },
+			{ xpos + w, ypos,       z,      ch.atlasRight,      ch.atlasBottom },
+
+			{ xpos,     ypos + h,   z,      ch.atlasLeft ,      ch.atlasTop    },
+			{ xpos + w, ypos,       z,      ch.atlasRight,      ch.atlasBottom },
+			{ xpos + w, ypos + h,   z,      ch.atlasRight,      ch.atlasTop    }
 		};
-		// render glyph texture over quad
-		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-		// update content of VBO memory
-		glBindBuffer(GL_ARRAY_BUFFER, TVBO);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		// render quad
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-		x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
+		
+		glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(vertices), vertices);
+
+		x += (ch.advance >> 6) * scale;
+		offset += sizeof(vertices);
 	}
+	glUseProgram(textureShaderProgram);
+	glDrawArrays(GL_TRIANGLES, 0, text.length() * 6);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }

@@ -46,6 +46,7 @@ void SpectrumController::handleKeyPressed(GLFWwindow* window, int key, int scanc
 	if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
 		if (model->getPlotVector().size() < 4) {
 			model->addPlot(5, 5, SpectrumModel::TIMESERIES, 0, 0, false, false);
+			//IModel->setSelectedPlot(model->getPlotVector().back());
 		}
 	}
 	else if (key == GLFW_KEY_DELETE && action == GLFW_PRESS) {
@@ -64,8 +65,8 @@ void SpectrumController::handleMouseClick(GLFWwindow* window, int button, int ac
 
 		Plot* clickedPlot = model->detectClickPlot((xpos * 2 / 1000) - 1, ((ypos * 2 / 900) - 1) * -1);
 		if (clickedPlot != nullptr) {
-
-			// -- The bellow code is gross.
+			IModel->setSelectedPlot(clickedPlot);
+			// -- The bellow code is gross.\
 			IModel->setSelectedPlot(clickedPlot);
 			if (IModel->getCurrentListMenuID() == "Filter") {
 				IModel->setCurrentListMenuOption(clickedPlot->getFilterFlag());
