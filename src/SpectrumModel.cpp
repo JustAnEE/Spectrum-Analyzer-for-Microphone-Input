@@ -6,6 +6,7 @@ SpectrumModel::SpectrumModel(){
 
 	format = new MicInput(1, 44100, 8);
 	dsp = new spectrumdsp(44100, SAMPLES * PADDING);
+	filter = new Filter(44100, SAMPLES*PADDING, 400, 400);
 
 	// -- Setup function pointer list.
 	plotMethodVector.push_back(&SpectrumModel::timeSeries);
@@ -15,14 +16,16 @@ SpectrumModel::SpectrumModel(){
 
 }
 
+
 SpectrumModel::~SpectrumModel(){
 	for (Plot* plot : plotVector) {
 		delete plot;
 	}
 	plotVector.clear();
 
-	delete dsp;
 	delete format;
+	delete dsp; 
+	delete filter; 
 }
 
 
@@ -45,12 +48,13 @@ Plot* SpectrumModel::detectClickPlot(GLfloat xpos, GLfloat ypos){
 
 
 void SpectrumModel::addPlot(
+	GLfloat xpos,		GLfloat ypos,		GLfloat width,		GLfloat height,
 	int rows,			int cols,			DSPFUNC methodFlag,
 	int windowFlag,     int filterFlag,     bool detrendFlag,	bool normalizeFlag
 	){
 	
 	// -- Create a new plot.
-	Plot* newPlot = new Plot(-10.0, -10.0, 1.0, 1.0, rows, cols);;
+	Plot* newPlot = new Plot(xpos, ypos, width, height, rows, cols);
 	newPlot->setMethodFlag(methodFlag);
 	newPlot->setWindowFlag(windowFlag);
 	newPlot->setFilterFlag(filterFlag);
@@ -58,8 +62,7 @@ void SpectrumModel::addPlot(
 	newPlot->setNormalizeFlag(normalizeFlag);
 
 	plotVector.push_back(newPlot);
-	layoutPlots();
-
+	
 	notifySubscribers();
 }
 
@@ -72,10 +75,9 @@ void SpectrumModel::removePlot(Plot* givenPlot){
 			break;
 		}
 	}
-
-	layoutPlots();
 	notifySubscribers();
 }
+
 
 
 
@@ -138,6 +140,9 @@ void SpectrumModel::readMicData() {
 		count++;
 
 	}
+
+
+
 	/*ofstream audioFile;
 	audioFile.open("AFTER.WAV", ios::binary | ios::out);
 	audioFile.write(rawBytesPtr, rawSize);
@@ -150,21 +155,48 @@ void SpectrumModel::readMicData() {
 
 /* Private - methods */
 void SpectrumModel::magnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE) {
-	GLfloat* result = dsp->spectrum_output(inputData, 0);
-	plot->setRawData(result, inputDataSize * 2);
-	free(result);
+	if (WINDOW == 0 || WINDOW == 1 || WINDOW == 2) {
+		GLfloat* windowed = dsp->applyWindow(inputData, WINDOW);
+		GLfloat* result = dsp->spectrum_output(windowed, 0);
+		plot->setRawData(result, inputDataSize * 2);
+		free(windowed);
+		free(result);
+	}
+	else {
+		GLfloat* result = dsp->spectrum_output(inputData, 0);
+		plot->setRawData(result, inputDataSize * 2);
+		free(result);
+	}
 }
 
 void SpectrumModel::DBmagnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE) {
-	GLfloat* result = dsp->spectrum_output(inputData, 1);
-	plot->setRawData(result, inputDataSize * 2);
-	free(result);
+	if (WINDOW == 0 || WINDOW == 1 || WINDOW == 2) {
+		GLfloat* windowed = dsp->applyWindow(inputData, WINDOW);
+		GLfloat* result = dsp->spectrum_output(windowed, 1);
+		plot->setRawData(result, inputDataSize * 2);
+		free(windowed);
+		free(result);
+	}
+	else {
+		GLfloat* result = dsp->spectrum_output(inputData, 1);
+		plot->setRawData(result, inputDataSize * 2);
+		free(result);
+	}
 }
 
 void SpectrumModel::powerSpectralDensity(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE) {
-	GLfloat* result = dsp->spectrum_output(inputData, 3);
-	plot->setRawData(result, inputDataSize * 2);
-	free(result);
+	if (WINDOW == 0 || WINDOW == 1 || WINDOW == 2) {
+		GLfloat* windowed = dsp->applyWindow(inputData, WINDOW);
+		GLfloat* result = dsp->spectrum_output(windowed, 2);
+		plot->setRawData(result, inputDataSize * 2);
+		free(windowed);
+		free(result);
+	}
+	else {
+		GLfloat* result = dsp->spectrum_output(inputData, 2);
+		plot->setRawData(result, inputDataSize * 2);
+		free(result);
+	}
 }
 
 void SpectrumModel::timeSeries(Plot* plot, int WINDOW, int FILTER, int NORMALIZE, int DETREND) {
@@ -176,64 +208,9 @@ void SpectrumModel::timeSeries(Plot* plot, int WINDOW, int FILTER, int NORMALIZE
 
 	plot->setRawData(converted, SAMPLES * 2);
 	free(converted);
+
 }
 
-
-void SpectrumModel::layoutPlots() {
-	int plotBoxWidth = 800.0f;
-	int plotBoxHeight = 800.0f;
-
-	GLfloat PBHalfW = (plotBoxWidth / 1000.0f);
-	GLfloat PBHalfH = (plotBoxHeight / 900.0f);
-	GLfloat PBQuarterW = (plotBoxWidth / 1000.0f) / 2.0f;
-	GLfloat PBQuarterH = (plotBoxHeight / 900.0f) / 2.0f;
-
-	GLfloat PlotBoxCenterx = -1.0f + PBHalfW;
-	GLfloat PlotBoxCenterY = -1.0f + PBHalfH;
-
-	GLfloat largeWidth = PBHalfW * 2.0f * 0.80f;
-	GLfloat largeHeight = PBHalfH * 2.0f * 0.80f;
-	GLfloat smallWidth = PBHalfW * 2.0f * 0.30f;
-	GLfloat smallHeight = PBHalfH * 2.0f * 0.30f;
-
-	switch (plotVector.size()) {
-	case 1:  // -- one large center screen plot
-		plotVector[0]->movePlot(PlotBoxCenterx, PlotBoxCenterY);
-		plotVector[0]->scalePlot(largeWidth, largeHeight);
-		break;
-	case 2:  // -- two, vertical long plots.
-		plotVector[0]->movePlot(PlotBoxCenterx, PlotBoxCenterY + PBQuarterH);
-		plotVector[1]->movePlot(PlotBoxCenterx, PlotBoxCenterY - PBQuarterH);
-		
-		plotVector[0]->scalePlot(largeWidth, smallHeight);
-		plotVector[1]->scalePlot(largeWidth, smallHeight);
-		break;
-	case 3:  // -- one vertical long plot on top, two small plots bottom.
-		plotVector[0]->movePlot(PlotBoxCenterx, PlotBoxCenterY + PBQuarterH);
-		plotVector[1]->movePlot(PlotBoxCenterx + PBQuarterW, PlotBoxCenterY - PBQuarterH);
-		plotVector[2]->movePlot(PlotBoxCenterx - PBQuarterW, PlotBoxCenterY - PBQuarterH);
-
-		plotVector[0]->scalePlot(largeWidth, smallHeight);
-		plotVector[1]->scalePlot(smallWidth, smallHeight);
-		plotVector[2]->scalePlot(smallWidth, smallHeight);
-		break;
-	case 4:  // -- four small plots.
-		plotVector[0]->movePlot(PlotBoxCenterx - PBQuarterW, PlotBoxCenterY + PBQuarterH);
-		plotVector[1]->movePlot(PlotBoxCenterx + PBQuarterW, PlotBoxCenterY + PBQuarterH);
-		plotVector[2]->movePlot(PlotBoxCenterx + PBQuarterW, PlotBoxCenterY - PBQuarterH);
-		plotVector[3]->movePlot(PlotBoxCenterx - PBQuarterW, PlotBoxCenterY - PBQuarterH);
-
-		plotVector[0]->scalePlot(smallWidth, smallHeight);
-		plotVector[1]->scalePlot(smallWidth, smallHeight);
-		plotVector[2]->scalePlot(smallWidth, smallHeight);
-		plotVector[3]->scalePlot(smallWidth, smallHeight);
-		break;
-	default:
-		std::cout << "ERROR in SpectrumModel::addPlot().   Invalid plotVectorSize() \n";
-		exit(-21);
-		break;
-	}
-}
 
 
 
