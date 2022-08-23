@@ -1,22 +1,63 @@
 #include "spectrumdsp.h"
 
-
-
-
-spectrumdsp :: spectrumdsp(int _sample_rate, int _buffer_size) {
-
+spectrumdsp::spectrumdsp(int _sample_rate, int _buffer_size) {
     sample_rate = _sample_rate;
     buffer_size = _buffer_size;
+    hammingWindow = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
+    blackmanWindow = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
+    barlettWindow = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
+    frequencyArray = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
+    genWindows();
+    setFreqs(); 
+}
+
+spectrumdsp::~spectrumdsp() {
+    free(hammingWindow);
+    free(blackmanWindow);
+    free(barlettWindow); 
+    free(frequencyArray);
+}
+
+void spectrumdsp::genWindows() {
+
+    for (int k = 0; k < buffer_size; k++) {
+        hammingWindow[k] = 0.54 - 0.46 * cosf(2.0 * 3.14159 * (GLfloat)k / ((GLfloat)(buffer_size - 1)));
+        blackmanWindow[k] = 0.42 - 0.5 * cosf(2.0 * 3.14159 * (GLfloat)k / ((GLfloat)(buffer_size - 1))) + 0.08 * cos(4.0 * 3.14159 * (GLfloat)k / ((GLfloat)(buffer_size - 1)));
+        barlettWindow[k] = (2.0 / ((GLfloat)(buffer_size - 1))) * (((GLfloat)(buffer_size - 1)) / 2.0 - (GLfloat)abs((GLfloat)k - (((GLfloat)buffer_size - 1)) / 2.0));
+    }
+}
+
+void spectrumdsp::setFreqs() {
+
+    GLfloat fs = (GLfloat)sample_rate;
+    GLfloat N = (GLfloat)buffer_size;
+
+    for (int k = 0; k < buffer_size; k++) {
+
+        frequencyArray[k] = -fs / 2 + ((GLfloat)k) * fs / N;
+
+    }
 
 }
 
+GLfloat* spectrumdsp::applyWindow(GLfloat* input, int WINDOW_FLAG){
+    
+    GLfloat* output = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
+    switch (WINDOW_FLAG) {
 
-void spectrumdsp::setSampleRate(int samples) {
+    case 0: for (int k = 0; k < buffer_size; ++k) { output[k] = input[k] * hammingWindow[k]; }
+          break;
+    case 1: for (int k = 0; k < buffer_size; ++k) { output[k] = input[k] * blackmanWindow[k]; }
+          break;
+    case 2: for (int k = 0; k < buffer_size; ++k) { output[k] = input[k] * barlettWindow[k]; }
+          break;
+    default: for (int k = 0; k < buffer_size; ++k) { output[k] = input[k] * hammingWindow[k]; }
 
-    sample_rate = samples; 
+    }
+
+    return output; 
 
 }
-
 
 void spectrumdsp::fft(fftwf_complex* input, fftwf_complex* output)
 {
@@ -35,7 +76,7 @@ void spectrumdsp::ifft(fftwf_complex* in, fftwf_complex* out)
     fftwf_execute(plan);
     fftwf_destroy_plan(plan);
     fftwf_cleanup();
-
+    
     for (int k = 0; k <= buffer_size; k++) {
 
         out[k][REAL] /= buffer_size;
@@ -44,79 +85,22 @@ void spectrumdsp::ifft(fftwf_complex* in, fftwf_complex* out)
     }
 }
 
-fftwf_complex* spectrumdsp::set_fft(GLfloat* buffer)
+fftwf_complex* spectrumdsp::set_fft(fftwf_complex* shifted_input)
 {
     fftwf_complex* y = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (buffer_size));
-    fftwf_complex* x = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (buffer_size));
-
-    // Cannot directly pass buffer data into FFT, needs to be fftwf_complex* data type.
-    for (int k = 0; k < buffer_size; k++) {
-
-        x[k][REAL] = buffer[k];
-        x[k][IMAG] = 0;
-
-    }
-
-    // fft(x,y) will implicitly overwrite y
-    fft(x, y);
-
-
-    return y;
-}
-
-fftwf_complex* spectrumdsp::better_set_fft(fftwf_complex* shifted_input)
-{
-    fftwf_complex* y = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (buffer_size));
-
 
     fft(shifted_input, y);
 
-
     return y;
 }
 
-fftwf_complex* spectrumdsp::fft_shift(fftwf_complex* fft_data)
-{
-    
-    int half_size = buffer_size / 2;
-    fftwf_complex* shifted_fft = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (buffer_size));
-
-    for (int k = 0; k < buffer_size; k++) {
-
-        if (k < half_size) {
-
-            shifted_fft[k + half_size][REAL] = fft_data[k][REAL];
-            shifted_fft[k + half_size][IMAG] = fft_data[k][IMAG];
-
-        }
-
-
-        if (k >= half_size) {
-
-            shifted_fft[k - half_size][REAL] = fft_data[k][REAL];
-            shifted_fft[k - half_size][IMAG] = fft_data[k][IMAG];
-
-        }
-
-
-    }
-
-    return shifted_fft;
-
-}
-
-fftwf_complex* spectrumdsp::better_fft_shift(GLfloat* buffer)
+fftwf_complex* spectrumdsp::fft_shift(GLfloat* buffer)
 {
     fftwf_complex* x = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (buffer_size));
 
-  
-
         for (int k = 0; k < buffer_size; k++) {
-
-            // unreadable dsp wizardry :) 
             x[k][REAL] = buffer[k] * pow(-1, k);
             x[k][IMAG] = 0;
-
         }
 
     return x;
@@ -145,7 +129,7 @@ GLfloat* spectrumdsp::dB_magnitude(GLfloat* magnitude_data)
     GLfloat* dB_magnitude_data = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
 
     // Need to deal with magnitude data close to zero. Noise floor of -120 dB corresponds to a magnitude of 1e-6. 
-    GLfloat noise_floor = -80;
+    GLfloat noise_floor = -120;
 
 
     for (int k = 0; k < buffer_size; k++) {
@@ -211,24 +195,7 @@ GLfloat* spectrumdsp::power_spectral_density(GLfloat* magnitude_data)
    
 }
 
-GLfloat* spectrumdsp::frequency_array()
-{
-
-    GLfloat fs = (GLfloat)sample_rate;
-    GLfloat N = (GLfloat)buffer_size;
-
-    GLfloat* frequency = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
-
-    for (int k = 0; k < buffer_size; k++) {
-
-        frequency[k] = -fs / 2 + ((GLfloat)k) * fs / N;
-
-    }
-
-    return frequency;
-}
-
-GLfloat* spectrumdsp::prep_data_for_plot(GLfloat* freqs, GLfloat* spectrum)
+GLfloat* spectrumdsp::prep_data_for_plot(GLfloat* spectrum)
 {
     int plot_data_size = 2 * buffer_size;
     GLfloat* data_for_plot = (GLfloat*)calloc(plot_data_size, sizeof(GLfloat));
@@ -237,7 +204,7 @@ GLfloat* spectrumdsp::prep_data_for_plot(GLfloat* freqs, GLfloat* spectrum)
 
         int index = k / 2;
 
-        data_for_plot[k] = freqs[index];
+        data_for_plot[k] = frequencyArray[index];
         data_for_plot[k + 1] = spectrum[index];
 
     }
@@ -301,60 +268,11 @@ GLfloat* spectrumdsp::detrend_buffer(GLfloat* buffer)
     return detrended_data;
 }
 
-GLfloat* spectrumdsp::window_gen(int WINDOW_FLAG)
-{
-    GLfloat* window = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
-
-    switch (WINDOW_FLAG) {
-
-        //Hamming Window
-    case 0:
-
-        for (int k = 0; k < buffer_size; k++) {
-
-            window[k] = 0.54 - 0.46 * cosf(2.0 * 3.14159 * (GLfloat)k / ((GLfloat)(buffer_size - 1) * (GLfloat)sample_rate));
-
-        }
-
-        break;
-
-        //Blackman Window
-    case 1:
-
-        for (int k = 0; k < buffer_size; k++) {
-
-            window[k] = 0.42 - 0.5 * cosf(2.0 * 3.14159 * (GLfloat)k / ((GLfloat)(buffer_size - 1))) + 0.08 * cos(4.0 * 3.14159 * (GLfloat)k / ((GLfloat)(buffer_size - 1)));
-
-        }
-
-        break;
-
-        //Barlett
-    case 2:
-
-        for (int k = 0; k < buffer_size; k++) {
-
-            window[k] = (2.0 / ((GLfloat)(buffer_size - 1))) * (((GLfloat)(buffer_size - 1)) / 2.0 - (GLfloat)abs((GLfloat)k - (((GLfloat)buffer_size - 1)) / 2.0));
-
-        }
-
-        break;
-
-        // Need to rework default case 
-    default: return window;
-
-    }
-
-
-    return window;
-}
-
 GLfloat* spectrumdsp::spectrum_output(GLfloat* buffer, int SET_OUTPUT)
 {
-    GLfloat* freqs_array = frequency_array();
-
-    fftwf_complex* fftin_ptr = better_fft_shift(buffer);
-    fftwf_complex* fft_ptr = better_set_fft(fftin_ptr);
+ 
+    fftwf_complex* fftin_ptr = fft_shift(buffer);
+    fftwf_complex* fft_ptr = set_fft(fftin_ptr);
 
     GLfloat* mag_data = magnitude(fft_ptr);
     GLfloat* dB_mag_data = dB_magnitude(mag_data);
@@ -364,23 +282,22 @@ GLfloat* spectrumdsp::spectrum_output(GLfloat* buffer, int SET_OUTPUT)
     GLfloat* output_ptr;
 
     switch (SET_OUTPUT) {
-    case 0: output_ptr = prep_data_for_plot(freqs_array, mag_data);
+    case 0: output_ptr = prep_data_for_plot(mag_data);
         break;
-    case 1: output_ptr = prep_data_for_plot(freqs_array, dB_mag_data);
+    case 1: output_ptr = prep_data_for_plot(dB_mag_data);
         break;
-    case 2: output_ptr = prep_data_for_plot(freqs_array, dBm_mag_data);
+    case 2: output_ptr = prep_data_for_plot(dBm_mag_data);
         break;
-    case 3: output_ptr = prep_data_for_plot(freqs_array, pwr_spec_data);
+    case 3: output_ptr = prep_data_for_plot(pwr_spec_data);
         break;
-    case 4: output_ptr = prep_data_for_plot(freqs_array, phase_data);
+    case 4: output_ptr = prep_data_for_plot(phase_data);
         break;
     default:
-        output_ptr = prep_data_for_plot(freqs_array, mag_data);
+        output_ptr = prep_data_for_plot( mag_data);
     }
 
     fftwf_free(fftin_ptr);
     fftwf_free(fft_ptr);
-    free(freqs_array);
     free(mag_data);
     free(dB_mag_data);
     free(dBm_mag_data);
