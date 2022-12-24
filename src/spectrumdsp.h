@@ -7,10 +7,10 @@
 #include "SpectrumTypes.hpp"
 #include "SpectrumInitPacket.hpp"
 #include "SpectrumPacket.hpp"
+#include "Filter.h"
 
 #define REAL 1
 #define IMAG 0
-
 
 class SpectrumDSP
 {
@@ -33,7 +33,6 @@ private:
    void ifft(fftwf_complex* in, fftwf_complex* out);
    
    void ApplyWindow();
-   void ApplyFilter();
    fftwf_complex* set_fft(fftwf_complex* shifted_input);
    fftwf_complex* fft_shift();
    void MagnitudeSpectrum(fftwf_complex* fft_data);
@@ -47,29 +46,44 @@ private:
    void setFreqs();
 
    void PopulateSpectrumPacket();
-   // New stuff
    void GenWindow();
 
 // Private members 
 private:
 
-   int iMySampleRate, iMyBufferSize;
-
-   GLfloat* pafMyFrequencyArray;
-   
-   // New stuff
-
+   //! This is a pointer to a spectrum packet. 
    SpectrumPacket* pclMySpectrumPacket;
 
+   //! This is a pointer to a Filter 
+   Filter* pclMyFilter; 
+
+   //! This is the sample rate of the system. 
+   int iMySampleRate;
+
+   //! This is the size of the incoming sample buffer. 
+   int iMyBufferSize;
+   
+   //! This enum is the spectrum type: Magnitude Response, DB Spectrum, PSD, etc.
    SpectrumTypeEnum eMySpectrumType;
+
+   //! This enum is the window type: Hamming, Blackman, Rectangular, Barlette. 
    WindowTypeEnum   eMyWindowType; 
+
+   //! This enum is the filter type: LPF, HPF, BPF, BSF. 
    FilterTypeEnum   eMyFilterType; 
 
+   //! This is a pointer to an array containing the frequencies corresponding to FFT bins (array index). 
+   GLfloat* pafMyFrequencyArray;
+
+   //! This is a pointer to an array containing the current window function. 
    GLfloat* pafMyWindow; 
-   //! This is the local copy of the sample buffer read in from the microphone.
+
+   //! This is a pointer to the local copy of the sample buffer read in from the microphone.
    GLfloat* pafMyLocalSampleBuffer;
+
    //! This is an array which holds the spectrum data output (y axis). 
    GLfloat* pafMySpectrumData; 
+
    //! This is an array which holds the interleaved x and y axis for the spectrum plot. 
    GLfloat* pafMySpectrumPlotData; 
 

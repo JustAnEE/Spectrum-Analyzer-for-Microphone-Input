@@ -1,18 +1,50 @@
 #pragma once
 #include <glad/glad.h>
 #include <iostream>
+#include "SpectrumTypes.hpp"
+#include "SpectrumInitPacket.hpp"
 
-class Filter {
+class Filter 
+{
 
-private:
-	int sampleRate, bufferSize, filterLength;
-	float cutOff, TBW;
-	GLfloat* filter;
-
+// Constructors and Destructors
 public:
-	Filter(int _sampleRate, int _bufferSize, float _cutOffHz, float _TBW);
-	~Filter();
-	void genLPF();
-	void lowToHigh();
-	GLfloat* convolve(GLfloat* in);
+
+   Filter Filter(int iSampleRate_, int iBufferSize_);
+   Filter ~Filter(); 
+
+// Public Methods 
+public:
+
+   void InitializeFilter(const SpectrumInitPacket& cpSpectrumInit_);
+   void ApplyFilter(GLfloat& afSampleBuffer_);
+
+// Private Methods 
+private:
+
+	void Convolve(GLfloat& afSampleBuffer_); 
+	void GenLPF(); 
+	void LowToHigh(); 
+
+// Private Attributes.
+private:
+
+	//! This attribute contains information to initialize the filter 
+	DSPFilterInitStruct stMyDSPInit;
+	
+	//! This attribute is the filter type.
+	FilterTypeEnum eMyFilterType; 
+
+	//! This is the sample rate of the system. 
+	int iMySampleRate;
+
+	//! This is the buffer size of the system.
+	int iMyBufferSize; 
+
+	//! This is the filter length
+	int fMyFilterLength; 
+
+	//! This is the pointer to the filter taps. 
+	GLfloat* pafMyFilterTaps; 
+
 };

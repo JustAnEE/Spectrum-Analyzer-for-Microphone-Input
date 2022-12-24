@@ -12,15 +12,16 @@ SpectrumDSP::SpectrumDSP(int _iMySampleRate, int _iMyBufferSize)
     pafMyLocalSampleBuffer = nullptr; 
     pafMyWindow = nullptr; 
     pclMySpectrumPacket = new SpectrumPacket();
+    pclMyFilter = new Filter(iMySampleRate, iMyBufferSize);
     setFreqs();
 
 }
 
 SpectrumDSP::~SpectrumDSP() 
 {
-
     delete(pafMyFrequencyArray);
     delete(pclMySpectrumPacket);
+    delete(pclMyFilter);
     delete[](pafMyLocalSampleBuffer); 
     delete[](pafMySpectrumData); 
     delete[](pafMySpectrumPlotData); 
@@ -62,10 +63,21 @@ void SpectrumDSP::ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitP
        DetrendBuffer();
    }
    
+   if (!(eMyFilterType == NO_FILTER))
+   {
+       // The Filter gets initialized via the SpectrumInitPacket. 
+       pclMyFilter->InitializeFilter(*pclSpectrumInitPacket_);
+       
+       // Filter class will convolute filter indicated in the 
+       // packet with the local sample buffer. 
+       pclMyFilter->ApplyFilter(*pafMyLocalSampleBuffer);
+   }
 
-   // Apply any windowing or filtering. 
-   ApplyWindow();
-   ApplyFilter();
+   if (!(eMyWindowType == RECTANGULAR_WINDOW))
+   {
+       // Apply any windowing or filtering. 
+       ApplyWindow();
+   }
 
    // Fill the pafMySpectrumPlotDataArray with the interleaved plot data. 
    CalculateSpectrum();
@@ -168,15 +180,6 @@ void SpectrumDSP::ApplyWindow()
 
    return; 
 
-}
-
-void SpectrumDSP::ApplyFilter()
-{
-    if (eMyFilterType == NO_FILTER)
-    {
-        // Do not need to do anything, silently return.
-        return; 
-    }
 }
 
 void SpectrumDSP::fft(fftwf_complex* input, fftwf_complex* output)
