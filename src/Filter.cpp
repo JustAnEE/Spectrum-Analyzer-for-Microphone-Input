@@ -8,10 +8,16 @@ Filter::Filter(int iSampleRate_, int iBufferSize_)
     iMyBufferSize = iBufferSize_;
 
     // Set filter length to buffer size for now. 
-    fMyfMyFilterLength = iMyBufferSize;
+    fMyFilterLength = iMyBufferSize;
+
+    pafMyFilterTaps = new GLfloat[fMyFilterLength];
+
 }
 
-Filter::~Filter() { }
+Filter::~Filter() 
+{
+   delete[]pafMyFilterTaps; 
+}
 
 void Filter::InitializeFilter(const SpectrumInitPacket& clSpectrumInit_)
 {
@@ -21,7 +27,7 @@ void Filter::InitializeFilter(const SpectrumInitPacket& clSpectrumInit_)
     eMyFilterType = clSpectrumInit_.stMyDSPInitialisation.eFilter;
 }
 
-void Filter::ApplyFilter(GLfloat& afSampleBuffer_)
+void Filter::ApplyFilter(GLfloat* pafSampleBuffer_)
 {
     // Filtering is based on an LPF prototype,
     // so the LPF is always generated. 
@@ -32,7 +38,7 @@ void Filter::ApplyFilter(GLfloat& afSampleBuffer_)
         // Build low pass filter
         GenLPF(); 
         // Convolve sample buffer with LPF filter taps. 
-        Convolve(afSampleBuffer_);
+        Convolve(pafSampleBuffer_);
         break;
 
     case HIGHPASS:
@@ -41,7 +47,7 @@ void Filter::ApplyFilter(GLfloat& afSampleBuffer_)
         // Spectral inversion applied to LPF prototype to get HPF. 
         LowToHigh(); 
         // Convolve HPF filter taps with sample buffer. 
-        Convolve(afSampleBuffer_);
+        Convolve(pafSampleBuffer_);
         break; 
         
     // !TODO: Bandpass/Bandstop not currently implemented. 
@@ -54,17 +60,17 @@ void Filter::ApplyFilter(GLfloat& afSampleBuffer_)
     }
 }
 
-void Filter::GenLPF() {
+void Filter::GenLPF() 
+{
 
     GLfloat fFilterNorm = 0;
     float fEps = 0.0001;
     GLfloat fNormCutOff = stMyDSPInit.fCutOffHz_LPF / ((GLfloat)iMySampleRate);
 
-
-    for (int k = 0; k < fMyfMyFilterLength; ++k) {
-        GLfloat fsincArg = 2.0f * 3.14159f * fNormCutOff * ((GLfloat)k - (((GLfloat)fMyfMyFilterLength - 1.0f) / 2.0f));
+    for (int k = 0; k < (int) fMyFilterLength/5; ++k) {
+        GLfloat fsincArg = 2.0f * 3.14159f * fNormCutOff * ((GLfloat)k - (((GLfloat)fMyFilterLength - 1.0f) / 2.0f));
         GLfloat fcosArg = 2.0f * 3.14159f * (GLfloat)k / ((GLfloat)fMyFilterLength - 1.0f);
-        if (abs(fsincArg) < eps) 
+        if (abs(fsincArg) < fEps) 
         { 
             pafMyFilterTaps[k] = 0.42f - 0.5f * cosf(fcosArg) + 0.08f * cosf(2 * fcosArg); 
         }
@@ -84,7 +90,7 @@ void Filter::LowToHigh() {
 
 
 
-void Filter::Convolve(GLfloat& afSampleBuffer_) 
+void Filter::Convolve(GLfloat* pafSampleBuffer_) 
 {
 
     // Only return the first BufferSize samples of convolution
@@ -96,7 +102,7 @@ void Filter::Convolve(GLfloat& afSampleBuffer_)
         int kmx = (k < fMyFilterLength - 1) ? k : fMyFilterLength - 1;
 
         for (int j = kmn; j < kmx; ++j) {
-            afSampleBuffer_[k] += pafMyFilterTaps[j] * afSampleBuffer_[k - j];
+            pafSampleBuffer_[k] += pafMyFilterTaps[j] * pafSampleBuffer_[k - j];
         }
     }
 

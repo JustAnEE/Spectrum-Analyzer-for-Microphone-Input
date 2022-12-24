@@ -70,7 +70,7 @@ void SpectrumDSP::ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitP
        
        // Filter class will convolute filter indicated in the 
        // packet with the local sample buffer. 
-       pclMyFilter->ApplyFilter(*pafMyLocalSampleBuffer);
+       pclMyFilter->ApplyFilter(pafMyLocalSampleBuffer);
    }
 
    if (!(eMyWindowType == RECTANGULAR_WINDOW))
