@@ -16,7 +16,11 @@
 #include"spectrumdsp.h"
 #include"Filter.h"
 #include"SpectrumModelSubscriber.h"
+#include"SpectrumTypes.hpp"
+#include"SpectrumInitPacket.hpp"
+#include"SpectrumPacket.hpp"
 
+// !Todo: This bad 
 using namespace std;
 
 
@@ -58,7 +62,7 @@ private:
 	int inputDataSize, SAMPLES, PADDING;
 	GLfloat* inputData;
 
-	spectrumdsp* dsp;
+	SpectrumDSP* pclMyDSP;
 	Filter* filter; 
 
 	vector<Plot*> plotVector;

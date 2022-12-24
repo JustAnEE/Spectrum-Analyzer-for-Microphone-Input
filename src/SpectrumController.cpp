@@ -20,7 +20,12 @@ void SpectrumController::jobStartEvent(){
 	switch (currentState){
 		case SpectrumController::START:
 			// -- Initial setup featuring the worlds longest function.
-			model->addPlot(5, 5, SpectrumModel::TIMESERIES, 0, 0, false, false);
+			model->addPlot(
+				-0.25f, -0.25f, 1.0f, 1.0f,
+				5, 5,
+				SpectrumModel::TIMESERIES,
+				0, 0, false, false
+			);
 			IModel->setSelectedPlot(model->getPlotVector()[0]);
 			currentState = READING;
 			break;
@@ -45,7 +50,12 @@ void SpectrumController::jobStartEvent(){
 void SpectrumController::handleKeyPressed(GLFWwindow* window, int key, int scancode, int action, int mods){
 	if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
 		if (model->getPlotVector().size() < 4) {
-			model->addPlot(5, 5, SpectrumModel::TIMESERIES, 0, 0, false, false);
+			model->addPlot(
+				-0.25f, -0.25f, 1.0f, 1.0f,
+				5, 5,
+				SpectrumModel::TIMESERIES,
+				0, 0, false, false
+			);
 			//IModel->setSelectedPlot(model->getPlotVector().back());
 		}
 	}

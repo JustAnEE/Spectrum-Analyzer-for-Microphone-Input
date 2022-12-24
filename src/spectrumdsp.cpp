@@ -1,68 +1,188 @@
 #include "spectrumdsp.h"
 
-spectrumdsp::spectrumdsp(int _sample_rate, int _buffer_size) {
-    sample_rate = _sample_rate;
-    buffer_size = _buffer_size;
-    hammingWindow = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
-    blackmanWindow = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
-    barlettWindow = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
-    frequencyArray = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
-    genWindows();
-    setFreqs(); 
-}
-
-spectrumdsp::~spectrumdsp() {
-    free(hammingWindow);
-    free(blackmanWindow);
-    free(barlettWindow); 
-    free(frequencyArray);
-}
-
-void spectrumdsp::genWindows() {
-
-    for (int k = 0; k < buffer_size; k++) {
-        hammingWindow[k] = 0.54 - 0.46 * cosf(2.0 * 3.14159 * (GLfloat)k / ((GLfloat)(buffer_size - 1)));
-        blackmanWindow[k] = 0.42 - 0.5 * cosf(2.0 * 3.14159 * (GLfloat)k / ((GLfloat)(buffer_size - 1))) + 0.08 * cos(4.0 * 3.14159 * (GLfloat)k / ((GLfloat)(buffer_size - 1)));
-        barlettWindow[k] = (2.0 / ((GLfloat)(buffer_size - 1))) * (((GLfloat)(buffer_size - 1)) / 2.0 - (GLfloat)abs((GLfloat)k - (((GLfloat)buffer_size - 1)) / 2.0));
-    }
-}
-
-void spectrumdsp::setFreqs() {
-
-    GLfloat fs = (GLfloat)sample_rate;
-    GLfloat N = (GLfloat)buffer_size;
-
-    for (int k = 0; k < buffer_size; k++) {
-
-        frequencyArray[k] = -fs / 2 + ((GLfloat)k) * fs / N;
-
-    }
-
-}
-
-GLfloat* spectrumdsp::applyWindow(GLfloat* input, int WINDOW_FLAG){
-    
-    GLfloat* output = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
-    switch (WINDOW_FLAG) {
-
-    case 0: for (int k = 0; k < buffer_size; ++k) { output[k] = input[k] * hammingWindow[k]; }
-          break;
-    case 1: for (int k = 0; k < buffer_size; ++k) { output[k] = input[k] * blackmanWindow[k]; }
-          break;
-    case 2: for (int k = 0; k < buffer_size; ++k) { output[k] = input[k] * barlettWindow[k]; }
-          break;
-    default: for (int k = 0; k < buffer_size; ++k) { output[k] = input[k] * hammingWindow[k]; }
-
-    }
-
-    return output; 
-
-}
-
-void spectrumdsp::fft(fftwf_complex* input, fftwf_complex* output)
+SpectrumDSP::SpectrumDSP(int _iMySampleRate, int _iMyBufferSize) 
 {
 
-    fftwf_plan plan = fftwf_plan_dft_1d(buffer_size, input, output, FFTW_FORWARD, FFTW_ESTIMATE);
+    iMySampleRate = _iMySampleRate;
+    iMyBufferSize = _iMyBufferSize;
+
+    pafMyFrequencyArray = new GLfloat[iMyBufferSize]; 
+    pafMySpectrumData = nullptr; 
+    pafMySpectrumPlotData = nullptr;
+    pafMyLocalSampleBuffer = nullptr; 
+    pafMyWindow = nullptr; 
+    pclMySpectrumPacket = new SpectrumPacket();
+    setFreqs();
+
+}
+
+SpectrumDSP::~SpectrumDSP() 
+{
+
+    delete(pafMyFrequencyArray);
+    delete(pclMySpectrumPacket);
+    delete[](pafMyLocalSampleBuffer); 
+    delete[](pafMySpectrumData); 
+    delete[](pafMySpectrumPlotData); 
+    delete[](pafMyWindow); 
+}
+
+void SpectrumDSP::ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitPacket_, GLfloat* pafSampleBuffer_)
+{
+
+   // Grab information from the initialisation packet 
+   eMySpectrumType = pclSpectrumInitPacket_->stMyDSPInitialisation.eSpectrumOutput;
+   eMyWindowType   = pclSpectrumInitPacket_->stMyDSPInitialisation.eWindow;
+   eMyFilterType   = pclSpectrumInitPacket_->stMyDSPInitialisation.eFilter; 
+  // Custom buffer size / sample rate not implemented yet 
+  // iMyBufferSize   = pclSpectrumInitPacket_->stMyDSPInitialisation.iBufferSize;
+  // iMySampleRate   = pclSpectrumInitPacket_->stMyDSPInitialisation.iSampleRate;
+
+   // Copy sample buffer into the class to avoid overwriting it in other functions
+   pafMyLocalSampleBuffer = new GLfloat[iMyBufferSize];
+   memcpy(pafMyLocalSampleBuffer, pafSampleBuffer_, iMyBufferSize*sizeof(GLfloat));
+
+   // Initialize local arrays. 
+   pafMySpectrumData = new GLfloat[iMyBufferSize];
+   pafMySpectrumPlotData = new GLfloat[2 * iMyBufferSize];
+   pafMyWindow = new GLfloat[iMyBufferSize];
+
+   // Fill window
+   GenWindow();
+
+   // If the sample rate or buffer size is not default, need to generate new windows and frequency arrays
+   // non-default configurations are not currently supported. 
+   if (!pclSpectrumInitPacket_->bIsFsandBufferSizeDefault)
+   {
+       // Non-default settings in the works 
+   }
+   if (pclSpectrumInitPacket_->bDetrend)
+   {
+       //! TODO: Detrend adds a rediculous DC component when it should be removing it :/ 
+       DetrendBuffer();
+   }
+   
+
+   // Apply any windowing or filtering. 
+   ApplyWindow();
+   ApplyFilter();
+
+   // Fill the pafMySpectrumPlotDataArray with the interleaved plot data. 
+   CalculateSpectrum();
+
+   // Load the output spectrum packet.
+   PopulateSpectrumPacket();
+
+   return; 
+
+}
+
+
+
+void SpectrumDSP::PopulateSpectrumPacket()
+{
+    // Load output packet 
+    pclMySpectrumPacket->eMySpectrumType = eMySpectrumType;
+    memcpy(pclMySpectrumPacket->afMySpectrumArray, pafMySpectrumPlotData, 2*iMyBufferSize*sizeof(GLfloat));
+}
+
+void SpectrumDSP::GetSpectrumOutput(SpectrumPacket& clSpectrumPacket_)
+{
+    clSpectrumPacket_.eMySpectrumType = eMySpectrumType;
+    memcpy(clSpectrumPacket_.afMySpectrumArray, pclMySpectrumPacket->afMySpectrumArray, sizeof(pclMySpectrumPacket->afMySpectrumArray)); 
+}
+
+void SpectrumDSP::GenWindow()
+{
+    if (eMyWindowType == RECTANGULAR_WINDOW)
+    {
+        return; 
+    }
+
+    switch (eMyWindowType)
+    {
+
+    case HAMMING_WINDOW:
+        for (int k = 0; k < iMyBufferSize; k++)
+        {
+            pafMyWindow[k] = 0.54 - 0.46 * cosf(2.0 * 3.14159 * (GLfloat)k / ((GLfloat)(iMyBufferSize - 1)));
+        }
+        break;
+
+    case BLACKMAN_WINDOW:
+        for (int k = 0; k < iMyBufferSize; k++) 
+        {
+            pafMyWindow[k] = 0.42 - 0.5 * cosf(2.0 * 3.14159 * (GLfloat)k / ((GLfloat)(iMyBufferSize - 1))) + 0.08 * cos(4.0 * 3.14159 * (GLfloat)k / ((GLfloat)(iMyBufferSize - 1)));
+        }
+        break;
+
+    case BARLETTE_WINDOW:
+        for (int k = 0; k < iMyBufferSize; k++)
+        {
+            pafMyWindow[k] = (2.0 / ((GLfloat)(iMyBufferSize - 1))) * (((GLfloat)(iMyBufferSize - 1)) / 2.0 - (GLfloat)abs((GLfloat)k - (((GLfloat)iMyBufferSize - 1)) / 2.0));
+        }
+        break; 
+    }
+}
+
+
+void SpectrumDSP::setFreqs() {
+    GLfloat fs = (GLfloat)iMySampleRate;
+    GLfloat N = (GLfloat)iMyBufferSize;
+    for (int k = 0; k < iMyBufferSize; k++) { pafMyFrequencyArray[k] = -fs / 2 + ((GLfloat)k) * fs / N; }
+}
+
+void SpectrumDSP::ApplyWindow() 
+{
+   if (eMyWindowType == RECTANGULAR_WINDOW)
+   {
+      // Do not need to do anything with a rectangular window, simply return. 
+      return; 
+   }
+    
+   switch (eMyWindowType)
+   {
+      case HAMMING_WINDOW:      
+         for (int k = 0; k < iMyBufferSize; ++k) 
+         {
+            pafMyLocalSampleBuffer[k] *= pafMyWindow[k];
+         }
+         break;
+
+      case BLACKMAN_WINDOW:
+         for (int k = 0; k < iMyBufferSize; ++k) 
+         { 
+            pafMyLocalSampleBuffer[k] *= pafMyWindow[k]; 
+         }
+
+      case BARLETTE_WINDOW:
+         for (int k = 0; k < iMyBufferSize; ++k) 
+         { 
+            pafMyLocalSampleBuffer[k] *= pafMyWindow[k]; 
+         }
+
+      default:
+         // Invalid Window Type, silently fail and return
+         return; 
+   }
+
+   return; 
+
+}
+
+void SpectrumDSP::ApplyFilter()
+{
+    if (eMyFilterType == NO_FILTER)
+    {
+        // Do not need to do anything, silently return.
+        return; 
+    }
+}
+
+void SpectrumDSP::fft(fftwf_complex* input, fftwf_complex* output)
+{
+
+    fftwf_plan plan = fftwf_plan_dft_1d(iMyBufferSize, input, output, FFTW_FORWARD, FFTW_ESTIMATE);
 
     fftwf_execute(plan);
     fftwf_destroy_plan(plan);
@@ -70,239 +190,221 @@ void spectrumdsp::fft(fftwf_complex* input, fftwf_complex* output)
 
 }
 
-void spectrumdsp::ifft(fftwf_complex* in, fftwf_complex* out)
+void SpectrumDSP::ifft(fftwf_complex* in, fftwf_complex* out)
 {
-    fftwf_plan plan = fftwf_plan_dft_1d(buffer_size, in, out, FFTW_BACKWARD, FFTW_ESTIMATE);
+    fftwf_plan plan = fftwf_plan_dft_1d(iMyBufferSize, in, out, FFTW_BACKWARD, FFTW_ESTIMATE);
     fftwf_execute(plan);
     fftwf_destroy_plan(plan);
     fftwf_cleanup();
     
-    for (int k = 0; k <= buffer_size; k++) {
+    for (int k = 0; k <= iMyBufferSize; k++) {
 
-        out[k][REAL] /= buffer_size;
-        out[k][IMAG] /= buffer_size;
+        out[k][REAL] /= iMyBufferSize;
+        out[k][IMAG] /= iMyBufferSize;
 
     }
 }
 
-fftwf_complex* spectrumdsp::set_fft(fftwf_complex* shifted_input)
+fftwf_complex* SpectrumDSP::set_fft(fftwf_complex* shifted_input)
 {
-    fftwf_complex* y = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (buffer_size));
+    fftwf_complex* y = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (iMyBufferSize));
 
     fft(shifted_input, y);
 
     return y;
 }
 
-fftwf_complex* spectrumdsp::fft_shift(GLfloat* buffer)
+fftwf_complex* SpectrumDSP::fft_shift() 
 {
-    fftwf_complex* x = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (buffer_size));
+    fftwf_complex* x = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (iMyBufferSize));
 
-        for (int k = 0; k < buffer_size; k++) {
-            x[k][REAL] = buffer[k] * pow(-1, k);
-            x[k][IMAG] = 0;
+        for (int k = 0; k < iMyBufferSize; k++) {
+           x[k][REAL] = pafMyLocalSampleBuffer[k] * pow(-1, k);
+           x[k][IMAG] = 0;
         }
 
     return x;
 }
 
-GLfloat* spectrumdsp::magnitude(fftwf_complex* fft_data)
+void SpectrumDSP::MagnitudeSpectrum(fftwf_complex* fft_data)
 {
 
-    GLfloat* magnitude_data = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
-
-    for (int k = 0; k < buffer_size; k++) {
-
-        // This is most likely not the most hardware efficient way to do this :) 
-
+    for (int k = 0; k < iMyBufferSize; k++) 
+    {
         GLfloat square = fft_data[k][REAL] * fft_data[k][REAL] + fft_data[k][IMAG] * fft_data[k][IMAG];
-
-        magnitude_data[k] = sqrt(square);
-
+        pafMySpectrumData[k] = sqrt(square);
     }
 
-    return magnitude_data;
+    return; 
 }
 
-GLfloat* spectrumdsp::dB_magnitude(GLfloat* magnitude_data)
+void SpectrumDSP::DBSpectrum()
 {
-    GLfloat* dB_magnitude_data = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
+   // Need to deal with magnitude data close to zero. Noise floor of -120 dB corresponds to a magnitude of 1e-6. 
+   GLfloat noise_floor = -120.0f;
 
-    // Need to deal with magnitude data close to zero. Noise floor of -120 dB corresponds to a magnitude of 1e-6. 
-    GLfloat noise_floor = -120;
+   for (int k = 0; k < iMyBufferSize; k++) 
+   {
+      GLfloat fAmplitude = pafMySpectrumData[k]; 
+      if (fAmplitude < 1 * pow(10, -6) || (fAmplitude == 0)) 
+      {
+         pafMySpectrumData[k] = noise_floor;
+      }
+      else 
+      {
+          pafMySpectrumData[k] = (GLfloat)20 * log10(fAmplitude);
+      }
+   }
 
-
-    for (int k = 0; k < buffer_size; k++) {
-
-        if (magnitude_data[k] < 1 * pow(10, -6) || (magnitude_data[k] == 0)) {
-
-            dB_magnitude_data[k] = noise_floor;
-
-        }
-
-        else {
-
-            dB_magnitude_data[k] = (GLfloat)20 * log10(magnitude_data[k]);
-
-        }
-
-    }
-
-    return dB_magnitude_data;
+    return;
 }
 
-GLfloat* spectrumdsp::dBm_magnitude(GLfloat* magnitude_data)
+void SpectrumDSP::DBmSpectrum()
 {
+   // Need to deal with magnitude data close to/ equal to zero. 
+   GLfloat noise_floor = -200;
 
-    GLfloat* dBm_magnitude_data = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
+   for (int k = 0; k < iMyBufferSize; k++)
+   {
+      GLfloat fAmplitude = pafMySpectrumData[k];
 
-    // Need to deal with magnitude data close to zero. 
-    GLfloat noise_floor = -200;
+      if (fAmplitude < 1 * pow(10, -6) || (fAmplitude == 0)) 
+      {
+         pafMySpectrumData[k] = noise_floor;
+      }
+      else 
+      {
+         pafMySpectrumData[k] = (GLfloat)10 * log10(1000 * fAmplitude);
+      }
+   }
 
-
-    for (int k = 0; k < buffer_size; k++) {
-
-        if (magnitude_data[k] < 1 * pow(10, -6) || (magnitude_data[k] == 0)) {
-
-            dBm_magnitude_data[k] = noise_floor;
-
-        }
-
-        else {
-
-
-            dBm_magnitude_data[k] = (GLfloat)10 * log10(1000 * magnitude_data[k]);
-        }
-
-    }
-
-    return dBm_magnitude_data;
+   return;
 }
 
-GLfloat* spectrumdsp::power_spectral_density(GLfloat* magnitude_data)
+void SpectrumDSP::PSDSpectrum()
 {
-   
-        GLfloat* psd = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
-
-        for (int k = 0; k < buffer_size; k++) {
-
-            psd[k] = magnitude_data[k]*magnitude_data[k] / buffer_size;
-
-        }
-
-        return psd;
-
-   
+   for (int k = 0; k < iMyBufferSize; k++) 
+   {
+      GLfloat fAmplitude = pafMySpectrumData[k];
+      pafMySpectrumData[k] = fAmplitude * fAmplitude / iMyBufferSize;
+   }
+   return;
 }
 
-GLfloat* spectrumdsp::prep_data_for_plot(GLfloat* spectrum)
+void SpectrumDSP::PrepDataForPlot()
 {
-    int plot_data_size = 2 * buffer_size;
-    GLfloat* data_for_plot = (GLfloat*)calloc(plot_data_size, sizeof(GLfloat));
+    int iPlotDataSize = 2 * iMyBufferSize;
 
-    for (int k = 0; k < plot_data_size; k += 2) {
+    for (int k = 0; k < iPlotDataSize; k += 2) {
 
         int index = k / 2;
 
-        data_for_plot[k] = frequencyArray[index];
-        data_for_plot[k + 1] = spectrum[index];
+        pafMySpectrumPlotData[k] = pafMyFrequencyArray[index];
+        pafMySpectrumPlotData[k + 1] = pafMySpectrumData[index];
 
     }
-    return data_for_plot;
+    return;
 }
 
-GLfloat* spectrumdsp::phase_spectrum(fftwf_complex* fft_data)
+void SpectrumDSP::PhaseSpectrum(fftwf_complex* fft_data)
 {
-    GLfloat* phase_array = (GLfloat*)calloc(buffer_size, sizeof(GLfloat));
+   GLfloat fPhaseThreshold = 0;
 
-    GLfloat phase_threshold = 0;
+   //!TODO: No idea what this code is even doing at the moment. 
 
-    for (int k = 0; k < buffer_size; k++) {
+   for (int k = 0; k < iMyBufferSize; k++) 
+   {
 
-        if (phase_threshold < sqrt(fft_data[k][REAL] * fft_data[k][REAL] + fft_data[k][IMAG] * fft_data[k][IMAG])) {
+      fPhaseThreshold = sqrt(fft_data[k][REAL] * fft_data[k][REAL] + fft_data[k][IMAG] * fft_data[k][IMAG]);
 
-            phase_threshold = sqrt(fft_data[k][REAL] * fft_data[k][REAL] + fft_data[k][IMAG] * fft_data[k][IMAG]);
+      if (fPhaseThreshold < sqrt(fft_data[k][REAL] * fft_data[k][REAL] + fft_data[k][IMAG] * fft_data[k][IMAG])) 
+      {
+         fPhaseThreshold = sqrt(fft_data[k][REAL] * fft_data[k][REAL] + fft_data[k][IMAG] * fft_data[k][IMAG]);
+      }
 
-        }
+   }
 
-    }
+   for (int k = 0; k < iMyBufferSize; k++) {
 
-    for (int k = 0; k < buffer_size; k++) {
+      GLfloat fMagnitude = sqrt(fft_data[k][REAL] * fft_data[k][REAL] + fft_data[k][IMAG] * fft_data[k][IMAG]);
+      if (fMagnitude < fPhaseThreshold) 
+      {
+         pafMySpectrumData[k] = 0;
+      }
 
-        if (sqrt(fft_data[k][REAL] * fft_data[k][REAL] + fft_data[k][IMAG] * fft_data[k][IMAG]) < phase_threshold) {
+      else 
+      {
+         pafMySpectrumData[k] = (180.0f / 3.14159) * atan2f(fft_data[k][IMAG], fft_data[k][REAL]);
+      }
 
-            phase_array[k] = 0;
+   }
 
-        }
-
-        else {
-
-            phase_array[k] = (180.0f / 3.14159) * atan2f(fft_data[k][IMAG], fft_data[k][REAL]);
-
-        }
-
-    }
-
-    return phase_array;
-
+   return;
 }
 
-GLfloat* spectrumdsp::detrend_buffer(GLfloat* buffer)
+void SpectrumDSP::DetrendBuffer()
 {
-    GLfloat* detrended_data = (GLfloat*)calloc(buffer_size, sizeof(GLfloat*));
-
     GLfloat buffer_avg = 0;
 
-    for (int k = 0; k < buffer_size; k++) {
+    for (int k = 0; k < iMyBufferSize; k++) {
 
-        buffer_avg += buffer[k];
-
-    }
-
-    for (int k = 0; k < buffer_size; k++) {
-
-        detrended_data[k] = buffer[k] - buffer_avg;
+        buffer_avg += pafMyLocalSampleBuffer[k];
 
     }
 
-    return detrended_data;
+    for (int k = 0; k < iMyBufferSize; k++) {
+
+        pafMyLocalSampleBuffer[k] -= buffer_avg;
+
+    }
+
 }
 
-GLfloat* spectrumdsp::spectrum_output(GLfloat* buffer, int SET_OUTPUT)
+void SpectrumDSP::CalculateSpectrum()
 {
  
-    fftwf_complex* fftin_ptr = fft_shift(buffer);
-    fftwf_complex* fft_ptr = set_fft(fftin_ptr);
+   fftwf_complex* fftin_ptr = fft_shift();
+   fftwf_complex* fft_ptr = set_fft(fftin_ptr);
+   
+   // Magnitude spectrum is always calculated, since the other spectra are obtained via manipulating
+   // the magnitude spectrum. 
+   MagnitudeSpectrum(fft_ptr);
 
-    GLfloat* mag_data = magnitude(fft_ptr);
-    GLfloat* dB_mag_data = dB_magnitude(mag_data);
-    GLfloat* dBm_mag_data = dBm_magnitude(mag_data);
-    GLfloat* pwr_spec_data = power_spectral_density(mag_data);
-    GLfloat* phase_data = phase_spectrum(fft_ptr);
-    GLfloat* output_ptr;
+   switch (eMySpectrumType)
+   {
+      case MAGNITUDE_SPECTRUM: 
+         // Magnitude data already exists, interleave with frequency array immediately. 
+         PrepDataForPlot();
+         break;
 
-    switch (SET_OUTPUT) {
-    case 0: output_ptr = prep_data_for_plot(mag_data);
-        break;
-    case 1: output_ptr = prep_data_for_plot(dB_mag_data);
-        break;
-    case 2: output_ptr = prep_data_for_plot(dBm_mag_data);
-        break;
-    case 3: output_ptr = prep_data_for_plot(pwr_spec_data);
-        break;
-    case 4: output_ptr = prep_data_for_plot(phase_data);
-        break;
-    default:
-        output_ptr = prep_data_for_plot( mag_data);
-    }
+      case DB_SPECTRUM:   
+         DBSpectrum(); 
+         PrepDataForPlot();
+         break;
 
-    fftwf_free(fftin_ptr);
-    fftwf_free(fft_ptr);
-    free(mag_data);
-    free(dB_mag_data);
-    free(dBm_mag_data);
-    free(phase_data);
-    free(pwr_spec_data);
+      case DBM_SPECTRUM:       
+         DBmSpectrum(); 
+         PrepDataForPlot();
+         break;
 
-    return output_ptr;
+      case PSD_SPECTRUM:  
+         PSDSpectrum();
+         PrepDataForPlot();
+         break;
+
+      case PHASE_SPECTRUM:  
+         PhaseSpectrum(fft_ptr); 
+         PrepDataForPlot();
+         break;
+
+      default:
+         // If invalid spectrum enum, simply return the interleaved magnitude data. 
+         PrepDataForPlot(); 
+         break; 
+   }
+
+   fftwf_free(fftin_ptr);
+   fftwf_free(fft_ptr);
+
+   return; 
 }
