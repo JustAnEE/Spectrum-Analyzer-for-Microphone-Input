@@ -10,19 +10,19 @@ class Filter
 // Constructors and Destructors
 public:
 
-   Filter Filter(int iSampleRate_, int iBufferSize_);
-   Filter ~Filter(); 
+   Filter(int iSampleRate_, int iBufferSize_);
+   ~Filter(); 
 
 // Public Methods 
 public:
 
    void InitializeFilter(const SpectrumInitPacket& cpSpectrumInit_);
-   void ApplyFilter(GLfloat& afSampleBuffer_);
+   void ApplyFilter(GLfloat* pafSampleBuffer_);
 
 // Private Methods 
 private:
 
-	void Convolve(GLfloat& afSampleBuffer_); 
+	void Convolve(GLfloat* pafSampleBuffer_); 
 	void GenLPF(); 
 	void LowToHigh(); 
 
