@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{4c7a8219-5bc4-45b8-b42c-eb923bab12cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{bff9d0f6-3264-44b5-8079-70fcd416ea32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Widget">
+      <UniqueIdentifier>{72507106-93ac-4199-8453-fa2123e0079e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MVC">
+      <UniqueIdentifier>{49807951-ef40-4894-98a4-4d82d230754d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Dsp">
+      <UniqueIdentifier>{8160e868-21a6-403b-8447-b3d220615747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Misc">
+      <UniqueIdentifier>{f7902da1-58fe-4f2f-8dac-28ef2dfaa095}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders">
+      <UniqueIdentifier>{996b5aae-a4ad-43e2-a679-a94a1323a197}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Widget">
+      <UniqueIdentifier>{a44c1c57-19f3-464c-88b5-191a0e334af4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MVC">
+      <UniqueIdentifier>{f42e4fb7-c0bb-450e-a3eb-e716024fa307}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Dsp">
+      <UniqueIdentifier>{25575582-7cec-4823-ac09-5ede13dd6e4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Misc">
+      <UniqueIdentifier>{0d5e1790-f1bc-4278-959e-7c0f5184d7b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\EventSystem">
+      <UniqueIdentifier>{f7f1d939-7e67-45d2-89b1-431547674ac9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\EventSystem">
+      <UniqueIdentifier>{fa23323d-c4b1-4aab-9a7a-45aa6a3f6309}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Libraries\src\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Dsp\Cpp\Filter.cpp">
+      <Filter>Source Files\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Dsp\Cpp\spectrumdsp.cpp">
+      <Filter>Source Files\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Dsp\Cpp\SpectrumInitPacket.cpp">
+      <Filter>Source Files\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Dsp\Cpp\SpectrumPacket.cpp">
+      <Filter>Source Files\Dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Misc\Cpp\FontSystem.cpp">
+      <Filter>Source Files\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Misc\Cpp\MicInput.cpp">
+      <Filter>Source Files\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MVC\Cpp\InteractionModel.cpp">
+      <Filter>Source Files\MVC</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MVC\Cpp\SpectrumController.cpp">
+      <Filter>Source Files\MVC</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MVC\Cpp\SpectrumModel.cpp">
+      <Filter>Source Files\MVC</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MVC\Cpp\SpectrumView.cpp">
+      <Filter>Source Files\MVC</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Widgets\Cpp\Button.cpp">
+      <Filter>Source Files\Widget</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Widgets\Cpp\ListMenu.cpp">
+      <Filter>Source Files\Widget</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Widgets\Cpp\Plot.cpp">
+      <Filter>Source Files\Widget</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Widgets\Cpp\TextLabel.cpp">
+      <Filter>Source Files\Widget</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Widgets\Cpp\Widget.cpp">
+      <Filter>Source Files\Widget</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Src\Dsp\Hpp\Filter.hpp">
+      <Filter>Header Files\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Dsp\Hpp\spectrumdsp.hpp">
+      <Filter>Header Files\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Dsp\Hpp\SpectrumInitPacket.hpp">
+      <Filter>Header Files\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Dsp\Hpp\SpectrumPacket.hpp">
+      <Filter>Header Files\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Dsp\Hpp\SpectrumTypes.hpp">
+      <Filter>Header Files\Dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Misc\Hpp\FontSystem.hpp">
+      <Filter>Header Files\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Misc\Hpp\MicInput.hpp">
+      <Filter>Header Files\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MVC\Hpp\InteractionModel.hpp">
+      <Filter>Header Files\MVC</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MVC\Hpp\InteractionModelSubscriber.hpp">
+      <Filter>Header Files\MVC</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MVC\Hpp\SpectrumController.hpp">
+      <Filter>Header Files\MVC</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MVC\Hpp\SpectrumModel.hpp">
+      <Filter>Header Files\MVC</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MVC\Hpp\SpectrumModelSubscriber.hpp">
+      <Filter>Header Files\MVC</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MVC\Hpp\SpectrumView.hpp">
+      <Filter>Header Files\MVC</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Widgets\Hpp\Button.hpp">
+      <Filter>Header Files\Widget</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Widgets\Hpp\ListMenu.hpp">
+      <Filter>Header Files\Widget</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Widgets\Hpp\Plot.hpp">
+      <Filter>Header Files\Widget</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Widgets\Hpp\TextLabel.hpp">
+      <Filter>Header Files\Widget</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Widgets\Hpp\Widget.hpp">
+      <Filter>Header Files\Widget</Filter>
+    </ClInclude>
+    <ClInclude Include="EventSystem.hpp">
+      <Filter>Header Files\EventSystem</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Src\Shaders\FSS.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Src\Shaders\TFSS.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Src\Shaders\TVSS.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Src\Shaders\VSS.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>

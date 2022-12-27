@@ -1,0 +1,4 @@
+Libs:
+- freetype.lib
+- glfw3.lib
+- libfftw3f-3.lib

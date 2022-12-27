@@ -2,30 +2,41 @@
 *.d
 
 # Compiled Object files
-*.slo
 *.lo
 *.o
 *.obj
+*.slo
 
 # Precompiled Headers
 *.gch
 *.pch
 
 # Compiled Dynamic libraries
-*.so
 *.dylib
-*.dll
+*.so
 
 # Compiled Static libraries
-*.lai
-*.la
 *.a
-*.lib
+*.la
+*.lai
 
 # Executables
+*.app
 *.exe
 *.out
-*.app
 
-# TextFiles
-*.txt
+# Specific Files
+.vs/
+Spectrum-Analyizer/Spectrum-Analyizer/FONTATLAS.bmp
+Spectrum-Analyizer/Spectrum-Analyizer/Libraries/bin/*
+Spectrum-Analyizer/Spectrum-Analyizer/Libraries/include/*
+Spectrum-Analyizer/Spectrum-Analyizer/Libraries/lib/*
+Spectrum-Analyizer/Spectrum-Analyizer/Libraries/src/*
+Spectrum-Analyizer/Spectrum-Analyizer/x64/
+Spectrum-Analyizer/x64/
+
+# File Exceptions
+!Spectrum-Analyizer/Spectrum-Analyizer/Libraries/bin/bin.txt
+!Spectrum-Analyizer/Spectrum-Analyizer/Libraries/include/include.txt
+!Spectrum-Analyizer/Spectrum-Analyizer/Libraries/lib/lib.txt
+!Spectrum-Analyizer/Spectrum-Analyizer/Libraries/src/sc
