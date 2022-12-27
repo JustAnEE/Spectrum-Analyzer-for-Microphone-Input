@@ -1,0 +1,6 @@
+Need to include:
+- FreeType
+- FFTW
+- Glad
+- GLFW
+- GLM

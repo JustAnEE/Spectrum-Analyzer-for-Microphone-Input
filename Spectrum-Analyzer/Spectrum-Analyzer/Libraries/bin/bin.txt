@@ -1,0 +1,3 @@
+DLLs:
+- freetype.dll
+- libfftw3f-3.dll
