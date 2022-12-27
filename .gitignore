@@ -27,16 +27,16 @@
 
 # Specific Files
 .vs/
-Spectrum-Analyizer/Spectrum-Analyizer/FONTATLAS.bmp
-Spectrum-Analyizer/Spectrum-Analyizer/Libraries/bin/*
-Spectrum-Analyizer/Spectrum-Analyizer/Libraries/include/*
-Spectrum-Analyizer/Spectrum-Analyizer/Libraries/lib/*
-Spectrum-Analyizer/Spectrum-Analyizer/Libraries/src/*
-Spectrum-Analyizer/Spectrum-Analyizer/x64/
-Spectrum-Analyizer/x64/
+Spectrum-Analyzer/Spectrum-Analyzer/FONTATLAS.bmp
+Spectrum-Analyzer/Spectrum-Analyzer/Libraries/bin/*
+Spectrum-Analyzer/Spectrum-Analyzer/Libraries/include/*
+Spectrum-Analyzer/Spectrum-Analyzer/Libraries/lib/*
+Spectrum-Analyzer/Spectrum-Analyzer/Libraries/src/*
+Spectrum-Analyzer/Spectrum-Analyzer/x64/
+Spectrum-Analyzer/x64/
 
 # File Exceptions
-!Spectrum-Analyizer/Spectrum-Analyizer/Libraries/bin/bin.txt
-!Spectrum-Analyizer/Spectrum-Analyizer/Libraries/include/include.txt
-!Spectrum-Analyizer/Spectrum-Analyizer/Libraries/lib/lib.txt
-!Spectrum-Analyizer/Spectrum-Analyizer/Libraries/src/sc
+!Spectrum-Analyzer/Spectrum-Analyzer/Libraries/bin/bin.txt
+!Spectrum-Analyzer/Spectrum-Analyzer/Libraries/include/include.txt
+!Spectrum-Analyzer/Spectrum-Analyzer/Libraries/lib/lib.txt
+!Spectrum-Analyzer/Spectrum-Analyzer/Libraries/src/sc
