@@ -13,7 +13,7 @@
 #include"../../Dsp/Hpp/spectrumdsp.hpp"
 #include"../../Dsp/Hpp/SpectrumInitPacket.hpp"
 #include"../../Dsp/Hpp/SpectrumPacket.hpp"
-#include"../../Dsp/Hpp/SpectrumTypes.hpp"
+#include "../../Utils/enums.h"
 #include"../../Misc/Hpp/MicInput.hpp"
 #include"../../MVC/Hpp/SpectrumModelSubscriber.hpp"
 #include"../../Widgets/Hpp/Plot.hpp"

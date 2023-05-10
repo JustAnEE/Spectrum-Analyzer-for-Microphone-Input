@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <cstring>
 
-#include "../Hpp/SpectrumTypes.hpp"
+#include "../../Utils/enums.h"
 
 // DSP Initializer struct, gives information to the SpectrumDSP class 
 // as to what output is required, etc.

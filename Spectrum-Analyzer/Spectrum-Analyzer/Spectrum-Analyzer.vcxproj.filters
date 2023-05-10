@@ -95,6 +95,13 @@
     <ClCompile Include="Src\Widgets\Cpp\Widget.cpp">
       <Filter>Source Files\Widget</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Packets\Cpp\SampleBufferPacket.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\SpectrumBase.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\MagnitudeSpectrum.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\HammingWindow.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\BlackmanWindow.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\Window.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\BarletteWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Dsp\Hpp\Filter.hpp">
@@ -107,9 +114,6 @@
       <Filter>Header Files\Dsp</Filter>
     </ClInclude>
     <ClInclude Include="Src\Dsp\Hpp\SpectrumPacket.hpp">
-      <Filter>Header Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\Dsp\Hpp\SpectrumTypes.hpp">
       <Filter>Header Files\Dsp</Filter>
     </ClInclude>
     <ClInclude Include="Src\Misc\Hpp\FontSystem.hpp">
@@ -154,6 +158,15 @@
     <ClInclude Include="EventSystem.hpp">
       <Filter>Header Files\EventSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Packets\Hpp\SampleBufferPacket.hpp" />
+    <ClInclude Include="Src\Utils\enums.h" />
+    <ClInclude Include="Src\Utils\constants.h" />
+    <ClInclude Include="Src\Dsp\Hpp\SpectrumBase.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\MagnitudeSpectrum.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\Window.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\HammingWindow.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\BlackmanWindow.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\BarletteWindow.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\Shaders\FSS.glsl">
