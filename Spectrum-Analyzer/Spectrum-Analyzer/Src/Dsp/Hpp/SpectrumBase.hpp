@@ -10,6 +10,7 @@
 #include "../Hpp/SpectrumInitPacket.hpp"
 #include "../Hpp/SpectrumPacket.hpp"
 #include "../../Utils/enums.h"
+#include "SpectrumDSPConfig.hpp"
 #include "Window.hpp"
 #include "BlackmanWindow.hpp"
 #include "BarletteWindow.hpp"
@@ -31,8 +32,9 @@ public:
 
 // Public methods 
 public:
-   virtual void ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitPacket_, GLfloat* pafSampleBuffer_) = 0;
+   virtual void ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitPacket_, GLfloat* pafSampleBuffer_);
    virtual SpectrumPacket* GetSpectrumOutput();
+   virtual SpectrumDSPConfig* GetpclSpectrumConfig();
 
 // Protected methods
 protected:
@@ -41,17 +43,27 @@ protected:
    // IFFT calculation, implementation never changes. 
    //virtual FFTData* IFFT(FFTData* in, FFTData* out);
 
+   // Normalize the spectral output. 
+   virtual void NormalizeSpectrum();
+
    // Prepare the data for plot {x,y, x,y, x,y ....}. Implementation never changes.
    virtual void PrepDataForPlot();
 
    // Applys a window to the sample buffer data 
-   virtual void ApplyWindow(WindowTypeEnum eWindowType);
+   virtual void ApplyWindow();
 
    // Generates the frequency arrray used 
    virtual void GenerateFrequency();
 
+   // Calculate the Spectral Magnitude of the spectrum 
+   virtual void CalculateFFTMagnitude(); 
+
+   // Calculate the spectrum, see specific spectrum type for implementation
    virtual void CalculateSpectrum() = 0; 
+
+   // Populates the outgoing packet with the spectrum data ready for plot. 
    virtual void PopulateSpectrumPacket() = 0; 
+
 
 // Protected Attributes
 protected:
@@ -62,13 +74,16 @@ protected:
    Filter* pclMyFilter;
 
    // Array of pointers to windowing classes
-   Window* apclMyWindows[5]; 
+   Window* apclMyWindows[WindowTypeEnum::COUNT]; 
 
    //! This is the sample rate of the system. 
    int iMySampleRate;
 
    //! This is the size of the incoming sample buffer. 
    int iMyBufferSize;
+
+   //! This tells the DSP to normalize the output spectrum. 
+   bool bMyNormalize;
 
    //! This enum is the spectrum type: Magnitude Response, DB Spectrum, PSD, etc.
    SpectrumTypeEnum eMySpectrumType;
@@ -90,6 +105,9 @@ protected:
 
    //! This is an array which holds the interleaved x and y axis for the spectrum plot. 
    GLfloat* pafMySpectrumPlotData;
+
+   //! This is the configuration of the Spectrum DSP 
+   SpectrumDSPConfig clMySpectrumDSPConfig; 
 
 };
 

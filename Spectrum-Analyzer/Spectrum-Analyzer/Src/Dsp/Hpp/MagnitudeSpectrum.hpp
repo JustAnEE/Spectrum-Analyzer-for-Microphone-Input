@@ -10,8 +10,6 @@ public:
    ~MagnitudeSpectrum();
 public:
 
-   void ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitPacket_, GLfloat* pafSampleBuffer_);
-
 private:
    void CalculateSpectrum(); 
    void PopulateSpectrumPacket();

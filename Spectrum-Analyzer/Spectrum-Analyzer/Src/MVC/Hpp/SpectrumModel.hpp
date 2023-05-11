@@ -9,14 +9,19 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 
-#include"../../Dsp/Hpp/Filter.hpp"
-#include"../../Dsp/Hpp/spectrumdsp.hpp"
-#include"../../Dsp/Hpp/SpectrumInitPacket.hpp"
-#include"../../Dsp/Hpp/SpectrumPacket.hpp"
+#include "../../Dsp/Hpp/Filter.hpp"
+#include "../../Dsp/Hpp/spectrumdsp.hpp"
+#include "../../Dsp/Hpp/MagnitudeSpectrum.hpp"
+#include "../../Dsp/Hpp/PSDSpectrum.hpp"
+#include "../../Dsp/Hpp/DBSpectrum.hpp"
+#include "../../Dsp/Hpp/SpectrumDSPConfig.hpp"
+#include "../../Dsp/Hpp/SpectrumInitPacket.hpp"
+#include "../../Dsp/Hpp/SpectrumPacket.hpp"
 #include "../../Utils/enums.h"
-#include"../../Misc/Hpp/MicInput.hpp"
-#include"../../MVC/Hpp/SpectrumModelSubscriber.hpp"
-#include"../../Widgets/Hpp/Plot.hpp"
+#include "../../Utils/constants.h"
+#include "../../Misc/Hpp/MicInput.hpp"
+#include "../../MVC/Hpp/SpectrumModelSubscriber.hpp"
+#include "../../Widgets/Hpp/Plot.hpp"
 
 class SpectrumModel {
 
@@ -56,6 +61,7 @@ private:
     GLfloat* inputData;
 
     SpectrumDSP* pclMyDSP;
+    SpectrumBase* apclSpectrumDSPs[SpectrumTypeEnum::COUNT];
     Filter* filter; 
 
     std::vector<Plot*> plotVector;

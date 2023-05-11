@@ -5,7 +5,11 @@ SpectrumModel::SpectrumModel(){
    PADDING = 4;
 
    format = new MicInput(1, 44100, 8);
-   pclMyDSP = new SpectrumDSP(44100, SAMPLES * PADDING);
+   pclMyDSP = new SpectrumDSP(SAMPLE_RATE, SAMPLE_BUFFER_SIZE);
+   
+   apclSpectrumDSPs[MAGNITUDE_SPECTRUM] = new MagnitudeSpectrum(SAMPLE_RATE, SAMPLE_BUFFER_SIZE);
+   apclSpectrumDSPs[DB_SPECTRUM]        = new DBSpectrum(SAMPLE_RATE, SAMPLE_BUFFER_SIZE);
+   apclSpectrumDSPs[PSD_SPECTRUM]       = new PSDSpectrum(SAMPLE_RATE, SAMPLE_BUFFER_SIZE);
 
    // -- Setup function pointer list.
    plotMethodVector.push_back(&SpectrumModel::timeSeries);
@@ -25,7 +29,10 @@ SpectrumModel::~SpectrumModel(){
    delete format;
    delete pclMyDSP; 
    delete filter; 
-}
+   delete[] apclSpectrumDSPs[MAGNITUDE_SPECTRUM];
+   delete[] apclSpectrumDSPs[DB_SPECTRUM];
+   delete[] apclSpectrumDSPs[PSD_SPECTRUM];
+}  
 
 
 
@@ -157,7 +164,7 @@ void SpectrumModel::magnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DE
 
    // Get an empty output packet 
    SpectrumPacket* pclSpectrumOutputPacket = new SpectrumPacket;
-   
+ 
    // Send the init packet and input data to the SpectrumDSP class to process output. 
    pclMyDSP->ProcessSpectrumInitPacket(pclSpectrumInitPacket, inputData);
    

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -23,6 +23,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\BarletteWindow.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\BlackmanWindow.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\DBSpectrum.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\Filter.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\HammingWindow.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\MagnitudeSpectrum.cpp" />
@@ -48,6 +49,7 @@
     <ClInclude Include="EventSystem.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\BarletteWindow.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\BlackmanWindow.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\DBSpectrum.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\Filter.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\HammingWindow.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\MagnitudeSpectrum.hpp" />
