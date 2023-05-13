@@ -11,7 +11,7 @@ typedef enum SpectrumTypeEnum
    TIME_SERIES        = 4,
    PHASE_SPECTRUM     = 5,
    NO_SPECTRUM        = 6,
-   SPECTRUM_COUNT     = 3 //!TODO: Only Mag/DB/PSD implemented, so count = 3. 
+   SPECTRUM_COUNT     = 5  //!TODO: Only Mag/DB/PSD implemented, so count = 3. 
 }SpectrumTypeEnum;
 
 

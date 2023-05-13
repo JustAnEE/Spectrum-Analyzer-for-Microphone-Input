@@ -34,6 +34,16 @@ void SpectrumBase::Reset()
 
 }
 
+GLfloat* FormatTimeSeries(GLfloat* pafMicData_)
+{
+   GLfloat* pafReformattedTimeData = (GLfloat*)calloc(NUM_SAMPLES * 2, sizeof(GLfloat));
+   for (int i = 0; i < NUM_SAMPLES; i++) {
+       pafReformattedTimeData[2 * i] = ((GLfloat)i) / ((GLfloat)NUM_SAMPLES);	// -- x coord
+       pafReformattedTimeData[2 * i + 1] = pafMicData_[i];						// -- y cord
+   }
+   return pafReformattedTimeData;
+}
+
 void SpectrumBase::CalculateSpectralData()
 {
     // This function should never be called if the DSP is not initialized

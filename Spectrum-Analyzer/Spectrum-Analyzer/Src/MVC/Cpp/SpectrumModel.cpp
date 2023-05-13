@@ -164,7 +164,10 @@ void SpectrumModel::SpectralResponse(Plot* pclPlot_, DSPInitStruct& stDSPInit_)
     }
 
     // Handle time series as a special case. 
-
+    GLfloat* pafTimeSeriesData = apclSpectrumDSPs[TIME_SERIES]->FormatTimeSeries(inputData);
+    pclPlot_->setRawData(pafTimeSeriesData, 2*SAMPLE_BUFFER_SIZE);
+    free(pafTimeSeriesData);
+    return; 
 }
 
 /* Private - methods */

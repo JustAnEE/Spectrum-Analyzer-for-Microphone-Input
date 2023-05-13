@@ -32,9 +32,20 @@ public:
 
 // Public methods 
 public:
+
+   // After the DSP is configed, this method will produce the output spectrum 
    void CalculateSpectralData();
+   
+   // This method returns the pointer to the spectrum output packet. 
    virtual SpectrumPacket* GetSpectrumOutput();
+
+   // This method returns the pointer to the spectrum config class. 
    virtual SpectrumDSPConfig* GetpclSpectrumConfig();
+
+   // Awkward method which reformats the input data into output time series data
+   // for the option where only the time series is displaced. Moved into the 
+   // DSP since that's probably the least awkward spot at the moment. 
+   GLfloat* FormatTimeSeries(GLfloat* pafMicData_);
 
 // Protected methods
 protected:
@@ -66,6 +77,8 @@ protected:
 
    // Resets the DSP 
    virtual void Reset();
+
+
 
 // Protected Attributes
 protected:
