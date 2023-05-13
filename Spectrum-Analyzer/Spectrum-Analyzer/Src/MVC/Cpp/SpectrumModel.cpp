@@ -4,7 +4,7 @@ SpectrumModel::SpectrumModel(){
    SAMPLES = 1024 * 4;
    PADDING = 4;
 
-   format = new MicInput(1, 44100, 8);
+   format = new MicInput(1, SAMPLE_RATE, 8);
    pclMyDSP = new SpectrumDSP(SAMPLE_RATE, SAMPLE_BUFFER_SIZE);
    
    apclSpectrumDSPs[MAGNITUDE_SPECTRUM] = new MagnitudeSpectrum(SAMPLE_RATE, SAMPLE_BUFFER_SIZE);
@@ -146,6 +146,26 @@ void SpectrumModel::readMicData() {
    free(rawBytesPtr);
 }
 
+void SpectrumModel::SpectralResponse(Plot* pclPlot_, DSPInitStruct& stDSPInit_)
+{
+    if (stDSPInit_.eSpectrumOutput != TIME_SERIES)
+    {
+       // Configure the relevant DSP
+       apclSpectrumDSPs[stDSPInit_.eSpectrumOutput]->GetpclSpectrumConfig()->ConfigDSP(stDSPInit_, inputData);
+
+       // Calculate the spectrum output 
+       apclSpectrumDSPs[stDSPInit_.eSpectrumOutput]->CalculateSpectralData();
+
+       // Give the plot the data 
+       pclPlot_->setRawData(apclSpectrumDSPs[stDSPInit_.eSpectrumOutput]->GetSpectrumOutput()->afMySpectrumArray,
+           2 * SAMPLE_BUFFER_SIZE);
+
+       return; 
+    }
+
+    // Handle time series as a special case. 
+
+}
 
 /* Private - methods */
 void SpectrumModel::magnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE) {

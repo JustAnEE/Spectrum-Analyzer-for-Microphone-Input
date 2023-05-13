@@ -11,7 +11,7 @@ typedef enum SpectrumTypeEnum
    TIME_SERIES        = 4,
    PHASE_SPECTRUM     = 5,
    NO_SPECTRUM        = 6,
-   COUNT              = 3 //!TODO: Only Mag/DB/PSD implemented, so count = 3. 
+   SPECTRUM_COUNT     = 3 //!TODO: Only Mag/DB/PSD implemented, so count = 3. 
 }SpectrumTypeEnum;
 
 
@@ -21,9 +21,8 @@ typedef enum WindowTypeEnum
    BLACKMAN_WINDOW    = 1,
    BARLETTE_WINDOW    = 2,
    RECTANGULAR_WINDOW = 3, 
-   NO_WINDOW = 5,
-   // Number of actionable window types 
-   COUNT     = 3,
+   NO_WINDOW          = 5,
+   WINDOW_COUNT       = 3, // Number of actionable window types 
 }WindowTypeEnum;
 
 typedef enum FilterTypeEnum
@@ -35,4 +34,4 @@ typedef enum FilterTypeEnum
    NO_FILTER = 5
 }FilterTypeEnum;
 
-#endif 
+#endif // enums.h

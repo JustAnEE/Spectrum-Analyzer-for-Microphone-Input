@@ -4,15 +4,15 @@
 #include "../../Utils/constants.h"
 #include "../../../Libraries/include/glad/glad.h"
 
-class SampleBufferPacket
+class SampleBufferCL
 {
 // Constructors 
 public:
-   SampleBufferPacket();
+   SampleBufferCL();
 
 // Operators 
 public:
-   SampleBufferPacket& operator = (const SampleBufferPacket& clSampleBufferPacket_);
+   SampleBufferCL& operator = (const SampleBufferCL& clSampleBuffer_);
 
 // Public methods. 
 public:
@@ -24,7 +24,7 @@ private:
 
 // Private copy constructor, not implemented. Use = operator to get data. 
 private:
-   SampleBufferPacket(const SampleBufferPacket& clSampleBufferPacket_);
+   SampleBufferCL(const SampleBufferCL& clSampleBuffer_);
 };
 
 #endif 

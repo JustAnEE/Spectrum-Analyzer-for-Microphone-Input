@@ -61,7 +61,7 @@ private:
     GLfloat* inputData;
 
     SpectrumDSP* pclMyDSP;
-    SpectrumBase* apclSpectrumDSPs[SpectrumTypeEnum::COUNT];
+    SpectrumBase* apclSpectrumDSPs[SpectrumTypeEnum::SPECTRUM_COUNT];
     Filter* filter; 
 
     std::vector<Plot*> plotVector;
@@ -77,6 +77,10 @@ private:
     void magnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE);
     void DBmagnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE);
     void powerSpectralDensity(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE);
+
+    // -- New DSP Method.
+    //!TODO: Refactor to use this 
+    void SpectralResponse(Plot* pclPlot_, DSPInitStruct& stDSPInit_);
 
     // -- Pub-Sub methods.
     void notifySubscribers();

@@ -35,3 +35,9 @@ void PSDSpectrum::CalculateSpectrum()
 
    return; 
 }
+
+void PSDSpectrum::PopulateSpectrumPacket()
+{
+    pclMySpectrumPacket->eMySpectrumType = eMySpectrumType;
+    memcpy(pclMySpectrumPacket->afMySpectrumArray, pafMySpectrumPlotData, 2 * SAMPLE_BUFFER_SIZE);
+}

@@ -32,7 +32,7 @@ public:
 
 // Public methods 
 public:
-   virtual void ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitPacket_, GLfloat* pafSampleBuffer_);
+   void CalculateSpectralData();
    virtual SpectrumPacket* GetSpectrumOutput();
    virtual SpectrumDSPConfig* GetpclSpectrumConfig();
 
@@ -64,6 +64,8 @@ protected:
    // Populates the outgoing packet with the spectrum data ready for plot. 
    virtual void PopulateSpectrumPacket() = 0; 
 
+   // Resets the DSP 
+   virtual void Reset();
 
 // Protected Attributes
 protected:
@@ -74,7 +76,7 @@ protected:
    Filter* pclMyFilter;
 
    // Array of pointers to windowing classes
-   Window* apclMyWindows[WindowTypeEnum::COUNT]; 
+   Window* apclMyWindows[WindowTypeEnum::WINDOW_COUNT]; 
 
    //! This is the sample rate of the system. 
    int iMySampleRate;

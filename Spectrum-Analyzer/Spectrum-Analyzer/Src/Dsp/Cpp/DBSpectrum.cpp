@@ -74,3 +74,10 @@ void DBSpectrum::CalculateSpectrum()
 
    return;
 }
+
+
+void DBSpectrum::PopulateSpectrumPacket()
+{
+   pclMySpectrumPacket->eMySpectrumType = eMySpectrumType;
+   memcpy(pclMySpectrumPacket->afMySpectrumArray, pafMySpectrumPlotData, 2 * SAMPLE_BUFFER_SIZE);
+}

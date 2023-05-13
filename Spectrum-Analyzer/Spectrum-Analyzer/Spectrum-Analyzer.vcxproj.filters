@@ -102,6 +102,9 @@
     <ClCompile Include="Src\Dsp\Cpp\BlackmanWindow.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\Window.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\BarletteWindow.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\DBSpectrum.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\PSDSpectrum.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\SpectrumDSPConfig.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Dsp\Hpp\Filter.hpp">
@@ -167,6 +170,11 @@
     <ClInclude Include="Src\Dsp\Hpp\HammingWindow.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\BlackmanWindow.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\BarletteWindow.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\DBSpectrum.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\PSDSpectrum.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\SpectrumDSPConfig.hpp" />
+    <ClInclude Include="Src\Utils\debugdefines.h" />
+    <ClInclude Include="Src\Utils\types.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\Shaders\FSS.glsl">

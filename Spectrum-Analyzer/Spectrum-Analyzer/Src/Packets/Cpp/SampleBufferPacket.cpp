@@ -1,27 +1,27 @@
 #include "../Hpp/SampleBufferPacket.hpp"
 #include <cstring>
 
-SampleBufferPacket::SampleBufferPacket()
+SampleBufferCL::SampleBufferCL()
 {
    // Default constructor, memset to zero 
    memset(aufSampleBufferArray, 0.0, SAMPLE_BUFFER_SIZE);
    return; 
 }
 
-SampleBufferPacket::SampleBufferPacket(const SampleBufferPacket& clSampleBufferPacket_)
+SampleBufferCL::SampleBufferCL(const SampleBufferCL& clSampleBuffer_)
 {
    // Private copy constructor 
    return; 
 }
 
-SampleBufferPacket& SampleBufferPacket::operator=(const SampleBufferPacket& clSampleBufferPacket_)
+SampleBufferCL& SampleBufferCL::operator=(const SampleBufferCL& clSampleBuffer_)
 {
-   SampleBufferPacket clSampleBuffer;
-   memcpy(&clSampleBuffer, &clSampleBufferPacket_, sizeof(clSampleBuffer));
+   SampleBufferCL clSampleBuffer;
+   memcpy(&clSampleBuffer, &clSampleBuffer_, sizeof(clSampleBuffer));
    return clSampleBuffer;
 }
 
-void SampleBufferPacket::SetMicData(GLfloat* aufSampleBuffer_)
+void SampleBufferCL::SetMicData(GLfloat* aufSampleBuffer_)
 {
    memcpy(aufSampleBufferArray, aufSampleBuffer_, sizeof(aufSampleBuffer_));
 }

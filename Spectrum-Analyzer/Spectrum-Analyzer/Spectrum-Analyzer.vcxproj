@@ -27,8 +27,10 @@
     <ClCompile Include="Src\Dsp\Cpp\Filter.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\HammingWindow.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\MagnitudeSpectrum.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\PSDSpectrum.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\SpectrumBase.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\spectrumdsp.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\SpectrumDSPConfig.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\SpectrumInitPacket.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\SpectrumPacket.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\Window.cpp" />
@@ -53,8 +55,10 @@
     <ClInclude Include="Src\Dsp\Hpp\Filter.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\HammingWindow.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\MagnitudeSpectrum.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\PSDSpectrum.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\SpectrumBase.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\spectrumdsp.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\SpectrumDSPConfig.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\SpectrumInitPacket.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\SpectrumPacket.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\Window.hpp" />
@@ -68,7 +72,9 @@
     <ClInclude Include="Src\MVC\Hpp\SpectrumView.hpp" />
     <ClInclude Include="Src\Packets\Hpp\SampleBufferPacket.hpp" />
     <ClInclude Include="Src\Utils\constants.h" />
+    <ClInclude Include="Src\Utils\debugdefines.h" />
     <ClInclude Include="Src\Utils\enums.h" />
+    <ClInclude Include="Src\Utils\types.h" />
     <ClInclude Include="Src\Widgets\Hpp\Button.hpp" />
     <ClInclude Include="Src\Widgets\Hpp\ListMenu.hpp" />
     <ClInclude Include="Src\Widgets\Hpp\Plot.hpp" />
