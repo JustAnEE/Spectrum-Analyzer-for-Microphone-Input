@@ -4,7 +4,9 @@
 SampleBufferCL::SampleBufferCL()
 {
    // Default constructor, memset to zero 
-   memset(aufSampleBufferArray, 0.0, SAMPLE_BUFFER_SIZE);
+   memset(afMySampleBufferArray, 0.0, SAMPLE_BUFFER_SIZE);
+   memset(acMyRawData, 0, NUM_SAMPLES);
+   bMyMicDataRead = false; 
    return; 
 }
 
@@ -21,7 +23,31 @@ SampleBufferCL& SampleBufferCL::operator=(const SampleBufferCL& clSampleBuffer_)
    return clSampleBuffer;
 }
 
+char* SampleBufferCL::GetpacRawMicData()
+{
+   return acMyRawData;
+}
+
+void SampleBufferCL::ConvertRawDataToFloat(int iBlockAlign)
+{
+    int count = 0;
+    // -- Loop through each raw sample's byte data and create a 4 byte int.
+    for (int i = 0; i < NUM_SAMPLES; i += iBlockAlign) {
+        int value = 0;
+        char intBytes[4] = {};
+
+        for (int j = 0; j < 4; j++) {
+            intBytes[j] = (j < iBlockAlign) ? acMyRawData[i + j] : 0x00;
+        }
+
+        // -- Cast that 4 byte int to GLfloat.
+        memcpy(&value, &intBytes, 4);
+        afMySampleBufferArray[count] = ((GLfloat)value) - 128.0f;
+        count++;
+    }
+}
+
 void SampleBufferCL::SetMicData(GLfloat* aufSampleBuffer_)
 {
-   memcpy(aufSampleBufferArray, aufSampleBuffer_, sizeof(aufSampleBuffer_));
+   memcpy(afMySampleBufferArray, aufSampleBuffer_, sizeof(aufSampleBuffer_));
 }

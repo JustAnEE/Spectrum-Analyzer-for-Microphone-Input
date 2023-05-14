@@ -34,7 +34,7 @@ void SpectrumBase::Reset()
 
 }
 
-GLfloat* FormatTimeSeries(GLfloat* pafMicData_)
+GLfloat* SpectrumBase::FormatTimeSeries(GLfloat* pafMicData_)
 {
    GLfloat* pafReformattedTimeData = (GLfloat*)calloc(NUM_SAMPLES * 2, sizeof(GLfloat));
    for (int i = 0; i < NUM_SAMPLES; i++) {
@@ -75,6 +75,7 @@ void SpectrumBase::CalculateSpectralData()
     // Calculate the Spectrum 
     CalculateSpectrum();
 
+    // Normalize spectrum if required. 
     NormalizeSpectrum();
 
     // Load the output spectrum packet.

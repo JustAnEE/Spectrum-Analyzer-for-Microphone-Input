@@ -17,6 +17,8 @@ SpectrumModel::SpectrumModel(){
    plotMethodVector.push_back(&SpectrumModel::DBmagnitudeResponse);
    plotMethodVector.push_back(&SpectrumModel::powerSpectralDensity);
 
+   pclMySampleBufferSP = std::make_shared<SampleBufferCL>();
+
 }
 
 
@@ -29,9 +31,9 @@ SpectrumModel::~SpectrumModel(){
    delete format;
    delete pclMyDSP; 
    delete filter; 
-   delete[] apclSpectrumDSPs[MAGNITUDE_SPECTRUM];
-   delete[] apclSpectrumDSPs[DB_SPECTRUM];
-   delete[] apclSpectrumDSPs[PSD_SPECTRUM];
+   delete apclSpectrumDSPs[MAGNITUDE_SPECTRUM];
+   delete apclSpectrumDSPs[DB_SPECTRUM];
+   delete apclSpectrumDSPs[PSD_SPECTRUM];
 }  
 
 
@@ -49,8 +51,6 @@ Plot* SpectrumModel::detectClickPlot(GLfloat xpos, GLfloat ypos){
    // -- If no Plot is found, return nullptr.
    return nullptr;
 }
-
-
 
 
 void SpectrumModel::addPlot(
@@ -111,6 +111,11 @@ void SpectrumModel::scalePlot(Plot* plot, GLfloat x, GLfloat y){
    notifySubscribers();
 }
 
+void SpectrumModel::ReadMicData()
+{
+    format->readMicInput(pclMySampleBufferSP->GetpacRawMicData(), NUM_SAMPLES);
+    pclMySampleBufferSP->ConvertRawDataToFloat(format->getBlockAlign());
+}
 
 void SpectrumModel::readMicData() {
    // -- To do swap this to multiple formats, and super sampling
@@ -137,7 +142,7 @@ void SpectrumModel::readMicData() {
       inputData[count] = ((GLfloat)value) - 128.0f;
       count++;
    }
-
+   
 
    /*ofstream audioFile;
    audioFile.open("AFTER.WAV", ios::binary | ios::out);
@@ -158,14 +163,14 @@ void SpectrumModel::SpectralResponse(Plot* pclPlot_, DSPInitStruct& stDSPInit_)
 
        // Give the plot the data 
        pclPlot_->setRawData(apclSpectrumDSPs[stDSPInit_.eSpectrumOutput]->GetSpectrumOutput()->afMySpectrumArray,
-           2 * SAMPLE_BUFFER_SIZE);
+           2 * NUM_SAMPLES);
 
        return; 
     }
 
     // Handle time series as a special case. 
     GLfloat* pafTimeSeriesData = apclSpectrumDSPs[TIME_SERIES]->FormatTimeSeries(inputData);
-    pclPlot_->setRawData(pafTimeSeriesData, 2*SAMPLE_BUFFER_SIZE);
+    pclPlot_->setRawData(pafTimeSeriesData, 2*NUM_SAMPLES);
     free(pafTimeSeriesData);
     return; 
 }

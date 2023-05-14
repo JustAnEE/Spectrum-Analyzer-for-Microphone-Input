@@ -18,9 +18,19 @@ public:
 public:
    void SetMicData(GLfloat* aufSampleBuffer_);
 
+   char* GetpacRawMicData(); 
+
+   void ConvertRawDataToFloat(int iBlockAlign);
+
 private:
    //! Array which stores the sample buffer. 
-   GLfloat aufSampleBufferArray[SAMPLE_BUFFER_SIZE];
+   GLfloat afMySampleBufferArray[SAMPLE_BUFFER_SIZE];
+
+   //! Raw Data Buffer which stores the samples directly read from microphone 
+   char acMyRawData[NUM_SAMPLES];
+
+   //! Boolean which indicates whether or not microphone has been read
+   bool bMyMicDataRead; 
 
 // Private copy constructor, not implemented. Use = operator to get data. 
 private:

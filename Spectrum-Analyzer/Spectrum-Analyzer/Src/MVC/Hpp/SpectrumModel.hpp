@@ -8,6 +8,7 @@
 #include<mmsystem.h>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
+#include<memory>
 
 #include "../../Dsp/Hpp/Filter.hpp"
 #include "../../Dsp/Hpp/spectrumdsp.hpp"
@@ -17,6 +18,7 @@
 #include "../../Dsp/Hpp/SpectrumDSPConfig.hpp"
 #include "../../Dsp/Hpp/SpectrumInitPacket.hpp"
 #include "../../Dsp/Hpp/SpectrumPacket.hpp"
+#include "../../Packets/Hpp/SampleBufferPacket.hpp"
 #include "../../Utils/enums.h"
 #include "../../Utils/constants.h"
 #include "../../Misc/Hpp/MicInput.hpp"
@@ -70,6 +72,8 @@ private:
     std::vector<void(SpectrumModel::*)(Plot*, int, int, int, int)> plotMethodVector;
     MicInput* format;
 
+    std::shared_ptr<SampleBufferCL> pclMySampleBufferSP; 
+
     void layoutPlots();
 
     // -- DSP methods.
@@ -85,6 +89,7 @@ private:
     // -- Pub-Sub methods.
     void notifySubscribers();
 
+    void ReadMicData();
 };
 
 #endif // !SPECTRUMMODEL_H
