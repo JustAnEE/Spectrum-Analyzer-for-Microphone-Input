@@ -5,7 +5,7 @@
 #include <iostream>
 #include <glad/glad.h>
 
-#include "../Hpp/SpectrumTypes.hpp"
+#include "../../Utils/enums.h"
 
 #define SPECTRUM_OUTPUT_SIZE ((int) 2*1024*16)
 

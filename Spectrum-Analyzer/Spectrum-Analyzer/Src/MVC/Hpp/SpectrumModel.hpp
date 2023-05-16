@@ -8,15 +8,22 @@
 #include<mmsystem.h>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
+#include<memory>
 
-#include"../../Dsp/Hpp/Filter.hpp"
-#include"../../Dsp/Hpp/spectrumdsp.hpp"
-#include"../../Dsp/Hpp/SpectrumInitPacket.hpp"
-#include"../../Dsp/Hpp/SpectrumPacket.hpp"
-#include"../../Dsp/Hpp/SpectrumTypes.hpp"
-#include"../../Misc/Hpp/MicInput.hpp"
-#include"../../MVC/Hpp/SpectrumModelSubscriber.hpp"
-#include"../../Widgets/Hpp/Plot.hpp"
+#include "../../Dsp/Hpp/Filter.hpp"
+#include "../../Dsp/Hpp/spectrumdsp.hpp"
+#include "../../Dsp/Hpp/MagnitudeSpectrum.hpp"
+#include "../../Dsp/Hpp/PSDSpectrum.hpp"
+#include "../../Dsp/Hpp/DBSpectrum.hpp"
+#include "../../Dsp/Hpp/SpectrumDSPConfig.hpp"
+#include "../../Dsp/Hpp/SpectrumInitPacket.hpp"
+#include "../../Dsp/Hpp/SpectrumPacket.hpp"
+#include "../../Packets/Hpp/SampleBufferPacket.hpp"
+#include "../../Utils/enums.h"
+#include "../../Utils/constants.h"
+#include "../../Misc/Hpp/MicInput.hpp"
+#include "../../MVC/Hpp/SpectrumModelSubscriber.hpp"
+#include "../../Widgets/Hpp/Plot.hpp"
 
 class SpectrumModel {
 
@@ -56,6 +63,7 @@ private:
     GLfloat* inputData;
 
     SpectrumDSP* pclMyDSP;
+    SpectrumBase* apclSpectrumDSPs[SpectrumTypeEnum::SPECTRUM_COUNT];
     Filter* filter; 
 
     std::vector<Plot*> plotVector;
@@ -63,6 +71,8 @@ private:
     std::vector<SpectrumModelSubscriber*> subscribers;
     std::vector<void(SpectrumModel::*)(Plot*, int, int, int, int)> plotMethodVector;
     MicInput* format;
+
+    std::shared_ptr<SampleBufferCL> pclMySampleBufferSP; 
 
     void layoutPlots();
 
@@ -72,9 +82,14 @@ private:
     void DBmagnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE);
     void powerSpectralDensity(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE);
 
+    // -- New DSP Method.
+    //!TODO: Refactor to use this 
+    void SpectralResponse(Plot* pclPlot_, DSPInitStruct& stDSPInit_);
+
     // -- Pub-Sub methods.
     void notifySubscribers();
 
+    void ReadMicData();
 };
 
 #endif // !SPECTRUMMODEL_H

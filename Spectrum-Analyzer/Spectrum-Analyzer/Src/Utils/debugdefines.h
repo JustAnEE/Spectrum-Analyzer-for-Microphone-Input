@@ -1,0 +1,8 @@
+#ifndef DEBUGDEFINES_H
+#define DEBUGDEFINES_H
+
+#define DEBUG_SAMPLE_BUFFER (1)
+#define DEBUG_DSP_OUTPUT (1)
+
+
+#endif 

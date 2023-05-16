@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef SPECTRUMDSP_HPP
+#define SPECTRUMDSP_HPP
 
 #include <fftw3.h>
 #include <math.h> 
@@ -8,7 +9,7 @@
 #include "../Hpp/Filter.hpp"
 #include "../Hpp/SpectrumInitPacket.hpp"
 #include "../Hpp/SpectrumPacket.hpp"
-#include "../Hpp/SpectrumTypes.hpp"
+#include "../../Utils/enums.h"
 
 
 
@@ -91,3 +92,5 @@ private:
    GLfloat* pafMySpectrumPlotData; 
 
 };
+
+#endif 

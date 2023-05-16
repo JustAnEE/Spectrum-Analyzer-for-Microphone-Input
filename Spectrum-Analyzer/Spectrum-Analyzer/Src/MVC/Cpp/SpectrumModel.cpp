@@ -4,14 +4,20 @@ SpectrumModel::SpectrumModel(){
    SAMPLES = 1024 * 4;
    PADDING = 4;
 
-   format = new MicInput(1, 44100, 8);
-   pclMyDSP = new SpectrumDSP(44100, SAMPLES * PADDING);
+   format = new MicInput(1, SAMPLE_RATE, 8);
+   pclMyDSP = new SpectrumDSP(SAMPLE_RATE, SAMPLE_BUFFER_SIZE);
+   
+   apclSpectrumDSPs[MAGNITUDE_SPECTRUM] = new MagnitudeSpectrum(SAMPLE_RATE, SAMPLE_BUFFER_SIZE);
+   apclSpectrumDSPs[DB_SPECTRUM]        = new DBSpectrum(SAMPLE_RATE, SAMPLE_BUFFER_SIZE);
+   apclSpectrumDSPs[PSD_SPECTRUM]       = new PSDSpectrum(SAMPLE_RATE, SAMPLE_BUFFER_SIZE);
 
    // -- Setup function pointer list.
    plotMethodVector.push_back(&SpectrumModel::timeSeries);
    plotMethodVector.push_back(&SpectrumModel::magnitudeResponse);
    plotMethodVector.push_back(&SpectrumModel::DBmagnitudeResponse);
    plotMethodVector.push_back(&SpectrumModel::powerSpectralDensity);
+
+   pclMySampleBufferSP = std::make_shared<SampleBufferCL>();
 
 }
 
@@ -25,7 +31,10 @@ SpectrumModel::~SpectrumModel(){
    delete format;
    delete pclMyDSP; 
    delete filter; 
-}
+   delete apclSpectrumDSPs[MAGNITUDE_SPECTRUM];
+   delete apclSpectrumDSPs[DB_SPECTRUM];
+   delete apclSpectrumDSPs[PSD_SPECTRUM];
+}  
 
 
 
@@ -42,8 +51,6 @@ Plot* SpectrumModel::detectClickPlot(GLfloat xpos, GLfloat ypos){
    // -- If no Plot is found, return nullptr.
    return nullptr;
 }
-
-
 
 
 void SpectrumModel::addPlot(
@@ -104,6 +111,11 @@ void SpectrumModel::scalePlot(Plot* plot, GLfloat x, GLfloat y){
    notifySubscribers();
 }
 
+void SpectrumModel::ReadMicData()
+{
+    format->readMicInput(pclMySampleBufferSP->GetpacRawMicData(), NUM_SAMPLES);
+    pclMySampleBufferSP->ConvertRawDataToFloat(format->getBlockAlign());
+}
 
 void SpectrumModel::readMicData() {
    // -- To do swap this to multiple formats, and super sampling
@@ -130,7 +142,7 @@ void SpectrumModel::readMicData() {
       inputData[count] = ((GLfloat)value) - 128.0f;
       count++;
    }
-
+   
 
    /*ofstream audioFile;
    audioFile.open("AFTER.WAV", ios::binary | ios::out);
@@ -139,6 +151,29 @@ void SpectrumModel::readMicData() {
    free(rawBytesPtr);
 }
 
+void SpectrumModel::SpectralResponse(Plot* pclPlot_, DSPInitStruct& stDSPInit_)
+{
+    if (stDSPInit_.eSpectrumOutput != TIME_SERIES)
+    {
+       // Configure the relevant DSP
+       apclSpectrumDSPs[stDSPInit_.eSpectrumOutput]->GetpclSpectrumConfig()->ConfigDSP(stDSPInit_, inputData);
+
+       // Calculate the spectrum output 
+       apclSpectrumDSPs[stDSPInit_.eSpectrumOutput]->CalculateSpectralData();
+
+       // Give the plot the data 
+       pclPlot_->setRawData(apclSpectrumDSPs[stDSPInit_.eSpectrumOutput]->GetSpectrumOutput()->afMySpectrumArray,
+           2 * NUM_SAMPLES);
+
+       return; 
+    }
+
+    // Handle time series as a special case. 
+    GLfloat* pafTimeSeriesData = apclSpectrumDSPs[TIME_SERIES]->FormatTimeSeries(inputData);
+    pclPlot_->setRawData(pafTimeSeriesData, 2*NUM_SAMPLES);
+    free(pafTimeSeriesData);
+    return; 
+}
 
 /* Private - methods */
 void SpectrumModel::magnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE) {
@@ -157,7 +192,7 @@ void SpectrumModel::magnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DE
 
    // Get an empty output packet 
    SpectrumPacket* pclSpectrumOutputPacket = new SpectrumPacket;
-   
+ 
    // Send the init packet and input data to the SpectrumDSP class to process output. 
    pclMyDSP->ProcessSpectrumInitPacket(pclSpectrumInitPacket, inputData);
    

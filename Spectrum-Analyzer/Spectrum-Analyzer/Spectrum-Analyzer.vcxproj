@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -21,16 +21,26 @@
   <ItemGroup>
     <ClCompile Include="Libraries\src\glad.c" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\BarletteWindow.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\BlackmanWindow.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\DBSpectrum.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\Filter.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\HammingWindow.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\MagnitudeSpectrum.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\PSDSpectrum.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\SpectrumBase.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\spectrumdsp.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\SpectrumDSPConfig.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\SpectrumInitPacket.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\SpectrumPacket.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\Window.cpp" />
     <ClCompile Include="Src\Misc\Cpp\FontSystem.cpp" />
     <ClCompile Include="Src\Misc\Cpp\MicInput.cpp" />
     <ClCompile Include="Src\MVC\Cpp\InteractionModel.cpp" />
     <ClCompile Include="Src\MVC\Cpp\SpectrumController.cpp" />
     <ClCompile Include="Src\MVC\Cpp\SpectrumModel.cpp" />
     <ClCompile Include="Src\MVC\Cpp\SpectrumView.cpp" />
+    <ClCompile Include="Src\Packets\Cpp\SampleBufferPacket.cpp" />
     <ClCompile Include="Src\Widgets\Cpp\Button.cpp" />
     <ClCompile Include="Src\Widgets\Cpp\ListMenu.cpp" />
     <ClCompile Include="Src\Widgets\Cpp\Plot.cpp" />
@@ -39,11 +49,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventSystem.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\BarletteWindow.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\BlackmanWindow.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\DBSpectrum.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\Filter.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\HammingWindow.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\MagnitudeSpectrum.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\PSDSpectrum.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\SpectrumBase.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\spectrumdsp.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\SpectrumDSPConfig.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\SpectrumInitPacket.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\SpectrumPacket.hpp" />
-    <ClInclude Include="Src\Dsp\Hpp\SpectrumTypes.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\Window.hpp" />
     <ClInclude Include="Src\Misc\Hpp\FontSystem.hpp" />
     <ClInclude Include="Src\Misc\Hpp\MicInput.hpp" />
     <ClInclude Include="Src\MVC\Hpp\InteractionModel.hpp" />
@@ -52,6 +70,11 @@
     <ClInclude Include="Src\MVC\Hpp\SpectrumModel.hpp" />
     <ClInclude Include="Src\MVC\Hpp\SpectrumModelSubscriber.hpp" />
     <ClInclude Include="Src\MVC\Hpp\SpectrumView.hpp" />
+    <ClInclude Include="Src\Packets\Hpp\SampleBufferPacket.hpp" />
+    <ClInclude Include="Src\Utils\constants.h" />
+    <ClInclude Include="Src\Utils\debugdefines.h" />
+    <ClInclude Include="Src\Utils\enums.h" />
+    <ClInclude Include="Src\Utils\types.h" />
     <ClInclude Include="Src\Widgets\Hpp\Button.hpp" />
     <ClInclude Include="Src\Widgets\Hpp\ListMenu.hpp" />
     <ClInclude Include="Src\Widgets\Hpp\Plot.hpp" />

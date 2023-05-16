@@ -3,18 +3,8 @@
 #include <glad/glad.h>
 #include <cstring>
 
-#include "../Hpp/SpectrumTypes.hpp"
-
-// DSP Initializer struct, gives information to the SpectrumDSP class 
-// as to what output is required, etc.
-typedef struct DSPInitStruct
-{
-    int iBufferSize;
-    int iSampleRate;
-    SpectrumTypeEnum eSpectrumOutput;
-    WindowTypeEnum eWindow;
-    FilterTypeEnum eFilter; 
-}DSPInitStruct;
+#include "../../Utils/enums.h"
+#include "../../Utils/types.h"
 
 typedef struct DSPFilterInitStruct
 {

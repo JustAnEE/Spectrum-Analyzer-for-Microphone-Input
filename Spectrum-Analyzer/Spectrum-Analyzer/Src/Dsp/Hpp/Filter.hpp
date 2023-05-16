@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "../Hpp/SpectrumInitPacket.hpp"
-#include "../Hpp/SpectrumTypes.hpp"
+#include "../../Utils/enums.h"
 
 class Filter 
 {
