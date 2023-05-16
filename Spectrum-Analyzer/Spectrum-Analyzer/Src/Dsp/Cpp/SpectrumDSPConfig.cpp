@@ -14,6 +14,17 @@ void SpectrumDSPConfig::ConfigDSP(DSPInitStruct& stDSPInit_, std::shared_ptr<Sam
    clMySampleBuffer = *pclSampleBufferSP_;
 }
 
+void SpectrumDSPConfig::ConfigDSPOnRequest(DSPInitStruct& stDSPInit_)
+{
+   memcpy(&stMyDSPInitData, &stDSPInit_, sizeof(stDSPInit_));
+   bMyDSPInitialized = true;
+}
+
+SampleBufferCL* SpectrumDSPConfig::GetSampleBuffer()
+{
+   return &clMySampleBuffer;
+}
+
 void SpectrumDSPConfig::UseDefaultConfig(SpectrumTypeEnum eSpectrumType_, GLfloat* pafMicData_)
 {
    memcpy(afMySampleBufferData, pafMicData_, SAMPLE_BUFFER_SIZE);

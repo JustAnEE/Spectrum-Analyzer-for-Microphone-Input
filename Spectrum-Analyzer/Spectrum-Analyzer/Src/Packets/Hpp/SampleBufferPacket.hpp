@@ -24,7 +24,7 @@ public:
 
 private:
    //! Array which stores the sample buffer. 
-   GLfloat afMySampleBufferArray[SAMPLE_BUFFER_SIZE];
+    GLfloat afMySampleBufferArray[SAMPLE_BUFFER_SIZE];
 
    //! Raw Data Buffer which stores the samples directly read from microphone 
    char acMyRawData[NUM_SAMPLES];

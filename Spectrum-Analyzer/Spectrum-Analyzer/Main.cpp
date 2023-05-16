@@ -8,6 +8,15 @@
 #include "Src/MVC/MVCTask.hpp"
 #include "Src/Misc/MicInputTask.hpp"
 
+
+// Method which starts the task when passing the method into threads 
+void TaskStarter(TaskBase* pclTask_)
+{
+   pclTask_->Main();
+   return;
+}
+
+
 int main() {
    SpectrumController* controller = new SpectrumController();
    SpectrumModel* model = new SpectrumModel();
@@ -62,7 +71,7 @@ int main() {
       vTaskThreads.emplace_back(TaskStarter, Task.get());
    }
 
-   // Spawn the threads 
+   // Spawn and start the threads 
    for (std::thread& Task : vTaskThreads)
    {
       Task.join();

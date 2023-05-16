@@ -1,6 +1,10 @@
 #ifndef TASKSTRUCT_H
 #define TASKSTRUCT_H
 
+// Forward Declarations
+#include "Packets/Hpp/SampleBufferPacket.hpp"
+#include "Packets/Hpp/SpectrumOutputPacket.hpp"
+
 // 1000 bytes for now 
 #define MAX_QUEUE_ENTRY_SIZE (1000)
 // 30000 bytes for now 
@@ -12,26 +16,46 @@
 #define MVC_TASK_HANDLE (0xFFFC)
 #define MICDATA_TASK_HANDLE (0xFFFA)
 
-typedef enum TaskIDEnum
-{
-   SPECTRUMDSPTASK = 0,
-   MVCTASK         = 1,
-   MICINPUTTASK    = 2
-}TaskIDEnum;
 
 typedef int QueueHandle;
 
 typedef struct TaskQueueData
 {
-   TaskIDEnum  eTaskID;
+   TaskIDEnum  eProviderTaskID;
+   int iActualDataSize;
    unsigned char aucTaskData[MAX_QUEUE_ENTRY_SIZE];
 
 }TaskQueueData;
 
+
 typedef struct TheTaskStruct
 {
+   TaskIDEnum eConsumerTaskID; 
    TaskQueueData astTaskQueueEntries[NUM_TASKS];
 }TheTaskStruct;
+
+
+static const TheTaskStruct astTaskTable[] = {
+
+   // Consumer of packet
+   {SPECTRUMDSPTASK,
+      {
+         // Provider of packet
+         MICINPUTTASK,
+         // Size of packet 
+         sizeof(SampleBufferCL)
+      }
+   },
+   // Consumer of packet
+   {MVCTASK,
+      {
+         // Provider of packet 
+         SPECTRUMDSPTASK,
+         // Size of packet 
+         sizeof(SpectrumOutputCL)
+      }
+   }
+};
 
 #endif 
 

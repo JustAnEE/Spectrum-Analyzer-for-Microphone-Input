@@ -34,4 +34,20 @@ typedef enum FilterTypeEnum
    NO_FILTER = 5
 }FilterTypeEnum;
 
+
+typedef enum TaskIDEnum
+{
+   SPECTRUMDSPTASK = 0,
+   MVCTASK = 1,
+   MICINPUTTASK = 2
+}TaskIDEnum;
+
+
+typedef enum MessageStatusEnum
+{
+   MESSAGE_SUCCESS = 0,
+   MESSAGE_FAILED  = 1,
+   MESSAGE_HELD    = 2
+}MessageStatusEnum;
+
 #endif // enums.h

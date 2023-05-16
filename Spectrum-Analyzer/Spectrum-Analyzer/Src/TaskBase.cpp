@@ -5,5 +5,5 @@ TaskBase::TaskBase(Mutex& refMutex_, CondVar& refCondVar_, TaskQueue& refTaskQue
    pMutexMyTaskMemory = &refMutex_;
    pcvMyTaskConditionVariable = &refCondVar_;
    pqMyTaskQueue = &refTaskQueue_;
-   InitializeTask();
+   //InitializeTask();
 }

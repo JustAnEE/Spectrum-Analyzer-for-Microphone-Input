@@ -29,9 +29,15 @@ public:
     // !TODO: Actually use this 
     void ConfigDSP(DSPInitStruct& stDSPinit_, std::shared_ptr<SampleBufferCL> pclSampleBufferSP_);
 
+    void ConfigDSPOnRequest(DSPInitStruct& stDSPInit_);
+
+    SampleBufferCL* GetSampleBuffer(); 
+
     // Optional method allows the user to select the default config and pass in only the Mic Data and Spectrum type
     // Default config: Rectangular Window, No Filter, No Normalization, No Detrending. 
     void UseDefaultConfig(SpectrumTypeEnum eSpectrumType_, GLfloat* pafMicData_);
+
+    bool HasDSPBeenConfigured() { return bMyDSPInitialized; }
 
 private:
 

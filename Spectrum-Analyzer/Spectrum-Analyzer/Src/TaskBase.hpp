@@ -1,14 +1,7 @@
 #ifndef TASKBASE_HPP
 #define TASKBASE_HPP
 
-#include <queue>
-#include <mutex>
-#include <memory>
-#include "TaskStruct.h"
-
-typedef std::mutex Mutex;
-typedef std::condition_variable CondVar;
-typedef std::queue<TaskQueueData> TaskQueue;
+#include "MessageController.hpp"
 
 class TaskBase
 {
@@ -30,14 +23,6 @@ protected:
    CondVar* pcvMyTaskConditionVariable;
    TaskQueue* pqMyTaskQueue;
 };
-
-
-// Method which starts the task when passing the method into threads 
-void TaskStarter(TaskBase* pclTask_)
-{
-   pclTask_->Main();
-   return;
-}
 
 
 #endif // TASKBASE_HPP
