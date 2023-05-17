@@ -35,6 +35,7 @@
     <ClCompile Include="Src\Dsp\Cpp\SpectrumPacket.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\Window.cpp" />
     <ClCompile Include="Src\Dsp\SpectrumDSPTask.cpp" />
+    <ClCompile Include="Src\MessageController.cpp" />
     <ClCompile Include="Src\Misc\Cpp\FontSystem.cpp" />
     <ClCompile Include="Src\Misc\Cpp\MicInput.cpp" />
     <ClCompile Include="Src\Misc\MicInputTask.cpp" />
@@ -44,6 +45,8 @@
     <ClCompile Include="Src\MVC\Cpp\SpectrumView.cpp" />
     <ClCompile Include="Src\MVC\MVCTask.cpp" />
     <ClCompile Include="Src\Packets\Cpp\SampleBufferPacket.cpp" />
+    <ClCompile Include="Src\Packets\Cpp\SpectrumOutputPacket.cpp" />
+    <ClCompile Include="Src\Packets\Cpp\SpectrumRequestPacket.cpp" />
     <ClCompile Include="Src\TaskBase.cpp" />
     <ClCompile Include="Src\Widgets\Cpp\Button.cpp" />
     <ClCompile Include="Src\Widgets\Cpp\ListMenu.cpp" />
@@ -79,6 +82,8 @@
     <ClInclude Include="Src\MVC\Hpp\SpectrumView.hpp" />
     <ClInclude Include="Src\MVC\MVCTask.hpp" />
     <ClInclude Include="Src\Packets\Hpp\SampleBufferPacket.hpp" />
+    <ClInclude Include="Src\Packets\Hpp\SpectrumOutputPacket.hpp" />
+    <ClInclude Include="Src\Packets\Hpp\SpectrumRequestPacket.hpp" />
     <ClInclude Include="Src\TaskBase.hpp" />
     <ClInclude Include="Src\TaskStruct.h" />
     <ClInclude Include="Src\Utils\constants.h" />

@@ -17,6 +17,8 @@ void SpectrumController::setIModel(InteractionModel* _IModel) {
 
 // -- Event handling methods.
 void SpectrumController::jobStartEvent(){
+
+   //! TODO: The need for states is pretty much eliminated in multi threading. 
     switch (currentState){
         case SpectrumController::START:
             // -- Initial setup featuring the worlds longest function.

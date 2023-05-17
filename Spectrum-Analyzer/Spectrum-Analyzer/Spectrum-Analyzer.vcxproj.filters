@@ -109,6 +109,9 @@
     <ClCompile Include="Src\MVC\MVCTask.cpp" />
     <ClCompile Include="Src\Dsp\SpectrumDSPTask.cpp" />
     <ClCompile Include="Src\Misc\MicInputTask.cpp" />
+    <ClCompile Include="Src\MessageController.cpp" />
+    <ClCompile Include="Src\Packets\Cpp\SpectrumRequestPacket.cpp" />
+    <ClCompile Include="Src\Packets\Cpp\SpectrumOutputPacket.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Dsp\Hpp\Filter.hpp">
@@ -185,6 +188,8 @@
     <ClInclude Include="Src\Dsp\SpectrumDSPTask.hpp" />
     <ClInclude Include="Src\Misc\MicInputTask.hpp" />
     <ClInclude Include="Src\MessageController.hpp" />
+    <ClInclude Include="Src\Packets\Hpp\SpectrumRequestPacket.hpp" />
+    <ClInclude Include="Src\Packets\Hpp\SpectrumOutputPacket.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\Shaders\FSS.glsl">

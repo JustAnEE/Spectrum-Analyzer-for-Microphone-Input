@@ -20,6 +20,8 @@ public:
 
    char* GetpacRawMicData(); 
 
+   GLfloat* GetSampleBufferArray();
+
    void ConvertRawDataToFloat(int iBlockAlign);
 
 private:

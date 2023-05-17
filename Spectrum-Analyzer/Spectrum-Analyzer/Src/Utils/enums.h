@@ -42,6 +42,11 @@ typedef enum TaskIDEnum
    MICINPUTTASK = 2
 }TaskIDEnum;
 
+typedef enum PacketIDEnum
+{
+   SAMPLE_BUFFER_PACKET   = 0,
+   SPECTRUM_OUTPUT_PACKET = 1
+}PacketIDEnum;
 
 typedef enum MessageStatusEnum
 {
@@ -49,5 +54,14 @@ typedef enum MessageStatusEnum
    MESSAGE_FAILED  = 1,
    MESSAGE_HELD    = 2
 }MessageStatusEnum;
+
+
+typedef enum ConsumerStatusEnum
+{
+   SOME_CONSUMERS_NEED_PACKET        = 0,
+   ALL_OTHER_CONSUMERS_USED_PACKET   = 1,
+   PACKET_CONSUMED_FOR_THIS_CONSUMER = 2,
+   CONSUMER_STILL_WAITING_FOR_DATA   = 3
+}ConsumerStatusEnum;
 
 #endif // enums.h

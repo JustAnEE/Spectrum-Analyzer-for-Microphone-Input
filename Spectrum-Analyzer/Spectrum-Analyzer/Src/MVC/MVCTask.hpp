@@ -3,6 +3,7 @@
 
 #include "../TaskBase.hpp"
 #include "../MessageController.hpp"
+#include "../Packets/Hpp/SpectrumOutputPacket.hpp"
 
 class MVCTask : public TaskBase
 {
@@ -11,9 +12,9 @@ public:
 
 public:
    void InitializeTask() {}
-   void Main() {}
+   void Main();
 
 private:
-
+   MessageController<std::shared_ptr<SpectrumOutputCL>,  MVCTask>* pclMVCController;
 };
 #endif 

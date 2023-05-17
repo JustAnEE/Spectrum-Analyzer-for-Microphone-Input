@@ -47,6 +47,11 @@ void SampleBufferCL::ConvertRawDataToFloat(int iBlockAlign)
     }
 }
 
+GLfloat* SampleBufferCL::GetSampleBufferArray()
+{
+   return afMySampleBufferArray;
+}
+
 void SampleBufferCL::SetMicData(GLfloat* aufSampleBuffer_)
 {
    memcpy(afMySampleBufferArray, aufSampleBuffer_, sizeof(aufSampleBuffer_));
