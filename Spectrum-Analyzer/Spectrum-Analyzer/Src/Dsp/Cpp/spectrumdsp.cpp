@@ -14,7 +14,6 @@ SpectrumDSP::SpectrumDSP(int _iMySampleRate, int _iMyBufferSize)
     pclMySpectrumPacket = new SpectrumPacket();
     pclMyFilter = new Filter(iMySampleRate, iMyBufferSize);
     setFreqs();
-
 }
 
 SpectrumDSP::~SpectrumDSP() 

@@ -1,0 +1,2 @@
+#include "../Hpp/SpectrumArray.hpp"
+
