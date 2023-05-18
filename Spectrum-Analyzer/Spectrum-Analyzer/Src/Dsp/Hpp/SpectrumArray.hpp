@@ -20,7 +20,8 @@
 //  6) ^ element wise exponentiation by an integer 
 //  7) [] allows you to index into the array directly from the object
 // 
-//  //! TODO: Implement +, -, +=, -=, *, *= 
+//  //! TODO: Implement element wise+, -, +=, -=, *, *=, ^, ^= for numeric 
+//      types
 //   
 //  //! Possible future TODO: Specialize the templates to handle cases of 
 //  // operations of different types. Float * Int, etc. 
