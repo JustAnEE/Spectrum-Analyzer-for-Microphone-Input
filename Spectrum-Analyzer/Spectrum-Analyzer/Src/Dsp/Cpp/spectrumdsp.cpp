@@ -1,4 +1,6 @@
 #include "../Hpp/spectrumdsp.hpp"
+#include "../Hpp/window.hpp"
+
 
 SpectrumDSP::SpectrumDSP(int _iMySampleRate, int _iMyBufferSize) 
 {
@@ -10,10 +12,20 @@ SpectrumDSP::SpectrumDSP(int _iMySampleRate, int _iMyBufferSize)
     pafMySpectrumData = nullptr; 
     pafMySpectrumPlotData = nullptr;
     pafMyLocalSampleBuffer = nullptr; 
-    pafMyWindow = nullptr; 
     pclMySpectrumPacket = new SpectrumPacket();
     pclMyFilter = new Filter(iMySampleRate, iMyBufferSize);
+
     setFreqs();
+
+    // Instantiate windowers 
+    for(const WindowTypeEnum& WindowType : {HAMMING_WINDOW, BLACKMAN_WINDOW, BARLETTE_WINDOW})
+    {
+       apclMyWindows[WindowType - WINDOW_OFFSET] = WindowInstantiator::InstantiateWindow(WindowType);
+       apclMyWindows[WindowType - WINDOW_OFFSET]->CreateEmptyWindow(_iMyBufferSize);
+       apclMyWindows[WindowType - WINDOW_OFFSET]->InitWindow();
+    }
+
+    return; 
 }
 
 SpectrumDSP::~SpectrumDSP() 
@@ -24,7 +36,12 @@ SpectrumDSP::~SpectrumDSP()
     delete[](pafMyLocalSampleBuffer); 
     delete[](pafMySpectrumData); 
     delete[](pafMySpectrumPlotData); 
-    delete[](pafMyWindow); 
+
+    for (unsigned int ulIdx = 0; ulIdx < NUM_WINDOWS; ulIdx++)
+    {
+       delete apclMyWindows[ulIdx];
+    }
+
 }
 
 void SpectrumDSP::ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitPacket_, GLfloat* pafSampleBuffer_)
@@ -45,10 +62,6 @@ void SpectrumDSP::ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitP
    // Initialize local arrays. 
    pafMySpectrumData = new GLfloat[iMyBufferSize];
    pafMySpectrumPlotData = new GLfloat[2 * iMyBufferSize];
-   pafMyWindow = new GLfloat[iMyBufferSize];
-
-   // Fill window
-   GenWindow();
 
    // If the sample rate or buffer size is not default, need to generate new windows and frequency arrays
    // non-default configurations are not currently supported. 
@@ -72,10 +85,10 @@ void SpectrumDSP::ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitP
        pclMyFilter->ApplyFilter(pafMyLocalSampleBuffer);
    }
 
-   if (!(eMyWindowType == RECTANGULAR_WINDOW))
+   if (!(eMyWindowType == RECTANGULAR_WINDOW) && apclMyWindows[eMyWindowType - WINDOW_OFFSET]->IsWindowReady())
    {
-       // Apply any windowing or filtering. 
-       ApplyWindow();
+       // Apply the window type onto the sample buffer 
+       apclMyWindows[eMyWindowType - WINDOW_OFFSET]->ApplyWindow(pafMyLocalSampleBuffer);
    }
 
    // Fill the pafMySpectrumPlotDataArray with the interleaved plot data. 
@@ -103,82 +116,11 @@ void SpectrumDSP::GetSpectrumOutput(SpectrumPacket& clSpectrumPacket_)
     memcpy(clSpectrumPacket_.afMySpectrumArray, pclMySpectrumPacket->afMySpectrumArray, sizeof(pclMySpectrumPacket->afMySpectrumArray)); 
 }
 
-void SpectrumDSP::GenWindow()
-{
-    if (eMyWindowType == RECTANGULAR_WINDOW)
-    {
-        return; 
-    }
-
-    switch (eMyWindowType)
-    {
-
-    case HAMMING_WINDOW:
-        for (int k = 0; k < iMyBufferSize; k++)
-        {
-            pafMyWindow[k] = 0.54 - 0.46 * cosf(2.0 * 3.14159 * (GLfloat)k / ((GLfloat)(iMyBufferSize - 1)));
-        }
-        break;
-
-    case BLACKMAN_WINDOW:
-        for (int k = 0; k < iMyBufferSize; k++) 
-        {
-            pafMyWindow[k] = 0.42 - 0.5 * cosf(2.0 * 3.14159 * (GLfloat)k / ((GLfloat)(iMyBufferSize - 1))) + 0.08 * cos(4.0 * 3.14159 * (GLfloat)k / ((GLfloat)(iMyBufferSize - 1)));
-        }
-        break;
-
-    case BARLETTE_WINDOW:
-        for (int k = 0; k < iMyBufferSize; k++)
-        {
-            pafMyWindow[k] = (2.0 / ((GLfloat)(iMyBufferSize - 1))) * (((GLfloat)(iMyBufferSize - 1)) / 2.0 - (GLfloat)abs((GLfloat)k - (((GLfloat)iMyBufferSize - 1)) / 2.0));
-        }
-        break; 
-    }
-}
-
 
 void SpectrumDSP::setFreqs() {
     GLfloat fs = (GLfloat)iMySampleRate;
     GLfloat N = (GLfloat)iMyBufferSize;
     for (int k = 0; k < iMyBufferSize; k++) { pafMyFrequencyArray[k] = -fs / 2 + ((GLfloat)k) * fs / N; }
-}
-
-void SpectrumDSP::ApplyWindow() 
-{
-   if (eMyWindowType == RECTANGULAR_WINDOW)
-   {
-      // Do not need to do anything with a rectangular window, simply return. 
-      return; 
-   }
-    
-   switch (eMyWindowType)
-   {
-      case HAMMING_WINDOW:      
-         for (int k = 0; k < iMyBufferSize; ++k) 
-         {
-            pafMyLocalSampleBuffer[k] *= pafMyWindow[k];
-         }
-         break;
-
-      case BLACKMAN_WINDOW:
-         for (int k = 0; k < iMyBufferSize; ++k) 
-         { 
-            pafMyLocalSampleBuffer[k] *= pafMyWindow[k]; 
-         }
-
-      case BARLETTE_WINDOW:
-         for (int k = 0; k < iMyBufferSize; ++k) 
-         { 
-            pafMyLocalSampleBuffer[k] *= pafMyWindow[k]; 
-         }
-
-      default:
-         // Invalid Window Type, silently fail and return
-         return; 
-   }
-
-   return; 
-
 }
 
 void SpectrumDSP::fft(fftwf_complex* input, fftwf_complex* output)

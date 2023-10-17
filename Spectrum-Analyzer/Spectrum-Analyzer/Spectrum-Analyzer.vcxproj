@@ -26,6 +26,7 @@
     <ClCompile Include="Src\Dsp\Cpp\spectrumdsp.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\SpectrumInitPacket.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\SpectrumPacket.cpp" />
+    <ClCompile Include="Src\Dsp\Cpp\window.cpp" />
     <ClCompile Include="Src\Misc\Cpp\FontSystem.cpp" />
     <ClCompile Include="Src\Misc\Cpp\MicInput.cpp" />
     <ClCompile Include="Src\MVC\Cpp\InteractionModel.cpp" />
@@ -46,6 +47,7 @@
     <ClInclude Include="Src\Dsp\Hpp\SpectrumInitPacket.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\SpectrumPacket.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\SpectrumTypes.hpp" />
+    <ClInclude Include="Src\Dsp\Hpp\window.hpp" />
     <ClInclude Include="Src\Misc\Hpp\FontSystem.hpp" />
     <ClInclude Include="Src\Misc\Hpp\MicInput.hpp" />
     <ClInclude Include="Src\MVC\Hpp\InteractionModel.hpp" />

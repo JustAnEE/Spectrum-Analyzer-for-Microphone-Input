@@ -9,11 +9,14 @@
 #include "../Hpp/SpectrumInitPacket.hpp"
 #include "../Hpp/SpectrumPacket.hpp"
 #include "../Hpp/SpectrumTypes.hpp"
-
-
+#include "../Hpp/window.hpp"
 
 #define REAL 1
 #define IMAG 0
+
+// Forward declaration
+class WindowInstantiator;
+class WindowBase;
 
 class SpectrumDSP
 {
@@ -35,7 +38,6 @@ private:
    void fft(fftwf_complex* input, fftwf_complex* output);
    void ifft(fftwf_complex* in, fftwf_complex* out);
    
-   void ApplyWindow();
    fftwf_complex* set_fft(fftwf_complex* shifted_input);
    fftwf_complex* fft_shift();
    void MagnitudeSpectrum(fftwf_complex* fft_data);
@@ -49,7 +51,6 @@ private:
    void setFreqs();
 
    void PopulateSpectrumPacket();
-   void GenWindow();
 
 // Private members 
 private:
@@ -78,9 +79,6 @@ private:
    //! This is a pointer to an array containing the frequencies corresponding to FFT bins (array index). 
    GLfloat* pafMyFrequencyArray;
 
-   //! This is a pointer to an array containing the current window function. 
-   GLfloat* pafMyWindow; 
-
    //! This is a pointer to the local copy of the sample buffer read in from the microphone.
    GLfloat* pafMyLocalSampleBuffer;
 
@@ -89,5 +87,8 @@ private:
 
    //! This is an array which holds the interleaved x and y axis for the spectrum plot. 
    GLfloat* pafMySpectrumPlotData; 
+
+   //! This is an array of windowing objects 
+   WindowBase* apclMyWindows[NUM_WINDOWS];
 
 };
