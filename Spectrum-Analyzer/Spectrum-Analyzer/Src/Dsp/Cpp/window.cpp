@@ -1,6 +1,5 @@
 #include "../Hpp/window.hpp"
 #include <math.h>
-#include <new>
 
 WindowBase::WindowBase()
 {
@@ -40,7 +39,7 @@ void WindowBase::ApplyWindow(GLfloat* pafDataToWindow_)
 
    for (unsigned int ulIdx = 0; ulIdx < ulMyWindowLength; ulIdx++)
    {
-      //pafDataToWindow_[ulIdx] *= pafMyWindow[ulIdx];
+      pafDataToWindow_[ulIdx] *= pafMyWindow[ulIdx];
    }
 
    return; 
@@ -64,7 +63,7 @@ void HammingWindow::InitWindow()
 
    for (unsigned int ulIdx = 0; ulIdx < ulMyWindowLength; ulIdx++)
    {
-      pafMyWindow[ulIdx] = 0.54 - 0.46 * cosf(2.0 * 3.14159 * (GLfloat)ulIdx / ((GLfloat)(ulMyWindowLength - 1)));
+      pafMyWindow[ulIdx] = 0.54f - 0.46f * cosf(2.0f * 3.14159f * (GLfloat)ulIdx / ((GLfloat)(ulMyWindowLength - 1.0f)));
    }
 
    bMyIsWindowConfigured = true; 
@@ -82,8 +81,8 @@ void BlackmanWindow::InitWindow()
 
    for (unsigned int ulIdx = 0; ulIdx < ulMyWindowLength; ulIdx++)
    {
-      pafMyWindow[ulIdx] = 0.42 - 0.5 * cosf(2.0 * 3.14159 * (GLfloat)ulIdx / ((GLfloat)(ulMyWindowLength - 1)))
-         + 0.08 * cos(4.0 * 3.14159 * (GLfloat)ulIdx / ((GLfloat)(ulMyWindowLength - 1)));
+      pafMyWindow[ulIdx] = 0.42f - 0.5f * cosf(2.0f * 3.14159f * (GLfloat)ulIdx / ((GLfloat)(ulMyWindowLength - 1.0f)))
+         + 0.08f * cosf(4.0f * 3.14159f * (GLfloat)ulIdx / ((GLfloat)(ulMyWindowLength - 1.0f)));
    }
    return; 
 }
@@ -99,11 +98,27 @@ void BarletteWindow::InitWindow()
 
    for (unsigned int ulIdx = 0; ulIdx < ulMyWindowLength; ulIdx++)
    {
-      pafMyWindow[ulIdx] = (2.0 / ((GLfloat)(ulMyWindowLength - 1))) * (((GLfloat)(ulMyWindowLength - 1))
-         / 2.0 - (GLfloat)abs((GLfloat)ulIdx - (((GLfloat)ulMyWindowLength - 1)) / 2.0));
+      pafMyWindow[ulIdx] = (2.0f / ((GLfloat)(ulMyWindowLength - 1))) * (((GLfloat)(ulMyWindowLength - 1.0f))
+         / 2.0f - (GLfloat)fabs((GLfloat)ulIdx - (((GLfloat)ulMyWindowLength - 1.0f)) / 2.0f));
    }
    return; 
 }
+
+
+void RectangularWindow::InitWindow()
+{
+   if (ulMyWindowLength <= 0 || pafMyWindow == nullptr)
+   {
+      return;
+   }
+
+   for (unsigned int ulIdx = 0; ulIdx < ulMyWindowLength; ulIdx++)
+   {
+      pafMyWindow[ulIdx] = 1.0f;
+   }
+   return; 
+}
+
 
 // Factory 
 WindowBase* WindowInstantiator::InstantiateWindow(WindowTypeEnum eWindowType_)
@@ -112,7 +127,7 @@ WindowBase* WindowInstantiator::InstantiateWindow(WindowTypeEnum eWindowType_)
    {
       //!TODO: Fix this boof 
       case RECTANGULAR_WINDOW:
-         return nullptr;
+         return new RectangularWindow();
 
       case HAMMING_WINDOW:
          return new HammingWindow();
@@ -124,6 +139,6 @@ WindowBase* WindowInstantiator::InstantiateWindow(WindowTypeEnum eWindowType_)
          return new BarletteWindow();
       
       default:
-         return nullptr;
+         return new RectangularWindow();
    }
 }

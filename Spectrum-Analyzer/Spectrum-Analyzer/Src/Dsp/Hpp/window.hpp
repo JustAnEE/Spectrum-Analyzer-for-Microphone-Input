@@ -63,6 +63,18 @@ class BarletteWindow : public WindowBase
 };
 
 
+//!TODO: THIS DOES NOT NEED TO EXIST
+//! FIXXXX
+class RectangularWindow : public WindowBase
+{
+   public:
+      RectangularWindow() = default;
+      ~RectangularWindow() = default;
+
+   public:
+      void InitWindow();
+};
+
 class WindowInstantiator
 {
    WindowInstantiator() = delete;

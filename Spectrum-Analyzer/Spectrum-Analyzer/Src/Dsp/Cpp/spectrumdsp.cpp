@@ -18,7 +18,7 @@ SpectrumDSP::SpectrumDSP(int _iMySampleRate, int _iMyBufferSize)
     setFreqs();
 
     // Instantiate windowers 
-    for(const WindowTypeEnum& WindowType : {HAMMING_WINDOW, BLACKMAN_WINDOW, BARLETTE_WINDOW})
+    for(const WindowTypeEnum& WindowType : {RECTANGULAR_WINDOW, HAMMING_WINDOW, BLACKMAN_WINDOW, BARLETTE_WINDOW})
     {
        apclMyWindows[WindowType - WINDOW_OFFSET] = WindowInstantiator::InstantiateWindow(WindowType);
        apclMyWindows[WindowType - WINDOW_OFFSET]->CreateEmptyWindow(_iMyBufferSize);
@@ -85,10 +85,9 @@ void SpectrumDSP::ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitP
        pclMyFilter->ApplyFilter(pafMyLocalSampleBuffer);
    }
 
-   if (!(eMyWindowType == RECTANGULAR_WINDOW) && apclMyWindows[eMyWindowType - WINDOW_OFFSET]->IsWindowReady())
+   if (!(eMyWindowType == RECTANGULAR_WINDOW) && apclMyWindows[eMyWindowType]->IsWindowReady())
    {
-       // Apply the window type onto the sample buffer 
-       apclMyWindows[eMyWindowType - WINDOW_OFFSET]->ApplyWindow(pafMyLocalSampleBuffer);
+      apclMyWindows[eMyWindowType]->ApplyWindow(pafMyLocalSampleBuffer);
    }
 
    // Fill the pafMySpectrumPlotDataArray with the interleaved plot data. 
