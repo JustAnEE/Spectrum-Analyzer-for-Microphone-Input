@@ -1,11 +1,8 @@
 #include "../Hpp/SpectrumController.hpp"
 
 SpectrumController::SpectrumController(){
-    currentState = START;
+    eMyControllerState = START;
 }
-
-SpectrumController::~SpectrumController(){}
-
 
 void SpectrumController::setDModel(SpectrumModel* _model) {
     model = _model; 
@@ -17,8 +14,8 @@ void SpectrumController::setIModel(InteractionModel* _IModel) {
 
 // -- Event handling methods.
 void SpectrumController::jobStartEvent(){
-    switch (currentState){
-        case SpectrumController::START:
+    switch (eMyControllerState){
+        case START:
             // -- Initial setup featuring the worlds longest function.
             model->addPlot(
                 5, 5,
@@ -26,19 +23,19 @@ void SpectrumController::jobStartEvent(){
                 0, 0, false, false
             );
             IModel->setSelectedPlot(model->getPlotVector()[0]);
-            currentState = READING;
+            eMyControllerState = READING;
             break;
 
-        case SpectrumController::READING:
+        case READING:
             // -- Read data from device, then swap state to PROCCESSING
             model->readMicData();
-            currentState = PROCESSING;
+            eMyControllerState = PROCESSING;
             break;
 
-        case SpectrumController::PROCESSING:
+        case PROCESSING:
             // -- process data then swap state to READING
             model->processData();
-            currentState = READING;
+            eMyControllerState = READING;
             break;
 
         default:
@@ -81,7 +78,7 @@ void SpectrumController::handleMouseClick(GLFWwindow* window, int button, int ac
                 IModel->setCurrentListMenuOption(clickedPlot->getMethodFlag());
             }
             else {
-                cout << "ERROR IN SpectrumController::handleMouseClick.     IModel->getCurrentListMenuID() not a valid ID.";
+                std::cout << "ERROR IN SpectrumController::handleMouseClick.     IModel->getCurrentListMenuID() not a valid ID.";
                 exit(-9); /* CRASH HARD. */
             }
         }
@@ -110,7 +107,7 @@ void SpectrumController::handleListButton(std::string buttonID, int type) {
     else if (buttonID == "Window") { option = IModel->getSelectedPlot()->getWindowFlag(); }
     else if (buttonID == "Method") { option = IModel->getSelectedPlot()->getMethodFlag(); }
     else {
-        cout << "ERROR IN SpectrumController::handleListButton.     buttonID not found.";
+        std::cout << "ERROR IN SpectrumController::handleListButton.     buttonID not found.";
         exit(-10); /* CRASH HARD. */
     }
 
@@ -125,7 +122,7 @@ void SpectrumController::handleBooleanButton(std::string buttonID, int type){
     if (buttonID == "Detrend") { IModel->getSelectedPlot()->setDetrendFlag(!detrendFlag); }
     //else if (buttonID == "Normalize") {}
     else {
-        cout << "ERROR IN SpectrumController::handleBooleanButton.     buttonID not found.";
+        std::cout << "ERROR IN SpectrumController::handleBooleanButton.     buttonID not found.";
         exit(-11); /* CRASH HARD. */
     }
 }
@@ -137,7 +134,7 @@ void SpectrumController::handleListMenu(std::string ListID, int optionNum) {
     else if (ListID == "Window") { IModel->getSelectedPlot()->setWindowFlag(optionNum); }
     else if (ListID == "Method") { IModel->getSelectedPlot()->setMethodFlag(optionNum); }
     else { 
-        cout << "ERROR IN SpectrumController::handleListMenu.    ListID not found.";
+        std::cout << "ERROR IN SpectrumController::handleListMenu.    ListID not found.";
         exit(-12); /* CRASH HARD. */
     }
     if (optionNum != -1) {

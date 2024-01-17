@@ -9,6 +9,7 @@ typedef enum SpectrumTypeEnum
    PSD_SPECTRUM       = 3,
    DBM_SPECTRUM       = 4,
    PHASE_SPECTRUM     = 5,
+   NUM_SPECTRUM       = 5
 }SpectrumTypeEnum;
 
 

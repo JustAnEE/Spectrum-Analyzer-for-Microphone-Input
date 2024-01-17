@@ -66,7 +66,7 @@ private:
 	void swapListMenu(std::string NewMenuID);
 
 
-	string readShaderCode(const char* filename); 
+	std::string readShaderCode(const char* filename); 
 
 };
 

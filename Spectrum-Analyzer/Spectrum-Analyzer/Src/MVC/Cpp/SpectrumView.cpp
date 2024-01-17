@@ -280,7 +280,7 @@ void SpectrumView::drawText(TextLabel* textLabel) {
 	// -- Set uniforms
 	glUniform3f(glGetUniformLocation(textureShaderProgram, "textColor"), textLabel->color.r, textLabel->color.g, textLabel->color.b);
 	
-	string text = textLabel->text;
+	std::string text = textLabel->text;
 
 	float span = 0.0f;
 	for (int i = 0; i < text.size(); i++) {
@@ -402,11 +402,11 @@ void SpectrumView::setController(SpectrumController* _controller){
 }
 
 
-string SpectrumView::readShaderCode(const char* filename) {
-	string shader, line;
-	ifstream inputFile(filename);
+std::string SpectrumView::readShaderCode(const char* filename) {
+	std::string shader, line;
+	std::ifstream inputFile(filename);
 	if (!inputFile.good()) {
-		cout << "FAILED TO LOAD FILE: " << filename << " IN readShaderCode()" << endl;
+		std::cout << "FAILED TO LOAD FILE: " << filename << " IN readShaderCode()" << std::endl;
 		exit(-42);
 	}
 	while (getline(inputFile, line)) {

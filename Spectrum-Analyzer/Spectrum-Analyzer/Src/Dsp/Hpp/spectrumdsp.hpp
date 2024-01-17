@@ -9,11 +9,11 @@
 #include "../Hpp/SpectrumInitPacket.hpp"
 #include "../Hpp/SpectrumPacket.hpp"
 #include "../Hpp/SpectrumTypes.hpp"
-
+#include "../SpectrumTypes/SpectrumBase.hpp"
 
 
 #define REAL 1
-#define IMAG 0
+#define IMAG 0 
 
 class SpectrumDSP
 {
@@ -32,21 +32,23 @@ public:
 
 // Operations. 
 private:
-   void fft(fftwf_complex* input, fftwf_complex* output);
+
+   //!TODO: Finish moving over to FFT Object in Spectrum Calculators 
    void ifft(fftwf_complex* in, fftwf_complex* out);
-   
+
+   //!TODO: Make this method be a lot less bad 
    void ApplyWindow();
-   fftwf_complex* set_fft(fftwf_complex* shifted_input);
-   fftwf_complex* fft_shift();
-   void MagnitudeSpectrum(fftwf_complex* fft_data);
-   void DBSpectrum();
+
+   //!TODO: Implement as a spectrum calculator 
    void DBmSpectrum();
-   void PSDSpectrum();
-   void PrepDataForPlot();
+
+   //!TODO: Implement as a spectrum calculator 
    void PhaseSpectrum(fftwf_complex* fft_data);
+
    void DetrendBuffer();
+
    void CalculateSpectrum();
-   void setFreqs();
+
 
    void PopulateSpectrumPacket();
    void GenWindow();
@@ -89,5 +91,8 @@ private:
 
    //! This is an array which holds the interleaved x and y axis for the spectrum plot. 
    GLfloat* pafMySpectrumPlotData; 
+
+   //! This is an array which holds the spectral calculator objects 
+   SpectrumBase* apclMySpectrumCalculators[NUM_SPECTRUM];
 
 };
