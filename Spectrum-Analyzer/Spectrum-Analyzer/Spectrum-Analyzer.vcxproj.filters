@@ -95,6 +95,13 @@
     <ClCompile Include="Src\Widgets\Cpp\Widget.cpp">
       <Filter>Source Files\Widget</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Dsp\Cpp\SpectrumArray.cpp" />
+    <ClCompile Include="Src\Dsp\SpectrumTypes\DBSpectrum.cpp" />
+    <ClCompile Include="Src\Dsp\SpectrumTypes\FFTCL.cpp" />
+    <ClCompile Include="Src\Dsp\SpectrumTypes\MagnitudeSpectrum.cpp" />
+    <ClCompile Include="Src\Dsp\SpectrumTypes\PSDSpectrum.cpp" />
+    <ClCompile Include="Src\Dsp\SpectrumTypes\SpectralFactory.cpp" />
+    <ClCompile Include="Src\Dsp\SpectrumTypes\SpectrumBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Dsp\Hpp\Filter.hpp">
@@ -154,6 +161,13 @@
     <ClInclude Include="EventSystem.hpp">
       <Filter>Header Files\EventSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Dsp\Hpp\SpectrumArray.hpp" />
+    <ClInclude Include="Src\Dsp\SpectrumTypes\DBSpectrum.hpp" />
+    <ClInclude Include="Src\Dsp\SpectrumTypes\FFTCL.hpp" />
+    <ClInclude Include="Src\Dsp\SpectrumTypes\MagnitudeSpectrum.hpp" />
+    <ClInclude Include="Src\Dsp\SpectrumTypes\PSDSpectrum.hpp" />
+    <ClInclude Include="Src\Dsp\SpectrumTypes\SpectralFactory.hpp" />
+    <ClInclude Include="Src\Dsp\SpectrumTypes\SpectrumBase.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\Shaders\FSS.glsl">

@@ -4,39 +4,38 @@
 #include "Src/MVC/Hpp/SpectrumController.hpp"
 #include "Src/MVC/Hpp/SpectrumModel.hpp"
 #include "Src/MVC/Hpp/SpectrumView.hpp"
+#include <memory> 
 
-
+//!TODO: Could add some sort of object which handles all the boilerplate, pull more stuff out of main
 int main() {
-	SpectrumController* controller = new SpectrumController();
-	SpectrumModel* model = new SpectrumModel();
-	InteractionModel* IModel = new InteractionModel();
-	SpectrumView* view = new SpectrumView(1000,900);
+
+	std::unique_ptr<SpectrumController> pclController = std::make_unique<SpectrumController>();
+	std::unique_ptr<SpectrumModel> pclModel = std::make_unique<SpectrumModel>();
+	std::unique_ptr<InteractionModel> pclIModel = std::make_unique<InteractionModel>();
+	std::unique_ptr<SpectrumView> pclView = std::make_unique<SpectrumView>(1000, 900); 
 
 	// -- Set MVC connections.
-	view->setModels(model, IModel);
-	view->setController(controller);
-	controller->setDModel(model);
-	controller->setIModel(IModel);
+	pclView->setModels(pclModel.get(), pclIModel.get());
+	pclView->setController(pclController.get());
+	pclController->setDModel(pclModel.get());
+	pclController->setIModel(pclIModel.get());
 
 	// -- Pub Sub connections.
-	model->addSubscriber(view);
-	IModel->addSubscriber(view);
+	pclModel->addSubscriber(pclView.get());
+	pclIModel->addSubscriber(pclView.get());
 
 
-	GLFWwindow* window = view->getWindow();
+	GLFWwindow* window = pclView->getWindow();
 
 	// -- Main Event loop.
 	while (!glfwWindowShouldClose(window)){
 		
 		// -- Event Polling.
-		controller->jobStartEvent();
+		pclController->jobStartEvent();
 
 		glfwPollEvents();
 	}
 
-	delete view;
-	delete model;
-	delete controller;
 	return 0;
 }
 

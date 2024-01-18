@@ -9,7 +9,14 @@
 #include"../Hpp/SpectrumModel.hpp"
 #include"../Hpp/InteractionModel.hpp"
 
-using namespace std;
+
+typedef enum ControllerStateEnum
+{
+	START   = 0,
+	READING = 1,
+	PROCESSING = 2,
+	HALT = 3 
+}ControllerStateEnum; 
 
 class SpectrumController {
 public:
@@ -17,7 +24,7 @@ public:
 	InteractionModel* IModel;
 
 	SpectrumController();
-	~SpectrumController();
+	~SpectrumController() = default;
 
 	void setDModel(SpectrumModel* _model);
 	void setIModel(InteractionModel* _IModel);
@@ -35,8 +42,7 @@ public:
 	void handleListMenu(std::string ListID, int optionNum);
 
 private:
-	enum STATE { START, READING, PROCESSING, HALT };
-	STATE currentState;
+	ControllerStateEnum eMyControllerState;	
 };
 
 

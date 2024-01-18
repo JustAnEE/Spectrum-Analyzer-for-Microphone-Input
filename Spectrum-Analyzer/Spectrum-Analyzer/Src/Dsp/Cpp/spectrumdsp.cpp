@@ -1,4 +1,5 @@
 #include "../Hpp/spectrumdsp.hpp"
+#include "../SpectrumTypes/SpectralFactory.hpp"
 
 SpectrumDSP::SpectrumDSP(int _iMySampleRate, int _iMyBufferSize) 
 {
@@ -6,14 +7,22 @@ SpectrumDSP::SpectrumDSP(int _iMySampleRate, int _iMyBufferSize)
     iMySampleRate = _iMySampleRate;
     iMyBufferSize = _iMyBufferSize;
 
+    //!TODO: Decide once and for all, dynamic buffer sizes or nah
     pafMyFrequencyArray = new GLfloat[iMyBufferSize]; 
-    pafMySpectrumData = nullptr; 
-    pafMySpectrumPlotData = nullptr;
-    pafMyLocalSampleBuffer = nullptr; 
-    pafMyWindow = nullptr; 
+    pafMySpectrumData = new GLfloat[iMyBufferSize]; 
+    pafMySpectrumPlotData = new GLfloat[2*iMyBufferSize];
+    pafMyLocalSampleBuffer = new GLfloat[iMyBufferSize]; 
+    pafMyWindow = new GLfloat[iMyBufferSize]; 
     pclMySpectrumPacket = new SpectrumPacket();
     pclMyFilter = new Filter(iMySampleRate, iMyBufferSize);
-    setFreqs();
+    
+    //!TODO: Implement DBM and phase spectrum. Fix the SpectrumTypeEnum throughout the system 
+    for (const SpectrumTypeEnum& eType : {MAGNITUDE_SPECTRUM, PSD_SPECTRUM, DB_SPECTRUM})
+    {
+       apclMySpectrumCalculators[static_cast<int>(eType)] = SpectralFactory::Instantiate(eType, iMyBufferSize, iMySampleRate); 
+    }
+
+    return;  
 }
 
 SpectrumDSP::~SpectrumDSP() 
@@ -39,13 +48,7 @@ void SpectrumDSP::ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitP
   // iMySampleRate   = pclSpectrumInitPacket_->stMyDSPInitialisation.iSampleRate;
 
    // Copy sample buffer into the class to avoid overwriting it in other functions
-   pafMyLocalSampleBuffer = new GLfloat[iMyBufferSize];
    memcpy(pafMyLocalSampleBuffer, pafSampleBuffer_, iMyBufferSize*sizeof(GLfloat));
-
-   // Initialize local arrays. 
-   pafMySpectrumData = new GLfloat[iMyBufferSize];
-   pafMySpectrumPlotData = new GLfloat[2 * iMyBufferSize];
-   pafMyWindow = new GLfloat[iMyBufferSize];
 
    // Fill window
    GenWindow();
@@ -137,12 +140,6 @@ void SpectrumDSP::GenWindow()
 }
 
 
-void SpectrumDSP::setFreqs() {
-    GLfloat fs = (GLfloat)iMySampleRate;
-    GLfloat N = (GLfloat)iMyBufferSize;
-    for (int k = 0; k < iMyBufferSize; k++) { pafMyFrequencyArray[k] = -fs / 2 + ((GLfloat)k) * fs / N; }
-}
-
 void SpectrumDSP::ApplyWindow() 
 {
    if (eMyWindowType == RECTANGULAR_WINDOW)
@@ -181,17 +178,6 @@ void SpectrumDSP::ApplyWindow()
 
 }
 
-void SpectrumDSP::fft(fftwf_complex* input, fftwf_complex* output)
-{
-
-    fftwf_plan plan = fftwf_plan_dft_1d(iMyBufferSize, input, output, FFTW_FORWARD, FFTW_ESTIMATE);
-
-    fftwf_execute(plan);
-    fftwf_destroy_plan(plan);
-    fftwf_cleanup();
-
-}
-
 void SpectrumDSP::ifft(fftwf_complex* in, fftwf_complex* out)
 {
     fftwf_plan plan = fftwf_plan_dft_1d(iMyBufferSize, in, out, FFTW_BACKWARD, FFTW_ESTIMATE);
@@ -207,59 +193,6 @@ void SpectrumDSP::ifft(fftwf_complex* in, fftwf_complex* out)
     }
 }
 
-fftwf_complex* SpectrumDSP::set_fft(fftwf_complex* shifted_input)
-{
-    fftwf_complex* y = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (iMyBufferSize));
-
-    fft(shifted_input, y);
-
-    return y;
-}
-
-fftwf_complex* SpectrumDSP::fft_shift() 
-{
-    fftwf_complex* x = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex) * (iMyBufferSize));
-
-        for (int k = 0; k < iMyBufferSize; k++) {
-           x[k][REAL] = pafMyLocalSampleBuffer[k] * pow(-1, k);
-           x[k][IMAG] = 0;
-        }
-
-    return x;
-}
-
-void SpectrumDSP::MagnitudeSpectrum(fftwf_complex* fft_data)
-{
-
-    for (int k = 0; k < iMyBufferSize; k++) 
-    {
-        GLfloat square = fft_data[k][REAL] * fft_data[k][REAL] + fft_data[k][IMAG] * fft_data[k][IMAG];
-        pafMySpectrumData[k] = sqrt(square);
-    }
-
-    return; 
-}
-
-void SpectrumDSP::DBSpectrum()
-{
-   // Need to deal with magnitude data close to zero. Noise floor of -120 dB corresponds to a magnitude of 1e-6. 
-   GLfloat noise_floor = -120.0f;
-
-   for (int k = 0; k < iMyBufferSize; k++) 
-   {
-      GLfloat fAmplitude = pafMySpectrumData[k]; 
-      if (fAmplitude < 1 * pow(10, -6) || (fAmplitude == 0)) 
-      {
-         pafMySpectrumData[k] = noise_floor;
-      }
-      else 
-      {
-          pafMySpectrumData[k] = (GLfloat)20 * log10(fAmplitude);
-      }
-   }
-
-    return;
-}
 
 void SpectrumDSP::DBmSpectrum()
 {
@@ -281,31 +214,6 @@ void SpectrumDSP::DBmSpectrum()
    }
 
    return;
-}
-
-void SpectrumDSP::PSDSpectrum()
-{
-   for (int k = 0; k < iMyBufferSize; k++) 
-   {
-      GLfloat fAmplitude = pafMySpectrumData[k];
-      pafMySpectrumData[k] = fAmplitude * fAmplitude / iMyBufferSize;
-   }
-   return;
-}
-
-void SpectrumDSP::PrepDataForPlot()
-{
-    int iPlotDataSize = 2 * iMyBufferSize;
-
-    for (int k = 0; k < iPlotDataSize; k += 2) {
-
-        int index = k / 2;
-
-        pafMySpectrumPlotData[k] = pafMyFrequencyArray[index];
-        pafMySpectrumPlotData[k + 1] = pafMySpectrumData[index];
-
-    }
-    return;
 }
 
 void SpectrumDSP::PhaseSpectrum(fftwf_complex* fft_data)
@@ -364,49 +272,10 @@ void SpectrumDSP::DetrendBuffer()
 
 void SpectrumDSP::CalculateSpectrum()
 {
- 
-   fftwf_complex* fftin_ptr = fft_shift();
-   fftwf_complex* fft_ptr = set_fft(fftin_ptr);
-   
-   // Magnitude spectrum is always calculated, since the other spectra are obtained via manipulating
-   // the magnitude spectrum. 
-   MagnitudeSpectrum(fft_ptr);
-
-   switch (eMySpectrumType)
-   {
-      case MAGNITUDE_SPECTRUM: 
-         // Magnitude data already exists, interleave with frequency array immediately. 
-         PrepDataForPlot();
-         break;
-
-      case DB_SPECTRUM:   
-         DBSpectrum(); 
-         PrepDataForPlot();
-         break;
-
-      case DBM_SPECTRUM:       
-         DBmSpectrum(); 
-         PrepDataForPlot();
-         break;
-
-      case PSD_SPECTRUM:  
-         PSDSpectrum();
-         PrepDataForPlot();
-         break;
-
-      case PHASE_SPECTRUM:  
-         PhaseSpectrum(fft_ptr); 
-         PrepDataForPlot();
-         break;
-
-      default:
-         // If invalid spectrum enum, simply return the interleaved magnitude data. 
-         PrepDataForPlot(); 
-         break; 
-   }
-
-   fftwf_free(fftin_ptr);
-   fftwf_free(fft_ptr);
+   apclMySpectrumCalculators[eMySpectrumType]->SetSampleData(pafMyLocalSampleBuffer);
+   apclMySpectrumCalculators[eMySpectrumType]->FFT();
+   apclMySpectrumCalculators[eMySpectrumType]->CalculateSpectrum();
+   pafMySpectrumPlotData = apclMySpectrumCalculators[eMySpectrumType]->GetInterleavedData();
 
    return; 
 }
