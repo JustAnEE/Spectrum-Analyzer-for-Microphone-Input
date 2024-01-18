@@ -14,40 +14,34 @@ class InteractionModel
 {
 
 public:
-	InteractionModel();
+    InteractionModel();
 
+    // getters and setters
+    std::string getCurrentListMenuID();
+    void setCurrentListMenuID(std::string MenuID);
 
-	// -- getters and setters
-	std::string getCurrentListMenuID();
-	void setCurrentListMenuID(std::string MenuID);
+    int getCurrentListMenuOption();
+    void setCurrentListMenuOption(int _option);
 
-	int getCurrentListMenuOption();
-	void setCurrentListMenuOption(int _option);
+    Plot* getSelectedPlot();
+    void  setSelectedPlot(Plot* _plot);
 
-	Plot* getSelectedPlot();
-	void  setSelectedPlot(Plot* _plot);
+    // Widget Methods.
+    void detectClickWidget(double xpos, double ypos);
+    void detectScrollWidget(double xpos, double ypos, int direction);
 
-
-	// -- Widget Methods.
-	void detectClickWidget(double xpos, double ypos);
-	void detectScrollWidget(double xpos, double ypos, int direction);
-
-	// -- Pub-Sub methods.
-	void addSubscriber(InteractionModelSubscriber* newSub);
-
+    // Pub-Sub methods.
+    void addSubscriber(InteractionModelSubscriber* newSub);
 
 private:
-	std::string currentListMenuID;
-	int currentListMenuOption;
+    std::string currentListMenuID;
+    int currentListMenuOption;
 
-	Plot* selectedPlot;
+    Plot* selectedPlot;
 
-	std::vector<InteractionModelSubscriber*> subscribers;
+    std::vector<InteractionModelSubscriber*> subscribers;
 
-	// -- Pub-Sub methods.
-	void notifySubscribers();
+    // Pub-Sub methods.
+    void notifySubscribers();
 };
-
-
-
 #endif // !INTERACTIONMODEL_H

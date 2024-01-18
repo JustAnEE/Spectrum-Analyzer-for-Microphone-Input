@@ -22,52 +22,49 @@
 
 #include FT_FREETYPE_H 
 
-class SpectrumView : public SpectrumModelSubscriber, public InteractionModelSubscriber {
+class SpectrumView
+    : public SpectrumModelSubscriber, public InteractionModelSubscriber
+{
 public:
+    SpectrumView(GLuint windowWidth, GLuint windowHeight);
+    ~SpectrumView();
 
-	SpectrumView(GLuint windowWidth, GLuint windowHeight);
-	~SpectrumView();
+    GLFWwindow* getWindow();
 
-	GLFWwindow* getWindow();
+    // MVC connection functions for main
+    void setModels(SpectrumModel* _model, InteractionModel* _IModel);
+    void setController(SpectrumController* _controller);
 
-	// -- MVC connection functions for main
-	void setModels(SpectrumModel* _model, InteractionModel* _IModel);
-	void setController(SpectrumController* _controller);
+    // InteractionModelSub functions
+    void detectClick(double xpos, double ypos);
+    void detectScroll(double xpos, double ypos, int direction);
 
-	// -- InteractionModelSub functions
-	void detectClick(double xpos, double ypos);
-	void detectScroll(double xpos, double ypos, int direction);
-
-	void DModelChanged();
-	void IModelChanged();
-
+    void DModelChanged();
+    void IModelChanged();
 
 private:
-	GLuint VAO, VBO, TVAO, TVBO;
-	GLuint shaderProgram, textureShaderProgram;
+    GLuint VAO, VBO, TVAO, TVBO;
+    GLuint shaderProgram, textureShaderProgram;
 
-	GLFWwindow* window;
-	GLuint windowWidth, windowHeight;
-	
-	FontSystem* fSys;
-	GLuint atlasID;
+    GLFWwindow* window;
+    GLuint windowWidth, windowHeight;
 
-	std::vector<Widget*> widgets;
-	std::vector<std::string> methods, filters, windows;
+    FontSystem* fSys;
+    GLuint atlasID;
 
-	SpectrumModel* model;
-	InteractionModel* IModel;
+    std::vector<Widget*> widgets;
+    std::vector<std::string> methods, filters, windows;
 
-	void draw();
-	void drawWidget(Widget* widget);
-	void drawPlot(Plot* plot);
-	void drawText(TextLabel* textLabel);
+    SpectrumModel* model;
+    InteractionModel* IModel;
 
-	void swapListMenu(std::string NewMenuID);
+    void draw();
+    void drawWidget(Widget* widget);
+    void drawPlot(Plot* plot);
+    void drawText(TextLabel* textLabel);
 
+    void swapListMenu(std::string NewMenuID);
 
-	std::string readShaderCode(const char* filename); 
-
+    std::string readShaderCode(const char* filename); 
 };
-
 #endif // !SPECTRUMVIEW_H

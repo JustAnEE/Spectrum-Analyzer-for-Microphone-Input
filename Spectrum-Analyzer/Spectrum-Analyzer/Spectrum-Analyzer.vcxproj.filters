@@ -158,9 +158,6 @@
     <ClInclude Include="Src\Widgets\Hpp\Widget.hpp">
       <Filter>Header Files\Widget</Filter>
     </ClInclude>
-    <ClInclude Include="EventSystem.hpp">
-      <Filter>Header Files\EventSystem</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Dsp\Hpp\SpectrumArray.hpp" />
     <ClInclude Include="Src\Dsp\SpectrumTypes\DBSpectrum.hpp" />
     <ClInclude Include="Src\Dsp\SpectrumTypes\FFTCL.hpp" />

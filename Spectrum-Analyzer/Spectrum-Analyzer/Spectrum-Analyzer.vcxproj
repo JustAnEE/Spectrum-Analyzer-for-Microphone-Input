@@ -45,7 +45,6 @@
     <ClCompile Include="Src\Widgets\Cpp\Widget.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EventSystem.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\Filter.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\SpectrumArray.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\spectrumdsp.hpp" />
