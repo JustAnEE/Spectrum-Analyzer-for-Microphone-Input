@@ -15,6 +15,10 @@
 #define REAL 1
 #define IMAG 0 
 
+// Forward declarations 
+class WindowFactory; 
+class WindowBase; 
+
 class SpectrumDSP
 {
 
@@ -77,20 +81,14 @@ private:
    //! This enum is the filter type: LPF, HPF, BPF, BSF. 
    FilterTypeEnum   eMyFilterType; 
 
-   //! This is a pointer to an array containing the frequencies corresponding to FFT bins (array index). 
-   GLfloat* pafMyFrequencyArray;
-
-   //! This is a pointer to an array containing the current window function. 
-   GLfloat* pafMyWindow; 
-
    //! This is a pointer to the local copy of the sample buffer read in from the microphone.
    GLfloat* pafMyLocalSampleBuffer;
 
-   //! This is an array which holds the spectrum data output (y axis). 
-   GLfloat* pafMySpectrumData; 
-
    //! This is an array which holds the interleaved x and y axis for the spectrum plot. 
    GLfloat* pafMySpectrumPlotData; 
+
+   //! This is an array which holds the windowing objects. 
+   WindowBase* apclMyWindows[NUM_WINDOWS]; 
 
    //! This is an array which holds the spectral calculator objects 
    SpectrumBase* apclMySpectrumCalculators[NUM_SPECTRUM];

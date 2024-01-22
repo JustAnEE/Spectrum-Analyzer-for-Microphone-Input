@@ -1,25 +1,28 @@
 #include "../Hpp/spectrumdsp.hpp"
 #include "../SpectrumTypes/SpectralFactory.hpp"
+#include "../WindowTypes/WindowFactory.hpp"
+#include "../WindowTypes/WindowBase.hpp"
 
 SpectrumDSP::SpectrumDSP(int _iMySampleRate, int _iMyBufferSize) 
 {
-
+    //!TODO: Decide once and for all, dynamic buffer sizes or nah
     iMySampleRate = _iMySampleRate;
     iMyBufferSize = _iMyBufferSize;
 
-    //!TODO: Decide once and for all, dynamic buffer sizes or nah
-    pafMyFrequencyArray = new GLfloat[iMyBufferSize]; 
-    pafMySpectrumData = new GLfloat[iMyBufferSize]; 
     pafMySpectrumPlotData = new GLfloat[2*iMyBufferSize];
     pafMyLocalSampleBuffer = new GLfloat[iMyBufferSize]; 
-    pafMyWindow = new GLfloat[iMyBufferSize]; 
     pclMySpectrumPacket = new SpectrumPacket();
     pclMyFilter = new Filter(iMySampleRate, iMyBufferSize);
     
     //!TODO: Implement DBM and phase spectrum. Fix the SpectrumTypeEnum throughout the system 
     for (const SpectrumTypeEnum& eType : {MAGNITUDE_SPECTRUM, PSD_SPECTRUM, DB_SPECTRUM})
     {
-       apclMySpectrumCalculators[static_cast<int>(eType)] = SpectralFactory::Instantiate(eType, iMyBufferSize, iMySampleRate); 
+       apclMySpectrumCalculators[static_cast<int>(eType)] = SpectralFactory::Instantiate(eType, _iMyBufferSize, _iMyBufferSize); 
+    }
+
+    for (const WindowTypeEnum& eType : {RECTANGULAR_WINDOW, HAMMING_WINDOW, BLACKMAN_WINDOW, BARLETTE_WINDOW})
+    {
+       apclMyWindows[static_cast<int>(eType)-1] = WindowFactory::Instantiate(eType, _iMyBufferSize);
     }
 
     return;  
@@ -27,13 +30,11 @@ SpectrumDSP::SpectrumDSP(int _iMySampleRate, int _iMyBufferSize)
 
 SpectrumDSP::~SpectrumDSP() 
 {
-    delete(pafMyFrequencyArray);
     delete(pclMySpectrumPacket);
     delete(pclMyFilter);
     delete[](pafMyLocalSampleBuffer); 
-    delete[](pafMySpectrumData); 
-    delete[](pafMySpectrumPlotData); 
-    delete[](pafMyWindow); 
+    delete[](pafMySpectrumPlotData);
+    return; 
 }
 
 void SpectrumDSP::ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitPacket_, GLfloat* pafSampleBuffer_)
@@ -43,15 +44,12 @@ void SpectrumDSP::ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitP
    eMySpectrumType = pclSpectrumInitPacket_->stMyDSPInitialisation.eSpectrumOutput;
    eMyWindowType   = pclSpectrumInitPacket_->stMyDSPInitialisation.eWindow;
    eMyFilterType   = pclSpectrumInitPacket_->stMyDSPInitialisation.eFilter; 
-  // Custom buffer size / sample rate not implemented yet 
-  // iMyBufferSize   = pclSpectrumInitPacket_->stMyDSPInitialisation.iBufferSize;
-  // iMySampleRate   = pclSpectrumInitPacket_->stMyDSPInitialisation.iSampleRate;
+   // Custom buffer size / sample rate not implemented yet 
+   // iMyBufferSize   = pclSpectrumInitPacket_->stMyDSPInitialisation.iBufferSize;
+   // iMySampleRate   = pclSpectrumInitPacket_->stMyDSPInitialisation.iSampleRate;
 
    // Copy sample buffer into the class to avoid overwriting it in other functions
    memcpy(pafMyLocalSampleBuffer, pafSampleBuffer_, iMyBufferSize*sizeof(GLfloat));
-
-   // Fill window
-   GenWindow();
 
    // If the sample rate or buffer size is not default, need to generate new windows and frequency arrays
    // non-default configurations are not currently supported. 
@@ -92,91 +90,29 @@ void SpectrumDSP::ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitP
 }
 
 
-
 void SpectrumDSP::PopulateSpectrumPacket()
 {
     // Load output packet 
     pclMySpectrumPacket->eMySpectrumType = eMySpectrumType;
     memcpy(pclMySpectrumPacket->afMySpectrumArray, pafMySpectrumPlotData, 2*iMyBufferSize*sizeof(GLfloat));
+    return; 
 }
+
 
 void SpectrumDSP::GetSpectrumOutput(SpectrumPacket& clSpectrumPacket_)
 {
     clSpectrumPacket_.eMySpectrumType = eMySpectrumType;
-    memcpy(clSpectrumPacket_.afMySpectrumArray, pclMySpectrumPacket->afMySpectrumArray, sizeof(pclMySpectrumPacket->afMySpectrumArray)); 
-}
-
-void SpectrumDSP::GenWindow()
-{
-    if (eMyWindowType == RECTANGULAR_WINDOW)
-    {
-        return; 
-    }
-
-    switch (eMyWindowType)
-    {
-
-    case HAMMING_WINDOW:
-        for (int k = 0; k < iMyBufferSize; k++)
-        {
-            pafMyWindow[k] = 0.54 - 0.46 * cosf(2.0 * 3.14159 * (GLfloat)k / ((GLfloat)(iMyBufferSize - 1)));
-        }
-        break;
-
-    case BLACKMAN_WINDOW:
-        for (int k = 0; k < iMyBufferSize; k++) 
-        {
-            pafMyWindow[k] = 0.42 - 0.5 * cosf(2.0 * 3.14159 * (GLfloat)k / ((GLfloat)(iMyBufferSize - 1))) + 0.08 * cos(4.0 * 3.14159 * (GLfloat)k / ((GLfloat)(iMyBufferSize - 1)));
-        }
-        break;
-
-    case BARLETTE_WINDOW:
-        for (int k = 0; k < iMyBufferSize; k++)
-        {
-            pafMyWindow[k] = (2.0 / ((GLfloat)(iMyBufferSize - 1))) * (((GLfloat)(iMyBufferSize - 1)) / 2.0 - (GLfloat)abs((GLfloat)k - (((GLfloat)iMyBufferSize - 1)) / 2.0));
-        }
-        break; 
-    }
+    memcpy(clSpectrumPacket_.afMySpectrumArray, pclMySpectrumPacket->afMySpectrumArray, sizeof(pclMySpectrumPacket->afMySpectrumArray));
+    return; 
 }
 
 
 void SpectrumDSP::ApplyWindow() 
 {
-   if (eMyWindowType == RECTANGULAR_WINDOW)
-   {
-      // Do not need to do anything with a rectangular window, simply return. 
-      return; 
-   }
-    
-   switch (eMyWindowType)
-   {
-      case HAMMING_WINDOW:      
-         for (int k = 0; k < iMyBufferSize; ++k) 
-         {
-            pafMyLocalSampleBuffer[k] *= pafMyWindow[k];
-         }
-         break;
-
-      case BLACKMAN_WINDOW:
-         for (int k = 0; k < iMyBufferSize; ++k) 
-         { 
-            pafMyLocalSampleBuffer[k] *= pafMyWindow[k]; 
-         }
-
-      case BARLETTE_WINDOW:
-         for (int k = 0; k < iMyBufferSize; ++k) 
-         { 
-            pafMyLocalSampleBuffer[k] *= pafMyWindow[k]; 
-         }
-
-      default:
-         // Invalid Window Type, silently fail and return
-         return; 
-   }
-
-   return; 
-
+   apclMyWindows[eMyWindowType]->ApplyWindow(pafMyLocalSampleBuffer);
+   return;   
 }
+
 
 void SpectrumDSP::ifft(fftwf_complex* in, fftwf_complex* out)
 {
@@ -193,7 +129,7 @@ void SpectrumDSP::ifft(fftwf_complex* in, fftwf_complex* out)
     }
 }
 
-
+/* !TODO: Implement as a spectrum calculator 
 void SpectrumDSP::DBmSpectrum()
 {
    // Need to deal with magnitude data close to/ equal to zero. 
@@ -216,6 +152,7 @@ void SpectrumDSP::DBmSpectrum()
    return;
 }
 
+   !TODO: Implement as a spectrum calculator 
 void SpectrumDSP::PhaseSpectrum(fftwf_complex* fft_data)
 {
    GLfloat fPhaseThreshold = 0;
@@ -251,6 +188,7 @@ void SpectrumDSP::PhaseSpectrum(fftwf_complex* fft_data)
 
    return;
 }
+*/
 
 void SpectrumDSP::DetrendBuffer()
 {

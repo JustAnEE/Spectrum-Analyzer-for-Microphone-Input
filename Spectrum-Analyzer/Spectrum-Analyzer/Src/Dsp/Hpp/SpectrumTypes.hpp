@@ -19,6 +19,7 @@ typedef enum WindowTypeEnum
    HAMMING_WINDOW     = 2,
    BLACKMAN_WINDOW    = 3,
    BARLETTE_WINDOW    = 4,
+   NUM_WINDOWS = 4
 }WindowTypeEnum;
 
 typedef enum FilterTypeEnum

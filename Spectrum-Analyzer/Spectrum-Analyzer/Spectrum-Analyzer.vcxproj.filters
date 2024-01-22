@@ -102,6 +102,12 @@
     <ClCompile Include="Src\Dsp\SpectrumTypes\PSDSpectrum.cpp" />
     <ClCompile Include="Src\Dsp\SpectrumTypes\SpectralFactory.cpp" />
     <ClCompile Include="Src\Dsp\SpectrumTypes\SpectrumBase.cpp" />
+    <ClCompile Include="Src\Dsp\WindowTypes\BarletteWindow.cpp" />
+    <ClCompile Include="Src\Dsp\WindowTypes\BlackmanWindow.cpp" />
+    <ClCompile Include="Src\Dsp\WindowTypes\HammingWindow.cpp" />
+    <ClCompile Include="Src\Dsp\WindowTypes\RectangularWindow.cpp" />
+    <ClCompile Include="Src\Dsp\WindowTypes\WindowBase.cpp" />
+    <ClCompile Include="Src\Dsp\WindowTypes\WindowFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Dsp\Hpp\Filter.hpp">
@@ -168,6 +174,12 @@
     <ClInclude Include="Src\Dsp\SpectrumTypes\PSDSpectrum.hpp" />
     <ClInclude Include="Src\Dsp\SpectrumTypes\SpectralFactory.hpp" />
     <ClInclude Include="Src\Dsp\SpectrumTypes\SpectrumBase.hpp" />
+    <ClInclude Include="Src\Dsp\WindowTypes\BarletteWindow.hpp" />
+    <ClInclude Include="Src\Dsp\WindowTypes\BlackmanWindow.hpp" />
+    <ClInclude Include="Src\Dsp\WindowTypes\HammingWindow.hpp" />
+    <ClInclude Include="Src\Dsp\WindowTypes\RectangularWindow.hpp" />
+    <ClInclude Include="Src\Dsp\WindowTypes\WindowBase.hpp" />
+    <ClInclude Include="Src\Dsp\WindowTypes\WindowFactory.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\Shaders\FSS.glsl">
