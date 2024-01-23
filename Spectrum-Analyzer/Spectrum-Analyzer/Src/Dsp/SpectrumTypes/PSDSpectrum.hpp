@@ -10,7 +10,7 @@ class PSDSpectrum : public SpectrumBase
       ~PSDSpectrum() = default;
 
    public:
-      void CalculateSpectrum(); 
+      void CalculateSpectrum() override; 
 
 };
 

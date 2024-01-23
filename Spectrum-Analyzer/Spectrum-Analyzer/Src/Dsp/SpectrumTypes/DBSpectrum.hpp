@@ -10,7 +10,7 @@ class DBSpectrum : public SpectrumBase
       ~DBSpectrum() = default; 
 
    public:
-      void CalculateSpectrum();
+      void CalculateSpectrum() override;
 
 };
 

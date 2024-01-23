@@ -26,9 +26,11 @@
     <ClCompile Include="Src\Dsp\Cpp\spectrumdsp.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\SpectrumInitPacket.cpp" />
     <ClCompile Include="Src\Dsp\Cpp\SpectrumPacket.cpp" />
+    <ClCompile Include="Src\Dsp\SpectrumTypes\DBmSpectrum.cpp" />
     <ClCompile Include="Src\Dsp\SpectrumTypes\DBSpectrum.cpp" />
     <ClCompile Include="Src\Dsp\SpectrumTypes\FFTCL.cpp" />
     <ClCompile Include="Src\Dsp\SpectrumTypes\MagnitudeSpectrum.cpp" />
+    <ClCompile Include="Src\Dsp\SpectrumTypes\PhaseSpectrum.cpp" />
     <ClCompile Include="Src\Dsp\SpectrumTypes\PSDSpectrum.cpp" />
     <ClCompile Include="Src\Dsp\SpectrumTypes\SpectralFactory.cpp" />
     <ClCompile Include="Src\Dsp\SpectrumTypes\SpectrumBase.cpp" />
@@ -58,9 +60,11 @@
     <ClInclude Include="Src\Dsp\Hpp\SpectrumInitPacket.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\SpectrumPacket.hpp" />
     <ClInclude Include="Src\Dsp\Hpp\SpectrumTypes.hpp" />
+    <ClInclude Include="Src\Dsp\SpectrumTypes\DBmSpectrum.hpp" />
     <ClInclude Include="Src\Dsp\SpectrumTypes\DBSpectrum.hpp" />
     <ClInclude Include="Src\Dsp\SpectrumTypes\FFTCL.hpp" />
     <ClInclude Include="Src\Dsp\SpectrumTypes\MagnitudeSpectrum.hpp" />
+    <ClInclude Include="Src\Dsp\SpectrumTypes\PhaseSpectrum.hpp" />
     <ClInclude Include="Src\Dsp\SpectrumTypes\PSDSpectrum.hpp" />
     <ClInclude Include="Src\Dsp\SpectrumTypes\SpectralFactory.hpp" />
     <ClInclude Include="Src\Dsp\SpectrumTypes\SpectrumBase.hpp" />

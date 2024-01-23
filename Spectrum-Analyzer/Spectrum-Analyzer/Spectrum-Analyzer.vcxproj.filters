@@ -108,6 +108,8 @@
     <ClCompile Include="Src\Dsp\WindowTypes\RectangularWindow.cpp" />
     <ClCompile Include="Src\Dsp\WindowTypes\WindowBase.cpp" />
     <ClCompile Include="Src\Dsp\WindowTypes\WindowFactory.cpp" />
+    <ClCompile Include="Src\Dsp\SpectrumTypes\DBmSpectrum.cpp" />
+    <ClCompile Include="Src\Dsp\SpectrumTypes\PhaseSpectrum.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Dsp\Hpp\Filter.hpp">
@@ -180,6 +182,8 @@
     <ClInclude Include="Src\Dsp\WindowTypes\RectangularWindow.hpp" />
     <ClInclude Include="Src\Dsp\WindowTypes\WindowBase.hpp" />
     <ClInclude Include="Src\Dsp\WindowTypes\WindowFactory.hpp" />
+    <ClInclude Include="Src\Dsp\SpectrumTypes\DBmSpectrum.hpp" />
+    <ClInclude Include="Src\Dsp\SpectrumTypes\PhaseSpectrum.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\Shaders\FSS.glsl">

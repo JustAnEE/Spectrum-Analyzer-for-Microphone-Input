@@ -8,14 +8,16 @@ class SpectrumBase
 {
    // Public constructors / destructors 
    public:
-      SpectrumBase(int ibuffersize_, int isamplerate_); 
+      SpectrumBase(int iBufferSize_, int iSampleRate_); 
       virtual ~SpectrumBase();
 
    // Public methods 
    public:
       virtual void CalculateSpectrum() = 0;
-      void SetSampleData(float* pafSampleData_); 
-      void FFT(); 
+      void SetSampleData(float* pafSampleData_);
+      void Detrend(float* pafSampleData_);
+      void FFT();
+      void IFFT();
       float* GetInterleavedData(); 
 
    // Protected methods 

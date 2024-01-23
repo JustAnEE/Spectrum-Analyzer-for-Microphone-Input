@@ -4,12 +4,6 @@
 #include "WindowBase.hpp"
 #include "../Hpp/SpectrumTypes.hpp"
 
-// Forward declarations
-class RectangularWindow;
-class HammingWindow;
-class BlackmanWindow; 
-class BarletteWindow; 
-
 class WindowFactory
 {
    WindowFactory() = delete; 
