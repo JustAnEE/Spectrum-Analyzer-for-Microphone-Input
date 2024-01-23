@@ -4,14 +4,13 @@
 #include <fftw3.h>
 #include <math.h> 
 #include <iostream>
-#include <glad/glad.h>
 
 #include "../Hpp/Filter.hpp"
 #include "../Hpp/SpectrumInitPacket.hpp"
 #include "../Hpp/SpectrumPacket.hpp"
 #include "../Hpp/SpectrumTypes.hpp"
 
- 
+
 // Forward declarations 
 class WindowBase; 
 class SpectrumBase; 
@@ -32,17 +31,8 @@ class SpectrumDSP
    // Operations. 
    private:
       void ApplyWindow();
-
-      //!TODO: Implement as a spectrum calculator 
-      void DBmSpectrum();
-
-      //!TODO: Implement as a spectrum calculator 
-      void PhaseSpectrum(fftwf_complex* fft_data);
-
       void DetrendBuffer();
-
       void CalculateSpectrum();
-
       void PopulateSpectrumPacket();
 
    // Private members 
@@ -70,10 +60,10 @@ class SpectrumDSP
       FilterTypeEnum   eMyFilterType; 
 
       //! This is a pointer to the local copy of the sample buffer read in from the microphone.
-      GLfloat* pafMyLocalSampleBuffer;
+      float* pafMyLocalSampleBuffer;
 
       //! This is an array which holds the interleaved x and y axis for the spectrum plot. 
-      GLfloat* pafMySpectrumPlotData; 
+      float* pafMySpectrumPlotData; 
 
       //! This is an array which holds the windowing objects. 
       WindowBase* apclMyWindows[NUM_WINDOWS]; 

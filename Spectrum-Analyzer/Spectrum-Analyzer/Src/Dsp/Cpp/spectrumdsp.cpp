@@ -38,26 +38,16 @@ SpectrumDSP::~SpectrumDSP()
    return; 
 }
 
-void SpectrumDSP::ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitPacket_, GLfloat* pafSampleBuffer_)
+void SpectrumDSP::ProcessSpectrumInitPacket(SpectrumInitPacket* pclSpectrumInitPacket_, float* pafSampleBuffer_)
 {
 
    // Grab information from the initialisation packet 
    eMySpectrumType = pclSpectrumInitPacket_->stMyDSPInitialisation.eSpectrumOutput;
    eMyWindowType   = pclSpectrumInitPacket_->stMyDSPInitialisation.eWindow;
    eMyFilterType   = pclSpectrumInitPacket_->stMyDSPInitialisation.eFilter; 
-   // Custom buffer size / sample rate not implemented yet 
-   // iMyBufferSize   = pclSpectrumInitPacket_->stMyDSPInitialisation.iBufferSize;
-   // iMySampleRate   = pclSpectrumInitPacket_->stMyDSPInitialisation.iSampleRate;
 
    // Copy sample buffer into the class to avoid overwriting it in other functions
-   memcpy(pafMyLocalSampleBuffer, pafSampleBuffer_, iMyBufferSize*sizeof(GLfloat));
-
-   // If the sample rate or buffer size is not default, need to generate new windows and frequency arrays
-   // non-default configurations are not currently supported. 
-   if (!pclSpectrumInitPacket_->bIsFsandBufferSizeDefault)
-   {
-       // Non-default settings in the works 
-   }
+   memcpy(pafMyLocalSampleBuffer, pafSampleBuffer_, iMyBufferSize*sizeof(float));
 
    if (pclSpectrumInitPacket_->bDetrend)
    {
@@ -95,7 +85,7 @@ void SpectrumDSP::PopulateSpectrumPacket()
 {
    // Load output packet 
    pclMySpectrumPacket->eMySpectrumType = eMySpectrumType;
-   memcpy(pclMySpectrumPacket->afMySpectrumArray, pafMySpectrumPlotData, 2*iMyBufferSize*sizeof(GLfloat));
+   memcpy(pclMySpectrumPacket->afMySpectrumArray, pafMySpectrumPlotData, 2*iMyBufferSize*sizeof(float));
    return; 
 }
 
