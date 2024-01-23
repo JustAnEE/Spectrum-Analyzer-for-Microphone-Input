@@ -56,14 +56,38 @@ void FFTCL::FFTShift()
    return; 
 }
 
-void FFTCL::CreateAndRunFFTPlan()
+void FFTCL::CreateAndRunFFTPlan(int iFFTPlanType_)
 {
-   fftwf_plan plan = fftwf_plan_dft_1d(iMySampleDataSize, pFFTInput, pFFTOutput, FFTW_FORWARD, FFTW_ESTIMATE);
+   fftwf_plan plan = fftwf_plan_dft_1d(iMySampleDataSize, pFFTInput, pFFTOutput, iFFTPlanType_, FFTW_ESTIMATE);
 
    fftwf_execute(plan);
    fftwf_destroy_plan(plan);
    fftwf_cleanup();
 
+   return; 
+}
+
+void FFTCL::Normalize()
+{
+   for (int k = 0; k < iMySampleDataSize; k++) 
+   {
+
+      pFFTOutput[k][REAL] /= iMySampleDataSize;
+      pFFTOutput[k][IMAG] /= iMySampleDataSize;
+
+   }
+   return; 
+}
+
+//! TODO: This does not work. In fact It never worked. 
+// There's no callers for now until filtering is 
+// revived. It's moved here to get it out of spectrumdsp.
+// Do not call, will IFFT random memory most likely :) 
+void FFTCL::IFFT()
+{  
+   FFTShift();
+   CreateAndRunFFTPlan(FFTW_BACKWARD);
+   Normalize();
    return; 
 }
 
@@ -76,7 +100,6 @@ void FFTCL::CreateMagnitudeData()
       // !TODO: Come up with a better data passing system 
       pafMySampleData[k] = sqrt(fSquare);
    }
-
    return; 
 }
 
@@ -84,7 +107,7 @@ void FFTCL::CreateMagnitudeData()
 void FFTCL::FFT()
 {
    FFTShift(); 
-   CreateAndRunFFTPlan();
+   CreateAndRunFFTPlan(FFTW_FORWARD);
    CreateMagnitudeData();
 
    return; 

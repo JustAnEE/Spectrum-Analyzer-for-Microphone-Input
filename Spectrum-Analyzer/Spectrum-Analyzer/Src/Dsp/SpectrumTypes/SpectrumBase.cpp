@@ -8,6 +8,7 @@ SpectrumBase::SpectrumBase(int iBufferSize_, int iSampleRate_)
    iMySampleRate = iSampleRate_;
    
    pafMyInterleavedData = new float [2*iBufferSize_];
+   pafMyMagnitudeData = nullptr;
 
    pclMyFFTObj = new FFTCL(iBufferSize_, iSampleRate_);
    return; 
@@ -32,6 +33,12 @@ void SpectrumBase::FFT()
    return; 
 }
 
+void SpectrumBase::IFFT()
+{
+   pclMyFFTObj->IFFT();
+   pafMyMagnitudeData = pclMyFFTObj->GetMagnitudeData();
+   return; 
+}
 
 void SpectrumBase::Interleave()
 {
@@ -46,6 +53,23 @@ void SpectrumBase::Interleave()
 
    }
    return; 
+}
+
+//!TODO: Adds DC component when it should remove it...
+void SpectrumBase::Detrend(float* pafSampleData_)
+{
+   float fBufferAvg = 0;
+
+   for (int k = 0; k < iMyBufferSize; k++) 
+   {
+      fBufferAvg += pafSampleData_[k];
+   }
+
+   for (int k = 0; k < iMyBufferSize; k++) 
+   {
+      pafSampleData_[k] -= fBufferAvg;
+   }
+   return;   
 }
 
 float* SpectrumBase::GetInterleavedData()

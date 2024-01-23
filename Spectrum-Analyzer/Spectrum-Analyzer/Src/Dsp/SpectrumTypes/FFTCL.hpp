@@ -14,16 +14,17 @@ class FFTCL
    public:
       void SetSampleData(float* pafSampleData_);
       void FFT(); 
-      //void IFFT(); 
+      void IFFT(); 
       float* GetMagnitudeData();  
       float* GetFrequencyVector() const; 
 
    // Private methods 
    private:
-      void CreateAndRunFFTPlan();
+      void CreateAndRunFFTPlan(int iFFTPlanType_);
       void FFTShift();
       void CreateMagnitudeData();
       void FillFrequencyArray();
+      void Normalize();
 
    // Private fields 
    private:

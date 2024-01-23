@@ -9,7 +9,7 @@ typedef enum SpectrumTypeEnum
    PSD_SPECTRUM       = 3,
    DBM_SPECTRUM       = 4,
    PHASE_SPECTRUM     = 5,
-   NUM_SPECTRUM       = 5
+   NUM_SPECTRUM       = 6
 }SpectrumTypeEnum;
 
 
@@ -19,6 +19,7 @@ typedef enum WindowTypeEnum
    HAMMING_WINDOW     = 2,
    BLACKMAN_WINDOW    = 3,
    BARLETTE_WINDOW    = 4,
+   NUM_WINDOWS = 4
 }WindowTypeEnum;
 
 typedef enum FilterTypeEnum

@@ -12,7 +12,7 @@ class MagnitudeSpectrum : public SpectrumBase
       ~MagnitudeSpectrum() = default; 
 
    public:
-      void CalculateSpectrum();
+      void CalculateSpectrum() override;
 
 };
 
