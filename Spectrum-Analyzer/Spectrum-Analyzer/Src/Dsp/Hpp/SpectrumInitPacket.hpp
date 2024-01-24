@@ -1,7 +1,5 @@
-#pragma once 
-
-#include <glad/glad.h>
-#include <cstring>
+#ifndef SPECTRUM_INIT_PACKET_HPP
+#define SPECTRUM_INIT_PACKET_HPP
 
 #include "../Hpp/SpectrumTypes.hpp"
 
@@ -18,33 +16,36 @@ typedef struct DSPInitStruct
 
 typedef struct DSPFilterInitStruct
 {
-    GLfloat fCutOffHz_LPF;
-    GLfloat fCutOffHz_HPF;
-    GLfloat fLeftEdge_BPF;
-    GLfloat fRightEdge_BPF;
-    GLfloat fLeftEdge_BSF;
-    GLfloat fRightEdge_BSF; 
+    float fCutOffHz_LPF;
+    float fCutOffHz_HPF;
+    float fLeftEdge_BPF;
+    float fRightEdge_BPF;
+    float fLeftEdge_BSF;
+    float fRightEdge_BSF; 
 }DSPFilterInitStruct;
 
 class SpectrumInitPacket
-{
-public: 
+{ 
+   //Constructors/Destructors
+   public:
 
-//Constructors/Destructors
-public:
+      SpectrumInitPacket();
 
-    SpectrumInitPacket(); 
-    void CopyTo (SpectrumInitPacket& clSpectrumInitPacket_);
+   // Public Methods 
+   public:
+      void CopyTo (SpectrumInitPacket& clSpectrumInitPacket_);
 
-    void SetDefaults();
+      void SetDefaults();
 
-// Attributes (POD - Public)
-public:
+   // Attributes (POD - Public)
+   public:
 
-   bool bIsNormalized; 
-   bool bIsFsandBufferSizeDefault;
-   bool bDetrend; 
-   DSPInitStruct       stMyDSPInitialisation; 
-   DSPFilterInitStruct stMyFilterInitialisation;
+      bool bIsNormalized; 
+      bool bIsFsandBufferSizeDefault;
+      bool bDetrend; 
+      DSPInitStruct       stMyDSPInitialisation; 
+      DSPFilterInitStruct stMyFilterInitialisation;
 
 };
+
+#endif 

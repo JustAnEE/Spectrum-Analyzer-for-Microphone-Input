@@ -1,4 +1,5 @@
 #include "../Hpp/SpectrumInitPacket.hpp"
+#include <cstring>
 
 SpectrumInitPacket::SpectrumInitPacket()
 {
