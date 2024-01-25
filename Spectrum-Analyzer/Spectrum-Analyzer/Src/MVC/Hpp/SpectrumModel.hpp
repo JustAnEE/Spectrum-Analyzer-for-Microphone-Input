@@ -10,7 +10,6 @@
 #include<GLFW/glfw3.h>
 
 #include"../../Dsp/Hpp/SpectrumTypes.hpp"
-#include"../../MVC/Hpp/SpectrumModelSubscriber.hpp"
 
 // Forward Declarations 
 class SpectrumInitPacket;
@@ -19,10 +18,12 @@ class SpectrumPacket;
 class MicInput;
 class Filter;
 class Plot;
+class SpectrumModelSubscriber;
 
 class SpectrumModel {
 
 public:
+
     enum DSPFUNC {TIMESERIES, DB_MAG, MAG, PWR_SPECTRUM};
 
     SpectrumModel();
@@ -52,28 +53,27 @@ public:
     // -- Pub-Sub methods.
     void addSubscriber(SpectrumModelSubscriber* newSub);
 
+private:
+
+   void layoutPlots();
+
+   // -- DSP methods.
+   void timeSeries(Plot* plot);
+   void CalculateSpectrum(Plot* pclPlot);
+   // -- Pub-Sub methods.
+   void notifySubscribers();
 
 private:
-    int inputDataSize, SAMPLES, PADDING;
-    GLfloat* inputData;
-    
+    int inputDataSize;
+    int SAMPLES;
+    int PADDING;
+    float* pafTimeData;
     SpectrumDSP* pclMyDSP;
     SpectrumInitPacket* pclMySpectrumInit; 
     SpectrumPacket* pclMySpectrum; 
-    Filter* filter; 
-
     std::vector<Plot*> plotVector;
-
     std::vector<SpectrumModelSubscriber*> subscribers;
     MicInput* format;
-
-    void layoutPlots();
-
-    // -- DSP methods.
-    void timeSeries(Plot* plot);
-    void CalculateSpectrum(Plot* pclPlot);
-    // -- Pub-Sub methods.
-    void notifySubscribers();
 
 };
 

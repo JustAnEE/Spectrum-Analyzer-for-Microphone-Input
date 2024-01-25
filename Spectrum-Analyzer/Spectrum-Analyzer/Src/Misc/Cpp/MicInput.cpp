@@ -1,31 +1,78 @@
 #include "../Hpp/MicInput.hpp"
 
-MicInput::MicInput(int channels, long sampleRate, long bitsPerSample) {
+#define NUM_CHANNELS (1)
+#define SAMPLE_RATE (44100)
+#define BITS_PER_SAMPLE (8)
+#define CB_SIZE (0)
+#define NUM_SAMPLES (1024*4)
+#define PADDING (4)
+
+// For now, we have a static configuration on start up. Right now there's no user input from the UI which could 
+// indicate to this object to change any configuration, and I don't think there is a plan to have this exposed to the user.
+// Therefore the model should not provide any parameters to the mic input until there's a need to.
+MicInput::MicInput()
+{
     // -- Defining the audio format.
     formatMono44khz.wFormatTag = WAVE_FORMAT_PCM;
-    formatMono44khz.nChannels = channels;
-    formatMono44khz.nSamplesPerSec = sampleRate;
-    formatMono44khz.wBitsPerSample = bitsPerSample;
-    formatMono44khz.nAvgBytesPerSec = sampleRate * channels * bitsPerSample / 8;
-    formatMono44khz.nBlockAlign = channels * bitsPerSample / 8;
-    formatMono44khz.cbSize = 0;
+    formatMono44khz.nChannels = NUM_CHANNELS;
+    formatMono44khz.nSamplesPerSec = SAMPLE_RATE;
+    formatMono44khz.wBitsPerSample = BITS_PER_SAMPLE;
+    formatMono44khz.nAvgBytesPerSec = SAMPLE_RATE * NUM_CHANNELS * BITS_PER_SAMPLE / 8;
+    formatMono44khz.nBlockAlign = NUM_CHANNELS * BITS_PER_SAMPLE / 8;
+    formatMono44khz.cbSize = CB_SIZE;
+    iMyRawBufferSize = NUM_SAMPLES;
+
+    pacMyRawBytesData = new char[NUM_SAMPLES];
+    //! DO NOT DELETE THE INITIALIZER () 
+    //! The float data is padded, the padded values need to be zero.
+    //! Otherwise random memory will be FFT'd and dominate the spectra
+    pafMyMicData = new float[NUM_SAMPLES * PADDING]();
+    return; 
 }
 
 
-int MicInput::getBlockAlign(){
-    return formatMono44khz.nBlockAlign;
+MicInput::~MicInput()
+{
+   delete[] pafMyMicData;
+   delete[] pacMyRawBytesData;
+   return; 
+};
+
+
+void MicInput::PackBytes()
+{
+   int count = 0;
+
+   // -- Loop through each raw sample's byte data and create a 4 byte int.
+   for (int i = 0; i < iMyRawBufferSize; i += formatMono44khz.nBlockAlign)
+   {
+      int value = 0;
+      char intBytes[4] = {};
+
+      for (int j = 0; j < 4; j++)
+      {
+         intBytes[j] = (j < formatMono44khz.nBlockAlign) ? pacMyRawBytesData[i + j] : 0x00;
+      }
+
+      // -- Cast that 4 byte int to GLfloat.
+      memcpy(&value, &intBytes, 4);
+      pafMyMicData[count] = ((float)value) - 128.0f;
+      count++;
+   }
+
+   return; 
 }
 
 
-
-void MicInput::readMicInput(char* inputBuffer, int bufSize) {
+void MicInput::readMicInput()
+{
     // -- device handle pointer.
     HWAVEIN hWaveIn;
 
     // -- creation of the buffer header
     WAVEHDR bufH;                           /* MUST SET ITEMS BELOW PREPARE! */
-    bufH.lpData = inputBuffer;            // -- pointer to the data buffer.     
-    bufH.dwBufferLength = bufSize;          // -- buffer size in Bytes.           
+    bufH.lpData = pacMyRawBytesData;            // -- pointer to the data buffer.     
+    bufH.dwBufferLength = iMyRawBufferSize;          // -- buffer size in Bytes.           
     bufH.dwFlags = WHDR_BEGINLOOP;          // -- Flag, indicating buffer status. 
     bufH.dwLoops = 0L;
 
@@ -85,5 +132,12 @@ void MicInput::readMicInput(char* inputBuffer, int bufSize) {
     // -- close device.
     auto closeResult = waveInClose(hWaveIn);
 
+    // Pack the bytes read into 4 byte values 
+    PackBytes();
+    return; 
 }
 
+float* MicInput::GetMicData()
+{
+   return pafMyMicData;
+}

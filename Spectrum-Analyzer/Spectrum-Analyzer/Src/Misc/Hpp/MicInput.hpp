@@ -6,39 +6,47 @@
 #include <mmsystem.h>
 #include <fstream>
 
+
 class MicInput {
-public:
-	/**
-	* MicInput Object Constructor
-	*
-	* @param channels,		 An Integer representing the number of channels.
-	* @param sampleRate,	 An Integer representing the number of sampleRate.
-	* @param bitsPerSample,	 An Integer representing the number of bitsPerSample.
-	* @return,				 MicInput object.
-	*/
-	MicInput(int channels, long sampleRate, long bitsPerSample);
+   public:
+      /**
+      * MicInput Object Constructor
+      */
+      MicInput();
+      
+      /**
+      * MicInput Object Destructor 
+      * @param void 
+      * return, void 
+      * Deallocates heap memory the object owns 
+      */
+      ~MicInput(); 
 
+      /**
+      * MicInput Object Constructor
+      *
+      * @param channels,		 An Integer representing the number of channels.
+      * @param sampleRate,	 An Integer representing the number of sampleRate.
+      * @param bitsPerSample,	 An Integer representing the number of bitsPerSample.
+      * @return,				 MicInput object.
+      */
+      void readMicInput();
 
-	/**
-	* MicInput Object Constructor
-	*
-	* @param channels,		 An Integer representing the number of channels.
-	* @param sampleRate,	 An Integer representing the number of sampleRate.
-	* @param bitsPerSample,	 An Integer representing the number of bitsPerSample.
-	* @return,				 MicInput object.
-	*/
-	void readMicInput(char* buffer, int size);
+      float* GetMicData();
 
+   private:
+      /**
+      * Packs bytes into 4 byte values
+      * 
+      * @return,   void.  
+      */
+      void PackBytes();
 
-	/**
-	* Gets the Block align from the Windows.h WAVEFORMATEX object.
-	*
-	* @return,	An Integer.
-	*/
-	int getBlockAlign();
-
-private:
-	WAVEFORMATEX formatMono44khz;
+   private:
+      WAVEFORMATEX formatMono44khz;
+      char* pacMyRawBytesData;
+      float* pafMyMicData;
+      int iMyRawBufferSize;
 };
 
 
