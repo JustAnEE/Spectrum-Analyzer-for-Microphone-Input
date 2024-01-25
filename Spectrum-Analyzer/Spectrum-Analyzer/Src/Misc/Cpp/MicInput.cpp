@@ -27,6 +27,14 @@ MicInput::MicInput()
     //! The float data is padded, the padded values need to be zero.
     //! Otherwise random memory will be FFT'd and dominate the spectra
     pafMyMicData = new float[NUM_SAMPLES * PADDING]();
+
+    // -- Open Device, WAVE_MAPPER automagically finds the mic
+    auto openResult = waveInOpen(&hMyWaveIn, WAVE_MAPPER, &formatMono44khz, 0, 0, CALLBACK_NULL);
+    if (openResult != 0) {
+       std::cout << "ERROR CODE waveInOpen: " << openResult << "\n";
+       exit(EXIT_FAILURE);
+    }
+
     return; 
 }
 
@@ -35,6 +43,9 @@ MicInput::~MicInput()
 {
    delete[] pafMyMicData;
    delete[] pacMyRawBytesData;
+
+   // -- close device.
+   auto closeResult = waveInClose(hMyWaveIn);
    return; 
 };
 
@@ -66,8 +77,6 @@ void MicInput::PackBytes()
 
 void MicInput::readMicInput()
 {
-    // -- device handle pointer.
-    HWAVEIN hWaveIn;
 
     // -- creation of the buffer header
     WAVEHDR bufH;                           /* MUST SET ITEMS BELOW PREPARE! */
@@ -92,29 +101,22 @@ void MicInput::readMicInput()
     /*  MMSYSERR_INVALPARAM     = 11, WAVERR_UNPREPARED       = 34   */
 
 
-    // -- Open Device, WAVE_MAPPER automagically finds the mic
-    auto openResult = waveInOpen(&hWaveIn, WAVE_MAPPER, &formatMono44khz, 0, 0, CALLBACK_NULL);
-    if (openResult != 0) {
-        std::cout << "ERROR CODE waveInOpen: " << openResult << "\n";
-        exit(EXIT_FAILURE);
-    }
-
     // -- prepare the Header
-    auto prepareResult = waveInPrepareHeader(hWaveIn, &bufH, sizeof(bufH));
+    auto prepareResult = waveInPrepareHeader(hMyWaveIn, &bufH, sizeof(bufH));
     if (prepareResult != 0) {
         std::cout << "ERROR CODE waveInPrepareHeader: " << prepareResult << "\n";
         exit(EXIT_FAILURE);
     }
 
     // -- create buffer, dwFlag set to WHDR_DONE when done.
-    auto addBufResult = waveInAddBuffer(hWaveIn, &bufH, sizeof(bufH));
+    auto addBufResult = waveInAddBuffer(hMyWaveIn, &bufH, sizeof(bufH));
     if (addBufResult != 0) {
         std::cout << "ERROR CODE waveInAddBuffer: " << addBufResult << "\n";
         exit(EXIT_FAILURE);
     }
 
     // -- start recording
-    auto startResult = waveInStart(hWaveIn);
+    auto startResult = waveInStart(hMyWaveIn);
     if (startResult != 0) {
         std::cout << "ERROR CODE waveInStart: " << startResult << "\n";
         exit(EXIT_FAILURE);
@@ -124,13 +126,10 @@ void MicInput::readMicInput()
     while (!(bufH.dwFlags & WHDR_DONE)) {}
 
     // -- stop recording.
-    auto stopResult = waveInStop(hWaveIn);
+    auto stopResult = waveInStop(hMyWaveIn);
 
     // -- unprepare buffer.
-    auto unPrepareBuf = waveInUnprepareHeader(hWaveIn, &bufH, sizeof(bufH));
-
-    // -- close device.
-    auto closeResult = waveInClose(hWaveIn);
+    auto unPrepareBuf = waveInUnprepareHeader(hMyWaveIn, &bufH, sizeof(bufH));
 
     // Pack the bytes read into 4 byte values 
     PackBytes();

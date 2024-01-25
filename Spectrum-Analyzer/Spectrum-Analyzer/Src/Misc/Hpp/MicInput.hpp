@@ -44,6 +44,7 @@ class MicInput {
 
    private:
       WAVEFORMATEX formatMono44khz;
+      HWAVEIN hMyWaveIn;
       char* pacMyRawBytesData;
       float* pafMyMicData;
       int iMyRawBufferSize;
