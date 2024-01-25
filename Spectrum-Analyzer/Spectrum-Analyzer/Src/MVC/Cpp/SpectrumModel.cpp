@@ -58,7 +58,7 @@ SpectrumModel::~SpectrumModel()
    delete pclMyDSP; 
    delete pclMySpectrum;
    delete pclMySpectrumInit;
-
+   delete[] pafTimeData;
    return; 
 }
 
