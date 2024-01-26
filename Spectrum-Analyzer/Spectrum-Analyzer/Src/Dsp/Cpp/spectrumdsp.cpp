@@ -23,7 +23,7 @@ SpectrumDSP::SpectrumDSP(int _iMySampleRate, int _iMyBufferSize)
 
    for (const WindowTypeEnum& eType : {RECTANGULAR_WINDOW, HAMMING_WINDOW, BLACKMAN_WINDOW, BARLETTE_WINDOW})
    {
-      apclMyWindows[static_cast<int>(eType)-1] = WindowFactory::Instantiate(eType, _iMyBufferSize);
+      apclMyWindows[static_cast<int>(eType)] = WindowFactory::Instantiate(eType, _iMyBufferSize);
    }
 
    return;  

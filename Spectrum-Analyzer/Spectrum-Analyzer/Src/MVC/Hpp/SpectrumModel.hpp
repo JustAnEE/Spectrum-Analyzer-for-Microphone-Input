@@ -9,18 +9,21 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 
-#include"../../Dsp/Hpp/Filter.hpp"
-#include"../../Dsp/Hpp/spectrumdsp.hpp"
-#include"../../Dsp/Hpp/SpectrumInitPacket.hpp"
-#include"../../Dsp/Hpp/SpectrumPacket.hpp"
 #include"../../Dsp/Hpp/SpectrumTypes.hpp"
-#include"../../Misc/Hpp/MicInput.hpp"
-#include"../../MVC/Hpp/SpectrumModelSubscriber.hpp"
-#include"../../Widgets/Hpp/Plot.hpp"
+
+// Forward Declarations 
+class SpectrumInitPacket;
+class SpectrumDSP; 
+class SpectrumPacket;
+class MicInput;
+class Filter;
+class Plot;
+class SpectrumModelSubscriber;
 
 class SpectrumModel {
 
 public:
+
     enum DSPFUNC {TIMESERIES, DB_MAG, MAG, PWR_SPECTRUM};
 
     SpectrumModel();
@@ -50,30 +53,27 @@ public:
     // -- Pub-Sub methods.
     void addSubscriber(SpectrumModelSubscriber* newSub);
 
+private:
+
+   void layoutPlots();
+
+   // -- DSP methods.
+   void timeSeries(Plot* plot);
+   void CalculateSpectrum(Plot* pclPlot);
+   // -- Pub-Sub methods.
+   void notifySubscribers();
 
 private:
-    int inputDataSize, SAMPLES, PADDING;
-    GLfloat* inputData;
-
+    int inputDataSize;
+    int SAMPLES;
+    int PADDING;
+    float* pafTimeData;
     SpectrumDSP* pclMyDSP;
-    Filter* filter; 
-
+    SpectrumInitPacket* pclMySpectrumInit; 
+    SpectrumPacket* pclMySpectrum; 
     std::vector<Plot*> plotVector;
-
     std::vector<SpectrumModelSubscriber*> subscribers;
-    std::vector<void(SpectrumModel::*)(Plot*, int, int, int, int)> plotMethodVector;
     MicInput* format;
-
-    void layoutPlots();
-
-    // -- DSP methods.
-    void timeSeries(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE);
-    void magnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE);
-    void DBmagnitudeResponse(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE);
-    void powerSpectralDensity(Plot* plot, int WINDOW, int FILTER, int DETREND, int NORMALIZE);
-
-    // -- Pub-Sub methods.
-    void notifySubscribers();
 
 };
 
