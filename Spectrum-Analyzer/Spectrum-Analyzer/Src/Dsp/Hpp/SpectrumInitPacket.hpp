@@ -12,7 +12,7 @@ typedef struct DSPInitStruct
     SpectrumTypeEnum eSpectrumOutput;
     WindowTypeEnum eWindow;
     FilterTypeEnum eFilter; 
-}DSPInitStruct;
+} DSPInitStruct;
 
 typedef struct DSPFilterInitStruct
 {
@@ -22,7 +22,7 @@ typedef struct DSPFilterInitStruct
     float fRightEdge_BPF;
     float fLeftEdge_BSF;
     float fRightEdge_BSF; 
-}DSPFilterInitStruct;
+} DSPFilterInitStruct;
 
 class SpectrumInitPacket
 { 

@@ -30,7 +30,8 @@ MicInput::MicInput()
 
     // -- Open Device, WAVE_MAPPER automagically finds the mic
     auto openResult = waveInOpen(&hMyWaveIn, WAVE_MAPPER, &formatMono44khz, 0, 0, CALLBACK_NULL);
-    if (openResult != 0) {
+    if (openResult != 0)
+    {
        std::cout << "ERROR CODE waveInOpen: " << openResult << "\n";
        exit(EXIT_FAILURE);
     }
@@ -103,21 +104,24 @@ void MicInput::readMicInput()
 
     // -- prepare the Header
     auto prepareResult = waveInPrepareHeader(hMyWaveIn, &bufH, sizeof(bufH));
-    if (prepareResult != 0) {
+    if (prepareResult != 0)
+    {
         std::cout << "ERROR CODE waveInPrepareHeader: " << prepareResult << "\n";
         exit(EXIT_FAILURE);
     }
 
     // -- create buffer, dwFlag set to WHDR_DONE when done.
     auto addBufResult = waveInAddBuffer(hMyWaveIn, &bufH, sizeof(bufH));
-    if (addBufResult != 0) {
+    if (addBufResult != 0)
+    {
         std::cout << "ERROR CODE waveInAddBuffer: " << addBufResult << "\n";
         exit(EXIT_FAILURE);
     }
 
     // -- start recording
     auto startResult = waveInStart(hMyWaveIn);
-    if (startResult != 0) {
+    if (startResult != 0)
+    {
         std::cout << "ERROR CODE waveInStart: " << startResult << "\n";
         exit(EXIT_FAILURE);
     }

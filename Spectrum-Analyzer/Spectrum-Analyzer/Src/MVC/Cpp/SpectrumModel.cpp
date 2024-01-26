@@ -71,8 +71,10 @@ std::vector<Plot*> SpectrumModel::getPlotVector()
 
 Plot* SpectrumModel::detectClickPlot(GLfloat xpos, GLfloat ypos)
 {
-   for (Plot* plot : plotVector) {
-      if (plot->validClick(xpos, ypos)) {
+   for (Plot* plot : plotVector)
+   {
+      if (plot->validClick(xpos, ypos))
+      {
          return plot;
       }
    }
@@ -87,7 +89,7 @@ void SpectrumModel::addPlot(
 {
 
     // -- Create a new plot.
-    Plot* newPlot = new Plot(-10.0, -10.0, 1.0, 1.0, rows, cols);;
+    Plot* newPlot = new Plot(-10.0, -10.0, 1.0, 1.0, rows, cols);
     newPlot->setMethodFlag(methodFlag);
     newPlot->setWindowFlag(windowFlag);
     newPlot->setFilterFlag(filterFlag);
