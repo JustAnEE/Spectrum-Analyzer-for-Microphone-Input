@@ -86,6 +86,10 @@ void MicInput::readMicInput()
     // If the device driver could not be opened, use default data set at instantiation.
     if(!bMyMicFound)
     {
+       // !TODO: Right now you have to restart the program if a mic is plugged in
+       // We could handle this case at run time, however this will require a bit more design
+       // in order to not impact the performance of this method. 
+       // For now just fix the hard fault the user gets when a mic is not plugged in.
        return; 
     }
 
