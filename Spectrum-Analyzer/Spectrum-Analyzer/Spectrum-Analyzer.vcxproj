@@ -40,6 +40,7 @@
     <ClCompile Include="Src\Dsp\WindowTypes\RectangularWindow.cpp" />
     <ClCompile Include="Src\Dsp\WindowTypes\WindowBase.cpp" />
     <ClCompile Include="Src\Dsp\WindowTypes\WindowFactory.cpp" />
+    <ClCompile Include="Src\Misc\Cpp\DefaultData.cpp" />
     <ClCompile Include="Src\Misc\Cpp\FontSystem.cpp" />
     <ClCompile Include="Src\Misc\Cpp\MicInput.cpp" />
     <ClCompile Include="Src\MVC\Cpp\InteractionModel.cpp" />

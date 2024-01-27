@@ -48,6 +48,7 @@ class MicInput {
       char* pacMyRawBytesData;
       float* pafMyMicData;
       int iMyRawBufferSize;
+      bool bMyMicFound; 
 };
 
 

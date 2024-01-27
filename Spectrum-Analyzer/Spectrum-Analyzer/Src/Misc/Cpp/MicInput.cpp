@@ -1,4 +1,5 @@
 #include "../Hpp/MicInput.hpp"
+#include "DefaultData.cpp"
 
 #define NUM_CHANNELS (1)
 #define SAMPLE_RATE (44100)
@@ -12,6 +13,8 @@
 // Therefore the model should not provide any parameters to the mic input until there's a need to.
 MicInput::MicInput()
 {
+    bMyMicFound = true; 
+
     // -- Defining the audio format.
     formatMono44khz.wFormatTag = WAVE_FORMAT_PCM;
     formatMono44khz.nChannels = NUM_CHANNELS;
@@ -28,12 +31,14 @@ MicInput::MicInput()
     //! Otherwise random memory will be FFT'd and dominate the spectra
     pafMyMicData = new float[NUM_SAMPLES * PADDING]();
 
-    // -- Open Device, WAVE_MAPPER automagically finds the mic
+    // Open Device, WAVE_MAPPER automagically finds the mic
+    // If a device cannot be found, load in the default data and pack it.  
     auto openResult = waveInOpen(&hMyWaveIn, WAVE_MAPPER, &formatMono44khz, 0, 0, CALLBACK_NULL);
     if (openResult != 0)
     {
-       std::cout << "ERROR CODE waveInOpen: " << openResult << "\n";
-       exit(EXIT_FAILURE);
+       bMyMicFound = false; 
+       memcpy(pacMyRawBytesData, acTheDefaultData, NUM_SAMPLES);
+       PackBytes();
     }
 
     return; 
@@ -78,6 +83,11 @@ void MicInput::PackBytes()
 
 void MicInput::readMicInput()
 {
+    // If the device driver could not be opened, use default data set at instantiation.
+    if(!bMyMicFound)
+    {
+       return; 
+    }
 
     // -- creation of the buffer header
     WAVEHDR bufH;                           /* MUST SET ITEMS BELOW PREPARE! */

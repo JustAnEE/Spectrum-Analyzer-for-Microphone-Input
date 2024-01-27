@@ -110,6 +110,7 @@
     <ClCompile Include="Src\Dsp\WindowTypes\WindowFactory.cpp" />
     <ClCompile Include="Src\Dsp\SpectrumTypes\DBmSpectrum.cpp" />
     <ClCompile Include="Src\Dsp\SpectrumTypes\PhaseSpectrum.cpp" />
+    <ClCompile Include="Src\Misc\Cpp\DefaultData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Dsp\Hpp\Filter.hpp">
